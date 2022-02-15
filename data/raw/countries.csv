@@ -1,0 +1,251 @@
+iso3,iso2,country,continent,gid_region,lowest
+AFG,AF,Afghanistan,Asia,1,2
+ALA,AX,Åland Islands,Europe,1,2
+ALB,AL,Albania,Europe,1,2
+DZA,DZ,Algeria,Africa,1,2
+ASM,AS,American Samoa,Oceania,1,2
+AND,AD,Andorra,Europe,1,2
+AGO,AO,Angola,Africa,1,3
+AIA,AI,Anguilla,North America,0,2
+ATA,AQ,Antarctica,Antarctica,1,2
+ATG,AG,Antigua and Barbuda,North America,1,2
+ARG,AR,Argentina,South America,1,2
+ARM,AM,Armenia,Asia,1,1
+ABW,AW,Aruba,North America,0,0
+AUS,AU,Australia,Oceania,2,2
+AUT,AT,Austria,Europe,1,3
+AZE,AZ,Azerbaijan,Asia,1,2
+BHS,BS,Bahamas (the),North America,1,2
+BHR,BH,Bahrain,Asia,1,1
+BGD,BD,Bangladesh,Asia,1,3
+BRB,BB,Barbados,North America,1,1
+BLR,BY,Belarus,Europe,1,2
+BEL,BE,Belgium,Europe,1,3
+BLZ,BZ,Belize,North America,1,1
+BEN,BJ,Benin,Africa,1,2
+BMU,BM,Bermuda,North America,1,2
+BTN,BT,Bhutan,Asia,1,2
+BOL,BO,Bolivia (Plurinational State of),South America,1,3
+BES,BQ,"Bonaire, Sint Eustatius and Saba",North America,1,2
+BIH,BA,Bosnia and Herzegovina,Europe,1,2
+BWA,BW,Botswana,Africa,1,2
+BVT,BV,Bouvet Island,Antarctica,1,2
+BRA,BR,Brazil,South America,1,3
+IOT,IO,British Indian Ocean Territory (the),Asia,1,2
+BRN,BN,Brunei Darussalam,Asia,1,2
+BGR,BG,Bulgaria,Europe,1,2
+BFA,BF,Burkina Faso,Africa,1,2
+BDI,BI,Burundi,Africa,1,2
+CPV,CV,Cabo Verde,Africa,1,1
+KHM,KH,Cambodia,Asia,1,2
+CMR,CM,Cameroon,Africa,1,2
+CAN,CA,Canada,North America,2,3
+CYM,KY,Cayman Islands (the),North America,1,2
+CAF,CF,Central African Republic (the),Africa,1,2
+TCD,TD,Chad,Africa,1,2
+CHL,CL,Chile,South America,1,2
+CHN,CN,China,Asia,2,3
+CXR,CX,Christmas Island,Asia,1,2
+CCK,CC,Cocos (Keeling) Islands (the),Asia,1,2
+COL,CO,Colombia,South America,1,2
+COM,KM,Comoros (the),Africa,1,2
+COD,CD,Congo (the Democratic Republic of the),Africa,1,2
+COG,CG,Congo (the),Africa,1,2
+COK,CK,Cook Islands (the),Oceania,1,2
+CRI,CR,Costa Rica,North America,1,2
+CIV,HR,Côte d'Ivoire,Africa,1,2
+HRV,CU,Croatia,Europe,1,2
+CUB,CW,Cuba,North America,1,2
+CUW,CY,Curaçao,North America,1,2
+CYP,CZ,Cyprus,Europe,1,1
+CZE,CI,Czechia,Europe,1,2
+DNK,DK,Denmark,Europe,1,2
+DJI,DJ,Djibouti,Africa,1,2
+DMA,DM,Dominica,North America,1,1
+DOM,DO,Dominican Republic (the),North America,1,2
+ECU,EC,Ecuador,South America,1,2
+EGY,EG,Egypt,Africa,1,2
+SLV,SV,El Salvador,North America,1,2
+GNQ,GQ,Equatorial Guinea,Africa,1,2
+ERI,ER,Eritrea,Africa,1,2
+EST,EE,Estonia,Europe,1,2
+SWZ,SZ,Eswatini,Africa,1,2
+ETH,ET,Ethiopia,Africa,1,2
+FLK,FK,Falkland Islands (the) [Malvinas],South America,1,2
+FRO,FO,Faroe Islands (the),Europe,1,2
+FJI,FJ,Fiji,Oceania,1,2
+FIN,FI,Finland,Europe,1,2
+FRA,FR,France,Europe,2,2
+GUF,GF,French Guiana,South America,1,2
+PYF,PF,French Polynesia,Oceania,1,2
+ATF,TF,French Southern Territories (the),Antarctica,1,2
+GAB,GA,Gabon,Africa,1,2
+GMB,GM,Gambia (the),Africa,1,2
+GEO,GE,Georgia,Asia,1,2
+DEU,DE,Germany,Europe,1,2
+GHA,GH,Ghana,Africa,2,2
+GIB,GI,Gibraltar,Europe,1,2
+GRC,GR,Greece,Europe,1,2
+GRL,GL,Greenland,North America,1,2
+GRD,GD,Grenada,North America,1,1
+GLP,GP,Guadeloupe,North America,1,2
+GUM,GU,Guam,Oceania,1,2
+GTM,GT,Guatemala,North America,1,2
+GGY,GG,Guernsey,Europe,1,2
+GIN,GN,Guinea,Africa,1,2
+GNB,GW,Guinea-Bissau,Africa,1,2
+GUY,GY,Guyana,South America,1,2
+HTI,HT,Haiti,North America,1,2
+HMD,HM,Heard Island and McDonald Islands,Antarctica,1,2
+VAT,VA,Holy See (the),Europe,1,2
+HND,HN,Honduras,North America,1,2
+HKG,HK,Hong Kong,Asia,1,1
+HUN,HU,Hungary,Europe,1,2
+ISL,IS,Iceland,Europe,1,2
+IND,IN,India,Asia,2,2
+IDN,ID,Indonesia,Asia,1,2
+IRN,IR,Iran (Islamic Republic of),Asia,1,2
+IRQ,IQ,Iraq,Asia,1,2
+IRL,IE,Ireland,Europe,1,1
+IMN,IM,Isle of Man,Europe,1,2
+ISR,IL,Israel,Asia,1,1
+ITA,IT,Italy,Europe,1,2
+JAM,JM,Jamaica,North America,1,1
+JPN,JP,Japan,Asia,1,2
+JEY,JE,Jersey,Europe,1,2
+JOR,JO,Jordan,Asia,1,2
+KAZ,KZ,Kazakhstan,Asia,1,2
+KEN,KE,Kenya,Africa,1,2
+KIR,KI,Kiribati,Oceania,1,0
+PRK,KP,Korea (the Democratic People's Republic of),Asia,1,2
+KOR,KR,Korea (the Republic of),Asia,1,2
+XKX,,Kosovo,,1,2
+KWT,KW,Kuwait,Asia,1,1
+KGZ,KG,Kyrgyzstan,Asia,1,2
+LAO,LA,Lao People's Democratic Republic (the),Asia,1,2
+LVA,LV,Latvia,Europe,1,2
+LBN,LB,Lebanon,Asia,1,2
+LSO,LS,Lesotho,Africa,1,1
+LBR,LR,Liberia,Africa,1,2
+LBY,LY,Libya,Africa,1,1
+LIE,LI,Liechtenstein,Europe,1,2
+LTU,LT,Lithuania,Europe,1,2
+LUX,LU,Luxembourg,Europe,1,2
+MAC,MO,Macao,Asia,1,2
+MDG,MG,Madagascar,Africa,1,2
+MWI,MW,Malawi,Africa,1,2
+MYS,MY,Malaysia,Asia,1,2
+MDV,MV,Maldives,Asia,1,2
+MLI,ML,Mali,Africa,1,2
+MLT,MT,Malta,Europe,1,2
+MHL,MH,Marshall Islands (the),Oceania,1,2
+MTQ,MQ,Martinique,North America,1,2
+MRT,MR,Mauritania,Africa,1,2
+MUS,MU,Mauritius,Africa,1,1
+MYT,YT,Mayotte,Africa,1,2
+MEX,MX,Mexico,North America,1,2
+FSM,FM,Micronesia (Federated States of),Oceania,1,2
+MDA,MD,Moldova (the Republic of),Europe,1,1
+MCO,MC,Monaco,Europe,1,2
+MNG,MN,Mongolia,Asia,1,2
+MNE,ME,Montenegro,Europe,1,1
+MSR,MS,Montserrat,North America,1,2
+MAR,MA,Morocco,Africa,1,2
+MOZ,MZ,Mozambique,Africa,1,2
+MMR,MM,Myanmar,Asia,1,2
+NAM,NA,Namibia,Africa,1,2
+NRU,NR,Nauru,Oceania,1,1
+NPL,NP,Nepal,Asia,1,2
+NLD,NL,Netherlands (the),Europe,1,2
+NCL,NC,New Caledonia,Oceania,1,2
+NZL,NZ,New Zealand,Oceania,1,2
+NIC,NI,Nicaragua,North America,1,2
+NER,NE,Niger (the),Africa,1,2
+NGA,NG,Nigeria,Africa,1,2
+NIU,NU,Niue,Oceania,1,2
+NFK,NF,Norfolk Island,Oceania,1,2
+MNP,MP,Northern Mariana Islands (the),Oceania,1,2
+NOR,NO,Norway,Europe,1,2
+OMN,OM,Oman,Asia,1,2
+PAK,PK,Pakistan,Asia,1,2
+PLW,PW,Palau,Oceania,1,1
+PSE,PS,"Palestine, State of",Asia,1,2
+PAN,PA,Panama,North America,1,2
+PNG,PG,Papua New Guinea,Oceania,1,2
+PRY,PY,Paraguay,South America,1,2
+PER,PE,Peru,South America,1,2
+PHL,PH,Philippines (the),Asia,1,2
+PCN,PN,Pitcairn,Oceania,1,2
+POL,PL,Poland,Europe,1,2
+PRT,PT,Portugal,Europe,1,2
+PRI,PR,Puerto Rico,North America,1,1
+QAT,QA,Qatar,Asia,1,1
+MKD,MK,Republic of North Macedonia,Europe,1,2
+REU,RE,Réunion,Africa,1,2
+ROU,RO,Romania,Europe,1,2
+RUS,RU,Russian Federation (the),Asia,1,2
+RWA,RW,Rwanda,Africa,1,2
+BLM,BL,Saint Barthélemy,North America,1,2
+SHN,SH,"Saint Helena, Ascension and Tristan da Cunha",Africa,1,2
+KNA,KN,Saint Kitts and Nevis,North America,1,2
+LCA,LC,Saint Lucia,North America,1,2
+MAF,MF,Saint Martin (French part),North America,1,2
+SPM,PM,Saint Pierre and Miquelon,North America,1,2
+VCT,VC,Saint Vincent and the Grenadines,North America,1,2
+WSM,WS,Samoa,Oceania,1,2
+SMR,SM,San Marino,Europe,1,1
+STP,ST,Sao Tome and Principe,Africa,1,2
+SAU,SA,Saudi Arabia,Asia,1,1
+SEN,SN,Senegal,Africa,1,2
+SRB,RS,Serbia,Europe,1,2
+SYC,SC,Seychelles,Africa,1,1
+SLE,SL,Sierra Leone,Africa,1,2
+SGP,SG,Singapore,Asia,1,1
+SXM,SX,Sint Maarten (Dutch part),North America,1,2
+SVK,SK,Slovakia,Europe,1,2
+SVN,SI,Slovenia,Europe,1,2
+SLB,SB,Solomon Islands,Oceania,1,2
+SOM,SO,Somalia,Africa,1,2
+ZAF,ZA,South Africa,Africa,1,2
+SGS,GS,South Georgia and the South Sandwich Islands,Antarctica,1,2
+SSD,SS,South Sudan,Africa,1,2
+ESP,ES,Spain,Europe,2,2
+LKA,LK,Sri Lanka,Asia,1,2
+SDN,SD,Sudan (the),Africa,1,2
+SUR,SR,Suriname,South America,1,2
+SJM,SJ,Svalbard and Jan Mayen,Europe,1,2
+SWE,SE,Sweden,Europe,1,2
+CHE,CH,Switzerland,Europe,1,2
+SYR,SY,Syrian Arab Republic,Asia,1,2
+TWN,TW,Taiwan (Province of China),Asia,1,2
+TJK,TJ,Tajikistan,Asia,1,2
+TZA,TZ,Tanzania,Africa,1,2
+THA,TH,Thailand,Asia,1,2
+TLS,TL,Timor-Leste,Asia,1,2
+TGO,TG,Togo,Africa,1,2
+TKL,TK,Tokelau,Oceania,1,2
+TON,TO,Tonga,Oceania,1,1
+TTO,TT,Trinidad and Tobago,North America,1,1
+TUN,TN,Tunisia,Africa,1,2
+TUR,TR,Turkey,Europe,1,2
+TKM,TM,Turkmenistan,Asia,1,1
+TCA,TC,Turks and Caicos Islands (the),North America,1,2
+TUV,TV,Tuvalu,Oceania,1,1
+UGA,UG,Uganda,Africa,1,2
+UKR,UA,Ukraine,Europe,1,2
+ARE,AE,United Arab Emirates (the),Asia,1,2
+GBR,GB,United Kingdom,Europe,2,3
+UMI,UM,United States Minor Outlying Islands (the),Oceania,1,2
+USA,US,United States of America (the),North America,2,2
+URY,UY,Uruguay,South America,1,2
+UZB,UZ,Uzbekistan,Asia,1,2
+VUT,VU,Vanuatu,Oceania,1,2
+VEN,VE,Venezuela (Bolivarian Republic of),South America,1,2
+VNM,VN,Viet Nam,Asia,1,2
+VGB,VG,Virgin Islands (British),North America,1,2
+VIR,VI,Virgin Islands (U.S.),North America,1,2
+WLF,WF,Wallis and Futuna,Oceania,1,2
+ESH,EH,Western Sahara,Africa,1,2
+YEM,YE,Yemen,Asia,1,2
+ZMB,ZM,Zambia,Africa,1,2
+ZWE,ZW,Zimbabwe,Africa,1,2

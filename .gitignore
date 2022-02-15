@@ -127,3 +127,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+data/processed/*
+data/raw/settlement_layer/*
+data/raw/gadm36_levels_shp/*
+data/raw/hazard_scenarios/*
