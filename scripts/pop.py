@@ -20,6 +20,7 @@ from shapely.ops import transform, unary_union, nearest_points
 import rasterio
 from rasterio.mask import mask
 from rasterstats import zonal_stats
+from tqdm import tqdm
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -428,7 +429,8 @@ def get_regional_data(country):
 
     results = []
 
-    for index, region in regions.iterrows():
+    for index, region in tqdm(regions.iterrows(), total=regions.shape[0]):
+
 
         # with rasterio.open(path_night_lights) as src:
 
@@ -1021,7 +1023,7 @@ if __name__ == '__main__':
     path = os.path.join(DATA_RAW, filename)
     countries = pd.read_csv(path, encoding='latin-1')
 
-    for idx, country in countries.iterrows():#[:1]:
+    for idx, country in tqdm(countries.iterrows(), total=countries.shape[0]):
 
         if country['iso3'] in ['ABW', 'AIA', 'ATA',
         'BVT','IOT','CXR','CCK','COK','CUW','FLK',

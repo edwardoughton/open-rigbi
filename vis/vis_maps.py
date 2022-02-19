@@ -1,9 +1,9 @@
 """
-Visualize data for plotted countries.
+Plot the geospatial results by country.
 
-Written by Ed Oughton
+Written by Ed Oughton.
 
-September 2021
+February 2022
 
 """
 import os
@@ -14,21 +14,23 @@ import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import contextily as ctx
+import contextily as cx
+import geopy as gp
 
-ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), '..', '..','scripts'))
-sys.path.insert(0, ROOT_DIR) #Set path to enable import from scripts folder
+# ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), '..', '..','scripts'))
+# sys.path.insert(0, ROOT_DIR) #Set path to enable import from scripts folder
 
-from countries import COUNTRY_LIST
+# from countries import COUNTRY_LIST
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'script_config.ini'))
 BASE_PATH = CONFIG['file_locations']['base_path']
 
-DATA_INTERMEDIATE = os.path.join(BASE_PATH, 'intermediate')
-USER_COSTS = os.path.join(BASE_PATH, '..', 'results', 'model_results')
+DATA_RAW = os.path.join(BASE_PATH, 'raw')
+DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
+# USER_COSTS = os.path.join(BASE_PATH, '..', 'results', 'model_results')
 VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures')
-REPORTS = os.path.join(BASE_PATH, '..', 'reports', 'images')
+# REPORTS = os.path.join(BASE_PATH, '..', 'reports', 'images')
 
 def get_regional_shapes():
     """
@@ -77,13 +79,11 @@ def plot_regions_by_geotype(country, data, regions, path):
     Plot regions by geotype.
 
     """
-    data = data.loc[data['scenario'] == 'baseline_20_20_20']
-    data = data.loc[data['strategy'] == '4G_epc_wireless_baseline_baseline_baseline_baseline']
-
     n = len(regions)
     data['population_km2'] = round(data['population_total'] / data['area_km2'], 2)
     data = data[['GID_id', 'population_km2']]
-    GID_level = 'GID_{}'.format(country['regional_level'])
+
+    GID_level = 'GID_{}'.format(country['gid_region'])
     regions = regions[[GID_level, 'geometry']]#[:1000]
     regions = regions.copy()
 
@@ -124,8 +124,9 @@ def plot_regions_by_geotype(country, data, regions, path):
     handles, labels = ax.get_legend_handles_labels()
 
     fig.legend(handles[::-1], labels[::-1])
-
-    ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
+    # print(cx.providers.CartoDB.Voyager)
+    cx.add_basemap(ax, crs=regions.crs, source=cx.providers.CartoDB.Voyager)
+    # cx.add_basemap(ax, crs='epsg:4326')
 
     name = 'Population Density Deciles for Sub-National Regions (n={})'.format(n)
     fig.suptitle(name)
@@ -142,7 +143,7 @@ def plot_sub_national_cost_per_square_km(country, data, regions, cost_type):
 
     """
     iso3 = country['iso3']
-    regional_level = country['regional_level']
+    regional_level = country['gid_region']
     GID_level = 'GID_{}'.format(regional_level)
 
     n = len(regions)
@@ -202,7 +203,7 @@ def plot_sub_national_cost_per_square_km(country, data, regions, cost_type):
     handles, labels = ax.get_legend_handles_labels()
     fig.legend(handles[::-1], labels[::-1])
 
-    ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
+    cx.add_basemap(ax, crs=regions.crs, source=cx.providers.CartoDB.Voyager)
 
     fig.suptitle(
         '{} Cost for 4G (Wireless) Universal Broadband (~{} Mbps) (n={})'.format(
@@ -212,7 +213,7 @@ def plot_sub_national_cost_per_square_km(country, data, regions, cost_type):
     filename = '{}_cost_sq_km_{}_mbps.png'.format(
         cost_type[0].split(' ')[0].lower(), capacity)
     fig.savefig(os.path.join(VIS, iso3, filename), dpi=600)
-    fig.savefig(os.path.join(REPORTS, iso3, filename), dpi=600)
+    # fig.savefig(os.path.join(REPORTS, iso3, filename), dpi=600)
 
     plt.close(fig)
 
@@ -223,7 +224,7 @@ def plot_sub_national_cost_per_user(country, data, regions, capacity, cost_type)
 
     """
     iso3 = country['iso3']
-    regional_level = country['regional_level']
+    regional_level = country['gid_region']
     GID_level = 'GID_{}'.format(regional_level)
 
     n = len(regions)
@@ -269,7 +270,7 @@ def plot_sub_national_cost_per_user(country, data, regions, capacity, cost_type)
     handles, labels = ax.get_legend_handles_labels()
     fig.legend(handles[::-1], labels[::-1])
 
-    ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
+    cx.add_basemap(ax, crs=regions.crs, source=cx.providers.CartoDB.Voyager)
 
     fig.suptitle(
         '{} Per User Cost for 4G (Wireless) Universal Broadband (~{} Mbps) (n={})'.format(
@@ -279,7 +280,7 @@ def plot_sub_national_cost_per_user(country, data, regions, capacity, cost_type)
     filename = '{}_cost_per_user_{}_mbps.png'.format(
         cost_type[0].split(' ')[0].lower(), capacity)
     fig.savefig(os.path.join(VIS, iso3, filename), dpi=600)
-    fig.savefig(os.path.join(REPORTS, iso3, filename), dpi=600)
+    # fig.savefig(os.path.join(REPORTS, iso3, filename), dpi=600)
 
     plt.close(fig)
 
@@ -342,7 +343,7 @@ def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type):
     handles, labels = ax.get_legend_handles_labels()
     fig.legend(handles[::-1], labels[::-1])
 
-    ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
+    cx.add_basemap(ax, crs=regions.crs, source=cx.providers.CartoDB.Voyager)
 
     fig.suptitle(
         str('{} Cost for 4G (Wireless) Universal Broadband (~{} Mbps) ({}GDP) (n={})'.format(
@@ -352,7 +353,7 @@ def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type):
     filename = 'gdp_percentage_spatially_{}_{}_mbps.png'.format(
         cost_type[0].split(' ')[0], capacity)
     fig.savefig(os.path.join(VIS, filename), dpi=600)
-    fig.savefig(os.path.join(REPORTS, filename), dpi=600)
+    # fig.savefig(os.path.join(REPORTS, filename), dpi=600)
 
     plt.close(fig)
 
@@ -365,32 +366,36 @@ if __name__ == '__main__':
         ('Financial Cost Per User ($USD)', 'total_societal_cost', 'societal_cost_per_network_user'),
     ]
 
-    capacities = [2, 5, 10, 20]
+    # capacities = [2, 5, 10, 20]
 
-    for country in COUNTRY_LIST:
+    filename = "countries.csv"
+    path = os.path.join(DATA_RAW, filename)
+    countries = pd.read_csv(path, encoding='latin-1')
+
+    for idx, country in countries.iterrows():
 
         iso3 = country['iso3']
-
-        # if not iso3 == 'HND':
-        #     continue
+        country['figsize'] = (8,10)
+        if not iso3 == 'GHA':
+            continue
 
         print('-- {} --'.format(iso3))
 
         #Loading regional data by pop density geotype
-        filename = 'regional_market_results_technology_options.csv'
-        path = os.path.join(USER_COSTS, iso3, filename)
+        filename = 'regional_data.csv'
+        path = os.path.join(DATA_PROCESSED, iso3, filename)
         data = pd.read_csv(path)
 
         #Loading shapes
-        filename = 'regions_{}_{}.shp'.format(country['regional_level'], iso3)
-        path = os.path.join(DATA_INTERMEDIATE, iso3, 'regions', filename)
+        filename = 'regions_{}_{}.shp'.format(country['gid_region'], iso3)
+        path = os.path.join(DATA_PROCESSED, iso3, 'regions', filename)
         if not os.path.exists(path):
             shapes = get_regional_shapes()
             shapes.to_file(path)
         else:
             shapes = gpd.read_file(path, crs='epsg:4326')
-            if iso3 == 'CRI':
-                shapes = shapes.drop(shapes[shapes['GID_2'] == 'CRI.6.11_1'].index)
+            # if iso3 == 'CRI':
+            #     shapes = shapes.drop(shapes[shapes['GID_2'] == 'CRI.6.11_1'].index)
 
         #Plotting regions by geotype
         folder = os.path.join(VIS, iso3)
@@ -398,39 +403,39 @@ if __name__ == '__main__':
             os.makedirs(folder)
 
         #Plotting regions by geotype
-        folder = os.path.join(REPORTS, iso3)
-        if not os.path.exists(folder):
-            os.makedirs(folder)
+        # folder = os.path.join(REPORTS, iso3)
+        # if not os.path.exists(folder):
+        #     os.makedirs(folder)
 
         path = os.path.join(folder, '{}_by_pop_density.png'.format(iso3))
         # if not os.path.exists(path):
         plot_regions_by_geotype(country, data, shapes, path)
 
-        for cost_type in cost_types:
+        # for cost_type in cost_types:
 
-            for capacity in capacities:
+        #     for capacity in capacities:
 
-                print('Working on {} for {} Mbps'.format(cost_type[0], capacity))
+        #         print('Working on {} for {} Mbps'.format(cost_type[0], capacity))
 
-                #Plotting sub-national regions by cost per km^2
-                plot_sub_national_cost_per_square_km(country, data, shapes, cost_type)
+        #         #Plotting sub-national regions by cost per km^2
+        #         plot_sub_national_cost_per_square_km(country, data, shapes, cost_type)
 
-                #Loading regional results data
-                filename = 'regional_market_results_technology_options.csv'
-                path = os.path.join(USER_COSTS, iso3, filename)
-                regional_costs = pd.read_csv(path)
+        #         #Loading regional results data
+        #         filename = 'regional_market_results_technology_options.csv'
+        #         path = os.path.join(USER_COSTS, iso3, filename)
+        #         regional_costs = pd.read_csv(path)
 
-                #Plotting sub-national regions by cost per user
-                plot_sub_national_cost_per_user(
-                    country, regional_costs, shapes, capacity, cost_type
-                )
+        #         #Plotting sub-national regions by cost per user
+        #         plot_sub_national_cost_per_user(
+        #             country, regional_costs, shapes, capacity, cost_type
+        #         )
 
-        # #         #Loading regional results data
-        # #         path = os.path.join(VIS, '..', 'gdp.csv')
-        # #         gdp = pd.read_csv(path)
+        # # #         #Loading regional results data
+        # # #         path = os.path.join(VIS, '..', 'gdp.csv')
+        # # #         gdp = pd.read_csv(path)
 
-        # #         #Plotting sub-national regions by cost per user
-        # #         plot_investment_as_gdp_percent(regional_costs, gdp, shapes,
-        # #             capacity, cost_type)
+        # # #         #Plotting sub-national regions by cost per user
+        # # #         plot_investment_as_gdp_percent(regional_costs, gdp, shapes,
+        # # #             capacity, cost_type)
 
-        # # print('Complete')
+        # # # print('Complete')
