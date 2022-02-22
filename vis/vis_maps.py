@@ -17,20 +17,15 @@ import seaborn as sns
 import contextily as cx
 import geopy as gp
 
-# ROOT_DIR = os.path.normpath(os.path.join(os.path.abspath(__file__), '..', '..','scripts'))
-# sys.path.insert(0, ROOT_DIR) #Set path to enable import from scripts folder
-
-# from countries import COUNTRY_LIST
-
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'script_config.ini'))
 BASE_PATH = CONFIG['file_locations']['base_path']
 
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
-# USER_COSTS = os.path.join(BASE_PATH, '..', 'results', 'model_results')
+RESULTS = os.path.join(BASE_PATH, '..', 'results')
 VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures')
-# REPORTS = os.path.join(BASE_PATH, '..', 'reports', 'images')
+REPORTS = os.path.join(BASE_PATH, '..', 'reports', 'images')
 
 def get_regional_shapes():
     """
@@ -74,11 +69,15 @@ def get_regional_shapes():
     return output
 
 
-def plot_regions_by_geotype(country, data, regions, path):
+def plot_regions_by_geotype(country, regions, path):
     """
     Plot regions by geotype.
 
     """
+    filename = 'regional_data.csv'
+    path_data = os.path.join(DATA_PROCESSED, iso3, filename)
+    data = pd.read_csv(path_data)
+
     n = len(regions)
     data['population_km2'] = round(data['population_total'] / data['area_km2'], 2)
     data = data[['GID_id', 'population_km2']]
@@ -137,305 +136,255 @@ def plot_regions_by_geotype(country, data, regions, path):
     plt.close(fig)
 
 
-def plot_sub_national_cost_per_square_km(country, data, regions, cost_type):
+def plot_cells_per_region(country, regions, path):
     """
-    Plot sub national cost per square km.
+    Plot regions by geotype.
 
     """
     iso3 = country['iso3']
-    regional_level = country['gid_region']
-    GID_level = 'GID_{}'.format(regional_level)
+    name = country['country']
 
-    n = len(regions)
-    scenario = 'baseline_{}_{}_{}'.format(capacity, capacity, capacity)
-    data = data.loc[data['scenario'] == scenario]
-    data = data.loc[data['strategy'] == '4G_epc_wireless_baseline_baseline_baseline_baseline']
-    data = data.loc[data['confidence'] == 50]
+    filename = '{}.csv'.format(iso3)
+    folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
+    path_sites = os.path.join(folder, filename)
+    sites = pd.read_csv(path_sites, encoding='latin-1')
 
-    data['cost_per_km2'] = (data[cost_type[1]] / data['area_km2']) / 1e3
-    data = data[['GID_id', 'cost_per_km2']]
-    regions = regions[[GID_level, 'geometry']]
+    sites = gpd.GeoDataFrame(
+        sites,
+        geometry=gpd.points_from_xy(
+            sites.lon,
+            sites.lat
+        ), crs='epsg:4326'
+    )
 
-    regions = regions.merge(data, left_on=GID_level, right_on='GID_id')
-    regions.reset_index(drop=True, inplace=True)
+    fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(8,8))
+    fig.subplots_adjust(hspace=.2, wspace=.2)
+    fig.set_facecolor('lightgrey')
 
-    metric = 'cost_per_km2'
+    gsm = sites.loc[sites['radio'] == 'GSM']
+    umts = sites.loc[sites['radio'] == 'UMTS']
+    lte = sites.loc[sites['radio'] == 'LTE']
+    nr = sites.loc[sites['radio'] == 'NR']
 
-    bins = [-1e9, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 1e9]
+    regions.plot(facecolor="none", edgecolor="grey", ax=ax1[0])
+    regions.plot(facecolor="none", edgecolor="grey", ax=ax1[1])
+    regions.plot(facecolor="none", edgecolor="grey", ax=ax2[0])
+    regions.plot(facecolor="none", edgecolor="grey", ax=ax2[1])
 
-    # if cost_type[1] == 'total_government_cost':
-    #     bottom_label = '0 (Viable)'
-    # else:
-    #     bottom_label = '0 '
+    gsm.plot(color='red', markersize=1, ax=ax1[0])
+    umts.plot(color='blue', markersize=1, ax=ax1[1])
+    lte.plot(color='yellow', markersize=1, ax=ax2[0])
+    nr.plot(color='black', markersize=1, ax=ax2[1])
 
-    labels = [
-        '<5k USD $\mathregular{km^2}$',
-        '<10k USD $\mathregular{km^2}$',
-        '<20k USD $\mathregular{km^2}$',
-        '<30k USD $\mathregular{km^2}$',
-        '<40k USD $\mathregular{km^2}$',
-        '<50k USD $\mathregular{km^2}$',
-        '<60k USD $\mathregular{km^2}$',
-        '<70k USD $\mathregular{km^2}$',
-        '<80k USD $\mathregular{km^2}$',
-        '<90k USD $\mathregular{km^2}$',
-        '>90k USD $\mathregular{km^2}$',
+    ax1[0].set_title('2G GSM Cells')
+    ax1[1].set_title('3G UMTS Cells')
+    ax2[0].set_title('4G LTE Cells')
+    ax2[1].set_title('5G NR Cells')
+
+    fig.tight_layout()
+
+    main_title = 'Mobile Cellular Infrastructure: {}'.format(name)
+    plt.suptitle(main_title, fontsize=16, y=1.03)
+
+    # crs = 'epsg:4326'
+    # cx.add_basemap(ax1[0], crs=crs)
+    # cx.add_basemap(ax1[1], crs=crs)
+    # cx.add_basemap(ax2[0], crs=crs)
+    # cx.add_basemap(ax2[1], crs=crs)
+
+    plt.savefig(path,
+    pad_inches=0.4,
+    bbox_inches='tight'
+    )
+    plt.close()
+
+
+def plot_failed_cells_by_scenario_points(country, regions, path):
+    """
+    Plot regions by geotype as points.
+
+    """
+    iso3 = country['iso3']
+    name = country['country']
+
+    filename = 'sites_{}.csv'.format(iso3)
+    path_data = os.path.join(RESULTS, filename)
+    data = pd.read_csv(path_data)
+
+    unique_scenarios = data['scenario'].unique()#[:4]
+    num_scenarios = len(unique_scenarios)
+
+    fig, axes = plt.subplots(len(unique_scenarios), 4, figsize=(10,10))
+    fig.subplots_adjust(hspace=.4, wspace=.4)
+    fig.set_facecolor('lightgrey')
+
+    technologies = [
+        ('GSM', 'black'),
+        ('UMTS', 'blue'),
+        ('LTE', 'green'),
+        ('NR', 'red')
     ]
-    regions['bin'] = pd.cut(
-        regions[metric],
-        bins=bins,
-        labels=labels
-    )
 
-    sns.set(font_scale=0.9, font="Times New Roman")
-    fig, ax = plt.subplots(1, 1, figsize=country['figsize'])
+    for idx, ax in enumerate(axes): #vertical
+        # for idx, scenario in enumerate(unique_scenarios):
+        for i, technology in enumerate(technologies):
 
-    minx, miny, maxx, maxy = regions.total_bounds
-    # print(minx, miny, maxx, maxy)
-    # ax.set_xlim(minx+25, maxx-25)
-    # ax.set_ylim(miny+5, maxy)
+            subset = data.loc[data['scenario'] == unique_scenarios[idx]]
 
-    plt.figure()
+            tech_subset = subset.loc[subset['technology'] == technology[0]]
 
-    regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.2,
-        legend=True, edgecolor='grey')
+            tech_subset = tech_subset.loc[tech_subset['failure'] == 1]
 
-    handles, labels = ax.get_legend_handles_labels()
-    fig.legend(handles[::-1], labels[::-1])
+            regions.plot(facecolor="none", edgecolor="lightgrey", lw=.5, ax=ax[i])
 
-    cx.add_basemap(ax, crs=regions.crs, source=cx.providers.CartoDB.Voyager)
+            cx.add_basemap(ax[i], crs=regions.crs)
 
-    fig.suptitle(
-        '{} Cost for 4G (Wireless) Universal Broadband (~{} Mbps) (n={})'.format(
-            cost_type[0].split(' ')[0], capacity, n))
+            scenario_name = 'S{}'.format(idx)
+            ax[i].set_title('{}_{}'.format(scenario_name, technology[0]))
+
+            if len(tech_subset) > 0:
+
+                sites = gpd.GeoDataFrame(
+                    tech_subset,
+                    geometry=gpd.points_from_xy(
+                        tech_subset.lon,
+                        tech_subset.lat
+                    ), crs='epsg:4326'
+                )
+
+                sites.plot(color=technology[1], markersize=3, ax=ax[i])
 
     fig.tight_layout()
-    filename = '{}_cost_sq_km_{}_mbps.png'.format(
-        cost_type[0].split(' ')[0].lower(), capacity)
-    fig.savefig(os.path.join(VIS, iso3, filename), dpi=600)
-    # fig.savefig(os.path.join(REPORTS, iso3, filename), dpi=600)
 
-    plt.close(fig)
+    main_title = 'Mobile Cellular Infrastructure at Risk by Scenario'
+    plt.suptitle(main_title, fontsize=16, y=1.03)
+
+    # crs = 'epsg:4326'
+    # cx.add_basemap(ax1[0], crs=crs)
+    # cx.add_basemap(ax1[1], crs=crs)
+    # cx.add_basemap(ax2[0], crs=crs)
+    # cx.add_basemap(ax2[1], crs=crs)
+
+    plt.savefig(path,
+    pad_inches=0.4,
+    bbox_inches='tight'
+    )
+
+    plt.close()
 
 
-def plot_sub_national_cost_per_user(country, data, regions, capacity, cost_type):
+
+
+def plot_failed_cells_by_scenario_polygons(country, regions, path):
     """
-    Plot sub national cost per user.
+    Plot regions by geotype.
 
     """
     iso3 = country['iso3']
-    regional_level = country['gid_region']
-    GID_level = 'GID_{}'.format(regional_level)
+    name = country['country']
+    GID_level = 'GID_{}'.format(country['gid_region'])
 
-    n = len(regions)
-    data = data.loc[data['scenario'] == 'baseline_{}_{}_{}'.format(capacity, capacity, capacity)]
-    data = data.loc[data['strategy'] == '4G_epc_wireless_baseline_baseline_baseline_baseline']
-    data = data.loc[data['confidence'] == 50]
+    filename = 'regions_{}.csv'.format(iso3)
+    path_data = os.path.join(RESULTS, filename)
+    data = pd.read_csv(path_data)
 
-    data = data[['GID_id', cost_type[2]]]
-    regions = regions[[GID_level, 'geometry']]
+    unique_scenarios = data['scenario'].unique()[:4]
+    num_scenarios = len(unique_scenarios)
 
-    regions = regions.merge(data, left_on=GID_level, right_on='GID_id')
-    regions.reset_index(drop=True, inplace=True)
+    fig, axes = plt.subplots(len(unique_scenarios), 4, figsize=(10,10))
+    fig.subplots_adjust(hspace=.4, wspace=.4)
+    fig.set_facecolor('lightgrey')
 
-    metric = cost_type[2]
+    technologies = [
+        ('GSM', 'black'),
+        ('UMTS', 'blue'),
+        ('LTE', 'green'),
+        ('NR', 'red')
+    ]
 
-    if cost_type[2] == 'govt_cost_per_user':
-        bins = [-1e9,0,100,200,300,400,500,600,700,800,900,1000, 1e9]
-        labels = ['Viable','$100','$200','$300','$400','$500','$600',
-        '$700','$800','$900','$1000', '>$1000']
-    else:
-        bins = [0,300,600,900,1200,1500,1800,2100,2400,2700,3000,3300,1e9]
-        labels = ['$300','$600','$900','$1200','$1500','$1800',
-        '$2100','$2400','$2700','$3000','$3300','>$3300']
+    for idx, ax in enumerate(axes): #vertical
+        for i, technology in enumerate(technologies):
 
-    regions['bin'] = pd.cut(
-        regions[metric],
-        bins=bins,
-        labels=labels
-    )
+            subset = data.loc[data['scenario'] == unique_scenarios[idx]]
 
-    sns.set(font_scale=0.9, font="Times New Roman")
-    fig, ax = plt.subplots(1, 1, figsize=country['figsize'])
+            tech_subset = subset.loc[subset['technology'] == technology[0]]
 
-    # minx, miny, maxx, maxy = regions.total_bounds
-    # ax.set_xlim(minx+7, maxx-12)
-    # ax.set_ylim(miny+5, maxy)
+            scenario_name = 'S{}'.format(idx)
+            ax[i].set_title('{}_{}'.format(scenario_name, technology[0]))
 
-    plt.figure()
+            tech_subset = regions.merge(tech_subset, left_on=GID_level, right_on='GID_id', how='outer')
 
-    regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.2,
-        legend=True, edgecolor='grey')
+            cx.add_basemap(ax[i], crs=regions.crs)
 
-    handles, labels = ax.get_legend_handles_labels()
-    fig.legend(handles[::-1], labels[::-1])
+            tech_subset = tech_subset[['geometry', 'sites_fail']]
 
-    cx.add_basemap(ax, crs=regions.crs, source=cx.providers.CartoDB.Voyager)
+            tech_subset['sites_fail'] = tech_subset['sites_fail'].replace(np.nan, 0)
 
-    fig.suptitle(
-        '{} Per User Cost for 4G (Wireless) Universal Broadband (~{} Mbps) (n={})'.format(
-            cost_type[0].split(' ')[0], capacity, n))
+            if len(tech_subset) > 0:
+                tech_subset.plot(column='sites_fail', cmap='viridis',
+                    edgecolor="lightgrey", lw=.5, ax=ax[i])
 
     fig.tight_layout()
-    filename = '{}_cost_per_user_{}_mbps.png'.format(
-        cost_type[0].split(' ')[0].lower(), capacity)
-    fig.savefig(os.path.join(VIS, iso3, filename), dpi=600)
-    # fig.savefig(os.path.join(REPORTS, iso3, filename), dpi=600)
 
-    plt.close(fig)
+    main_title = 'Mobile Cellular Infrastructure at Risk by Scenario'
+    plt.suptitle(main_title, fontsize=16, y=1.03)
 
+    # crs = 'epsg:4326'
+    # cx.add_basemap(ax1[0], crs=crs)
+    # cx.add_basemap(ax1[1], crs=crs)
+    # cx.add_basemap(ax2[0], crs=crs)
+    # cx.add_basemap(ax2[1], crs=crs)
 
-def plot_investment_as_gdp_percent(data, gdp, regions, capacity, cost_type):
-    """
-    Plot sub national cost per user.
-
-    """
-    if not cost_type[1] == 'total_government_cost':
-        return
-
-    gdp = gdp[['iso3', 'gdp']]
-
-    n = len(regions)
-    data = data.loc[data['scenario'] == 'Baseline']
-    data = data.loc[data['strategy'] == '4G(W)']
-    data = data.loc[data['confidence'] == 50]
-
-    data = data[['GID_0', 'GID_id', cost_type[1]]]
-    data = pd.merge(left=data, right=gdp, how='left',  left_on='GID_0', right_on='iso3')
-    data['gdp_percentage'] = round(data[cost_type[1]] / data['gdp'] *100, 3)
-
-    regions = regions[['GID_id', 'geometry']]
-
-    regions = regions.merge(data, left_on='GID_id', right_on='GID_id')
-    regions.reset_index(drop=True, inplace=True)
-
-    metric = 'gdp_percentage'
-
-    bins = [-1e9,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1, 1e9]
-    if cost_type[1] == 'total_government_cost':
-        labels = ['0 (Viable)','<0.1%','<0.2%','<0.3%','<0.4%','<0.5%',
-        '<0.6%','<0.7%','<0.8%','<0.9%','<1%','>1%']
-    else:
-        bins = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1, 1e9]
-        labels = ['<0.1%','<0.2%','<0.3%','<0.4%','<0.5%',
-            '<0.6%','<0.7%','<0.8%','<0.9%','<1%','>1%']
-
-    regions['bin'] = pd.cut(
-        regions[metric],
-        bins=bins,
-        labels=labels
+    plt.savefig(path,
+    pad_inches=0.4,
+    bbox_inches='tight'
     )
 
-    sns.set(font_scale=0.9, font="Times New Roman")
-    fig, ax = plt.subplots(1, 1, figsize=(10,10))
-
-    minx, miny, maxx, maxy = regions.total_bounds
-
-    ax.set_xlim(minx+7, maxx-12)
-    ax.set_ylim(miny+5, maxy)
-
-    plt.figure()
-
-    regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.1,
-        legend=True, edgecolor='grey',
-        missing_kwds = dict(color='lightgrey', label='No Data'))
-
-    handles, labels = ax.get_legend_handles_labels()
-    fig.legend(handles[::-1], labels[::-1])
-
-    cx.add_basemap(ax, crs=regions.crs, source=cx.providers.CartoDB.Voyager)
-
-    fig.suptitle(
-        str('{} Cost for 4G (Wireless) Universal Broadband (~{} Mbps) ({}GDP) (n={})'.format(
-            cost_type[0].split(' ')[0], capacity, '%', n)))
-
-    fig.tight_layout()
-    filename = 'gdp_percentage_spatially_{}_{}_mbps.png'.format(
-        cost_type[0].split(' ')[0], capacity)
-    fig.savefig(os.path.join(VIS, filename), dpi=600)
-    # fig.savefig(os.path.join(REPORTS, filename), dpi=600)
-
-    plt.close(fig)
+    plt.close()
 
 
 if __name__ == '__main__':
 
-    cost_types = [
-        # ('Private Median Cost Per User ($USD)', 'total_private_cost', 'private_cost_per_user'),
-        # ('Government Median Cost Per User ($USD)', 'total_government_cost', 'govt_cost_per_user'),
-        ('Financial Cost Per User ($USD)', 'total_societal_cost', 'societal_cost_per_network_user'),
-    ]
-
-    # capacities = [2, 5, 10, 20]
-
-    filename = "countries.csv"
+    filename = 'countries.csv'
     path = os.path.join(DATA_RAW, filename)
     countries = pd.read_csv(path, encoding='latin-1')
 
     for idx, country in countries.iterrows():
 
+        if not country['iso3'] == 'GHA':
+            continue
+
         iso3 = country['iso3']
         country['figsize'] = (8,10)
-        if not iso3 == 'GHA':
-            continue
 
         print('-- {} --'.format(iso3))
 
-        #Loading regional data by pop density geotype
-        filename = 'regional_data.csv'
-        path = os.path.join(DATA_PROCESSED, iso3, filename)
-        data = pd.read_csv(path)
+        folder_reports = os.path.join(REPORTS, iso3)
+        if not os.path.exists(folder_reports):
+            os.makedirs(folder_reports)
 
-        #Loading shapes
+        folder_vis = os.path.join(VIS, iso3)
+        if not os.path.exists(folder_vis):
+            os.makedirs(folder_vis)
+
         filename = 'regions_{}_{}.shp'.format(country['gid_region'], iso3)
         path = os.path.join(DATA_PROCESSED, iso3, 'regions', filename)
+        shapes = gpd.read_file(path, crs='epsg:4326')
+
+        path = os.path.join(folder_vis, '{}_by_pop_density.png'.format(iso3))
         if not os.path.exists(path):
-            shapes = get_regional_shapes()
-            shapes.to_file(path)
-        else:
-            shapes = gpd.read_file(path, crs='epsg:4326')
-            # if iso3 == 'CRI':
-            #     shapes = shapes.drop(shapes[shapes['GID_2'] == 'CRI.6.11_1'].index)
+            plot_regions_by_geotype(country, shapes, path)
 
-        #Plotting regions by geotype
-        folder = os.path.join(VIS, iso3)
-        if not os.path.exists(folder):
-            os.makedirs(folder)
+        path = os.path.join(folder_vis, '{}_cells_by_region.png'.format(iso3))
+        if not os.path.exists(path):
+            plot_cells_per_region(country, shapes, path)
 
-        #Plotting regions by geotype
-        # folder = os.path.join(REPORTS, iso3)
-        # if not os.path.exists(folder):
-        #     os.makedirs(folder)
-
-        path = os.path.join(folder, '{}_by_pop_density.png'.format(iso3))
+        path = os.path.join(folder_vis, '{}_failed_cells_by_scenario_points.png'.format(iso3))
         # if not os.path.exists(path):
-        plot_regions_by_geotype(country, data, shapes, path)
+        plot_failed_cells_by_scenario_points(country, shapes, path)
 
-        # for cost_type in cost_types:
+        path = os.path.join(folder_vis, '{}_failed_cells_by_scenario.png'.format(iso3))
+        # if not os.path.exists(path):
+        plot_failed_cells_by_scenario_polygons(country, shapes, path)
 
-        #     for capacity in capacities:
-
-        #         print('Working on {} for {} Mbps'.format(cost_type[0], capacity))
-
-        #         #Plotting sub-national regions by cost per km^2
-        #         plot_sub_national_cost_per_square_km(country, data, shapes, cost_type)
-
-        #         #Loading regional results data
-        #         filename = 'regional_market_results_technology_options.csv'
-        #         path = os.path.join(USER_COSTS, iso3, filename)
-        #         regional_costs = pd.read_csv(path)
-
-        #         #Plotting sub-national regions by cost per user
-        #         plot_sub_national_cost_per_user(
-        #             country, regional_costs, shapes, capacity, cost_type
-        #         )
-
-        # # #         #Loading regional results data
-        # # #         path = os.path.join(VIS, '..', 'gdp.csv')
-        # # #         gdp = pd.read_csv(path)
-
-        # # #         #Plotting sub-national regions by cost per user
-        # # #         plot_investment_as_gdp_percent(regional_costs, gdp, shapes,
-        # # #             capacity, cost_type)
-
-        # # # print('Complete')
+        print('Complete')

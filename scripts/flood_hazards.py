@@ -13,7 +13,7 @@ import pandas as pd
 import geopandas as gpd
 import rasterio
 from rasterio.mask import mask
-from rasterstats import zonal_stats
+import glob
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -94,22 +94,15 @@ if __name__ == "__main__":
         iso3 = country['iso3']
         name = country['country']
 
-        # if not iso3 == 'ATA':
-        #     continue
+        if not iso3 == 'GHA':
+            continue
 
-        filenames = [
-            'inunriver_historical_000000000WATCH_1980_rp01000.tif',
-            'inuncoast_historical_nosub_hist_rp1000_0.tif',
-            'inuncoast_historical_wtsub_2080_rp1000_0.tif',
-            'inuncoast_rcp4p5_wtsub_2080_rp1000_0_perc_50.tif',
-            'inuncoast_rcp8p5_wtsub_2080_rp1000_0_perc_50.tif',
-        ]
+        hazard_dir = os.path.join(DATA_RAW, 'hazard_scenarios')
+        paths = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:5]
 
-        for filename in filenames:
+        for path_in in paths:
 
-            folder = os.path.join(DATA_RAW, 'hazard_scenarios')
-            path_in = os.path.join(folder, filename)
-
+            filename = os.path.basename(path_in)
             folder = os.path.join(DATA_PROCESSED, iso3, 'hazards')
             path_out = os.path.join(folder, filename)
 
