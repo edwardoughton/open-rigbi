@@ -17,8 +17,8 @@ for in_path in tqdm(webpage.xpath('//a/@href')):
     if not in_path.endswith('.tif'):
         continue
 
-    if 'wtsub' in in_path:
-        continue
+    # if 'wtsub' in in_path:
+    #     continue
 
     filename = os.path.basename(in_path)
 

@@ -9,9 +9,11 @@ February 2022.
 import os
 import configparser
 import random
+import glob
 import pandas as pd
 import geopandas as gpd
 import rasterio
+from tqdm import tqdm
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -19,6 +21,40 @@ BASE_PATH = CONFIG['file_locations']['base_path']
 
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
+
+
+def get_scenarios(hazard_dir):
+    """
+
+    """
+    output = []
+
+    scenarios = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:3]
+
+    return_periods = [
+        'rp0100',
+        'rp0250',
+        'rp0500',
+        'rp1000',
+        'rp00100',
+        'rp00250',
+        'rp00500',
+        'rp01000'
+    ]
+
+    for scenario in scenarios:
+
+        if any(x in scenario for x in return_periods): #specify return periods
+
+            if 'inuncoast' and 'wtsub' in scenario: #use only no subsidence
+                if '0_perc_50.tif' in scenario:
+                    output.append(scenario)
+            elif 'inunriver' and 'MIROC-ESM-CHEM' in scenario:
+                output.append(scenario)
+            else:
+                continue
+
+    return output
 
 
 def query_hazard_layers(country, scenario, technology):
@@ -35,9 +71,10 @@ def query_hazard_layers(country, scenario, technology):
     path = os.path.join(folder, filename)
     regions = gpd.read_file(path, crs=crs)#[:1]
 
-    filename = '{}.tif'.format(scenario)
-    folder = os.path.join(DATA_PROCESSED, iso3, 'hazards')
-    path_hazard = os.path.join(folder, filename)
+    # filename = '{}.tif'.format(scenario)
+    # folder = os.path.join(DATA_PROCESSED, iso3, 'hazards')
+    # path_hazard = os.path.join(folder, filename)
+    scenario_name = os.path.basename(scenario)
 
     filename = 'fragility_curve.csv'
     path_fragility = os.path.join(DATA_RAW, filename)
@@ -53,12 +90,12 @@ def query_hazard_layers(country, scenario, technology):
         # if not gid_id == 'GHA.9.7_1':
         #     continue
 
-        filename = '{}_{}_{}.shp'.format(technology, gid_id, scenario)
-        folder_out = os.path.join(DATA_PROCESSED, iso3, 'scenarios', scenario, technology)
+        filename = '{}_{}_{}.shp'.format(technology, gid_id, scenario_name)
+        folder_out = os.path.join(DATA_PROCESSED, iso3, 'scenarios', scenario_name, technology)
         path_output = os.path.join(folder_out, filename)
 
-        # if os.path.exists(path_output):
-        #     continue
+        if os.path.exists(path_output):
+            continue
 
         output = []
 
@@ -70,14 +107,15 @@ def query_hazard_layers(country, scenario, technology):
             continue
 
         sites = gpd.read_file(path, crs=crs)#[:1]
+
         failures = 0
+
         for idx, site in sites.iterrows():
 
-            coords = [(site['geometry'].x, site['geometry'].y)]
-
-            with rasterio.open(path_hazard) as src:
-
+            with rasterio.open(scenario) as src:
                 src.kwargs = {'nodata':255}
+
+                coords = [(site['geometry'].x, site['geometry'].y)]
 
                 depth = [sample[0] for sample in src.sample(coords)][0]
 
@@ -102,7 +140,7 @@ def query_hazard_layers(country, scenario, technology):
                         'gid_level': gid_level,
                         'gid_id': region[gid_level],
                         'depth': depth,
-                        'scenario': scenario,
+                        'scenario': scenario_name,
                         'fragility': fragility,
                         'fail_prob': failure_prob,
                         'failure': failed,
@@ -308,6 +346,8 @@ def write_out_site_failures(country, scenario, technology):
     path = os.path.join(folder, filename)
     regional_data = pd.read_csv(path)#[:5]
 
+    scenario_name = os.path.basename(scenario)
+
     output = []
 
     for idx, item in regional_data.iterrows():
@@ -316,8 +356,8 @@ def write_out_site_failures(country, scenario, technology):
         area_km2 = item['area_km2']
         population_total = item['population_total']
 
-        filename = '{}_{}_{}.shp'.format(technology, gid_id, scenario)
-        folder = os.path.join(DATA_PROCESSED, iso3, 'scenarios', scenario, technology)
+        filename = '{}_{}_{}.shp'.format(technology, gid_id, scenario_name)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'scenarios', scenario_name, technology)
         path_in = os.path.join(folder, filename)
 
         if not os.path.exists(path_in):
@@ -346,8 +386,8 @@ def write_out_site_failures(country, scenario, technology):
 
     output = pd.DataFrame(output)
 
-    filename = 'sites_{}_{}.csv'.format(technology, scenario)
-    folder_out = os.path.join(DATA_PROCESSED, iso3, 'scenarios', scenario, technology)
+    filename = 'sites_{}_{}.csv'.format(technology, scenario_name)
+    folder_out = os.path.join(DATA_PROCESSED, iso3, 'scenarios', scenario_name, technology)
     path_output = os.path.join(folder_out, filename)
 
     output.to_csv(path_output, index=False)
@@ -365,7 +405,7 @@ def collect_country_results(country, scenarios, technologies):
     regional_level = country['gid_region']
 
     data_types = [
-        'regions',
+        # 'regions',
         'sites'
     ]
 
@@ -373,18 +413,21 @@ def collect_country_results(country, scenarios, technologies):
 
         output = []
 
-        for scenario in scenarios:
+        for scenario in tqdm(scenarios):
+
             for technology in technologies:
 
-                filename = '{}_{}_{}.csv'.format(data_type, technology, scenario)
-                folder = os.path.join(DATA_PROCESSED, iso3, 'scenarios', scenario, technology)
+                scenario_name = os.path.basename(scenario)
+                filename = '{}_{}_{}.csv'.format(data_type, technology, scenario_name)
+                folder = os.path.join(DATA_PROCESSED, iso3, 'scenarios', scenario_name, technology)
                 path = os.path.join(folder, filename)
 
                 if not os.path.exists(path):
                     continue
 
                 data = pd.read_csv(path)
-                data = data.to_dict('records')
+
+                data = data.to_dict('records')#[:1]
 
                 output = output + data
 
@@ -412,15 +455,6 @@ if __name__ == '__main__':
     path = os.path.join(DATA_RAW, filename)
     countries = pd.read_csv(path, encoding='latin-1')
 
-    scenarios = [
-        'baseline',
-        'inuncoast_historical_nosub_hist_rp1000_0',
-        'inuncoast_historical_wtsub_2080_rp1000_0',
-        'inuncoast_rcp4p5_wtsub_2080_rp1000_0_perc_50',
-        'inuncoast_rcp8p5_wtsub_2080_rp1000_0_perc_50',
-        'inunriver_historical_000000000WATCH_1980_rp01000'
-    ]
-
     technologies = [
         'GSM',
         'UMTS',
@@ -433,28 +467,35 @@ if __name__ == '__main__':
         if not country['iso3'] == 'GHA':
             continue
 
-        print('Working on {}'.format(country['iso3']))
+        iso3 = country['iso3']
 
-        for scenario in scenarios:
+        print('Working on {}'.format(iso3))
 
+        hazard_dir = os.path.join(DATA_PROCESSED, iso3, 'hazards')
+        scenarios  = get_scenarios(hazard_dir)
+        # scenarios = pd.DataFrame(scenarios)
+        # scenarios.to_csv(os.path.join(DATA_PROCESSED, iso3, 'scenarios', 'scenarios.csv'),index=False)
+
+        for scenario in tqdm(scenarios):
+            # print(scenario)
             for technology in technologies:
 
-                print('  --{}_{}'.format(scenario, technology))
+                print('  {} - {}'.format(technology, scenario))
 
                 if not scenario == 'baseline':
-                    print('Querying hazard layers')
+                    # print('Querying hazard layers')
                     query_hazard_layers(country, scenario, technology)
 
-                print('Generating coverage polygons')
-                generate_coverage_polygons(country, scenario, technology)
+    #             print('Generating coverage polygons')
+    #             generate_coverage_polygons(country, scenario, technology)
 
-                print('Estimating coverage')
-                estimate_coverage_by_region(country, scenario, technology)
+    #             print('Estimating coverage')
+    #             estimate_coverage_by_region(country, scenario, technology)
 
-                print('Estimating coverage')
+                # print('Estimating coverage')
                 write_out_site_failures(country, scenario, technology)
 
         print('Collecting country results')
         collect_country_results(country, scenarios, technologies)
 
-    print('Complete')
+    # print('Complete')

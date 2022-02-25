@@ -157,9 +157,9 @@ def plot_cells_per_region(country, regions, path):
         ), crs='epsg:4326'
     )
 
-    fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(8,8))
+    fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(12,12))
     fig.subplots_adjust(hspace=.2, wspace=.2)
-    fig.set_facecolor('lightgrey')
+    fig.set_facecolor('gainsboro')
 
     gsm = sites.loc[sites['radio'] == 'GSM']
     umts = sites.loc[sites['radio'] == 'UMTS']
@@ -184,13 +184,13 @@ def plot_cells_per_region(country, regions, path):
     fig.tight_layout()
 
     main_title = 'Mobile Cellular Infrastructure: {}'.format(name)
-    plt.suptitle(main_title, fontsize=16, y=1.03)
+    plt.suptitle(main_title, fontsize=20, y=1.03)
 
-    # crs = 'epsg:4326'
-    # cx.add_basemap(ax1[0], crs=crs)
-    # cx.add_basemap(ax1[1], crs=crs)
-    # cx.add_basemap(ax2[0], crs=crs)
-    # cx.add_basemap(ax2[1], crs=crs)
+    crs = 'epsg:4326'
+    cx.add_basemap(ax1[0], crs=crs)
+    cx.add_basemap(ax1[1], crs=crs)
+    cx.add_basemap(ax2[0], crs=crs)
+    cx.add_basemap(ax2[1], crs=crs)
 
     plt.savefig(path,
     pad_inches=0.4,
@@ -199,7 +199,7 @@ def plot_cells_per_region(country, regions, path):
     plt.close()
 
 
-def plot_failed_cells_by_scenario_points(country, regions, path):
+def plot_failed_cells_by_scenario_points(country, regions, outline, path):
     """
     Plot regions by geotype as points.
 
@@ -214,7 +214,7 @@ def plot_failed_cells_by_scenario_points(country, regions, path):
     unique_scenarios = data['scenario'].unique()#[:4]
     num_scenarios = len(unique_scenarios)
 
-    fig, axes = plt.subplots(len(unique_scenarios), 4, figsize=(10,10))
+    fig, axes = plt.subplots(4, 4, figsize=(10,10))
     fig.subplots_adjust(hspace=.4, wspace=.4)
     fig.set_facecolor('lightgrey')
 
@@ -226,18 +226,18 @@ def plot_failed_cells_by_scenario_points(country, regions, path):
     ]
 
     for idx, ax in enumerate(axes): #vertical
-        # for idx, scenario in enumerate(unique_scenarios):
+
         for i, technology in enumerate(technologies):
 
-            subset = data.loc[data['scenario'] == unique_scenarios[idx]]
+            subset = data.loc[data['scenario'] == unique_scenarios[(idx)]] #not sure this works correctly
 
             tech_subset = subset.loc[subset['technology'] == technology[0]]
 
-            tech_subset = tech_subset.loc[tech_subset['failure'] == 1]
+            tech_subset = tech_subset.loc[tech_subset['fragility'] > 0]
 
             regions.plot(facecolor="none", edgecolor="lightgrey", lw=.5, ax=ax[i])
 
-            cx.add_basemap(ax[i], crs=regions.crs)
+            # cx.add_basemap(ax[i], crs=regions.crs)
 
             scenario_name = 'S{}'.format(idx)
             ax[i].set_title('{}_{}'.format(scenario_name, technology[0]))
@@ -271,8 +271,6 @@ def plot_failed_cells_by_scenario_points(country, regions, path):
     )
 
     plt.close()
-
-
 
 
 def plot_failed_cells_by_scenario_polygons(country, regions, path):
@@ -342,6 +340,77 @@ def plot_failed_cells_by_scenario_polygons(country, regions, path):
 
     plt.close()
 
+def single_extreme_plot(country, regions, outline, path):
+    """
+    Plot regions by geotype as points.
+
+    """
+    iso3 = country['iso3']
+    name = country['country']
+
+    filename = 'sites_{}.csv'.format(iso3)
+    path_data = os.path.join(RESULTS, filename)
+    data = pd.read_csv(path_data)
+
+    unique_scenarios = data['scenario'].unique()#[:4]
+    num_scenarios = len(unique_scenarios)
+    unique_scenarios = [
+        'inunriver_rcp8p5_MIROC-ESM-CHEM_2080_rp01000.tif',
+        'inuncoast_rcp8p5_wtsub_2080_rp1000_0_perc_50.tif'
+    ]
+
+    fig, axes = plt.subplots(figsize=(10,10))
+    fig.subplots_adjust(hspace=.4, wspace=.4)
+    fig.set_facecolor('gainsboro')
+
+    riverine = data.loc[data['scenario'] == unique_scenarios[0]]
+    riverine = riverine.loc[riverine['fragility'] > 0]
+
+    coastal = data.loc[data['scenario'] == unique_scenarios[1]]
+    coastal = coastal.loc[coastal['fragility'] > 0]
+
+    regions.plot(facecolor="none", edgecolor="lightgrey", lw=1, ax=axes)
+    outline.plot(facecolor="none", edgecolor="black", lw=1, ax=axes)
+
+    cx.add_basemap(axes, crs=regions.crs)
+
+    if len(riverine) > 0:
+        sites = gpd.GeoDataFrame(
+            riverine,
+            geometry=gpd.points_from_xy(
+                riverine.lon,
+                riverine.lat
+            ), crs='epsg:4326'
+        )
+        sites.plot(color='red', markersize=4, marker="o", ax=axes)
+
+    if len(coastal) > 0:
+        sites = gpd.GeoDataFrame(
+            coastal,
+            geometry=gpd.points_from_xy(
+                coastal.lon,
+                coastal.lat
+            ), crs='epsg:4326'
+        )
+        sites.plot(color='blue', markersize=4, marker="*", ax=axes)
+
+    axes.legend(["Riverine Flooding", "Coastal Flooding"], loc="lower right")
+
+    fig.tight_layout()
+
+    main_title1 = 'Climate Hazard Risk to Mobile Infrastructure in Ghana:\n'
+    main_title2 = '1-in-1000 Event for Riverine and Coastal Flooding in 2080'
+    plt.title((main_title1+main_title2), fontsize=14, y=1)
+    sup_title = 'Scenario: RCP8.5-SSP3, Riverine Model: MIROC-ESM-CHEM, Coastal Model: RISES-AM)'
+    plt.suptitle(sup_title, fontsize=10)#, y=1.03
+
+    plt.savefig(path,
+    pad_inches=0.4,
+    bbox_inches='tight'
+    )
+
+    plt.close()
+
 
 if __name__ == '__main__':
 
@@ -371,6 +440,10 @@ if __name__ == '__main__':
         path = os.path.join(DATA_PROCESSED, iso3, 'regions', filename)
         shapes = gpd.read_file(path, crs='epsg:4326')
 
+        filename = 'national_outline.shp'
+        path = os.path.join(DATA_PROCESSED, iso3, filename)
+        outline = gpd.read_file(path, crs='epsg:4326')
+
         path = os.path.join(folder_vis, '{}_by_pop_density.png'.format(iso3))
         if not os.path.exists(path):
             plot_regions_by_geotype(country, shapes, path)
@@ -379,12 +452,16 @@ if __name__ == '__main__':
         if not os.path.exists(path):
             plot_cells_per_region(country, shapes, path)
 
-        path = os.path.join(folder_vis, '{}_failed_cells_by_scenario_points.png'.format(iso3))
-        # if not os.path.exists(path):
-        plot_failed_cells_by_scenario_points(country, shapes, path)
+        # path = os.path.join(folder_vis, '{}_failed_cells_by_scenario_points.png'.format(iso3))
+        # # if not os.path.exists(path):
+        # plot_failed_cells_by_scenario_points(country, shapes, outline, path)
 
-        path = os.path.join(folder_vis, '{}_failed_cells_by_scenario.png'.format(iso3))
+        path = os.path.join(folder_vis, '{}_single_extreme_plot.png'.format(iso3))
         # if not os.path.exists(path):
-        plot_failed_cells_by_scenario_polygons(country, shapes, path)
+        single_extreme_plot(country, shapes, outline, path)
+
+        # path = os.path.join(folder_vis, '{}_failed_cells_by_scenario.png'.format(iso3))
+        # # if not os.path.exists(path):
+        # plot_failed_cells_by_scenario_polygons(country, shapes, path)
 
         print('Complete')
