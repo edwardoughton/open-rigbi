@@ -127,6 +127,10 @@ def create_regional_sites_layer(country):
                         'cell': site['cell'],
                         'gid_level': gid_level,
                         'gid_id': region[gid_level],
+                        'cell_id': '{}_{}'.format(
+                                round(site['geometry'].coords.xy[0][0], 6),
+                                round(site['geometry'].coords.xy[1][0], 6)
+                        ),
                     }
                 })
 
@@ -195,6 +199,10 @@ def tech_specific_sites(country):
                             'cell': site['cell'],
                             'gid_level': gid_level,
                             'gid_id': region[gid_level],
+                            'cell_id': '{}_{}'.format(
+                                round(site['geometry'].coords.xy[0][0], 6),
+                                round(site['geometry'].coords.xy[1][0], 6)
+                            ),
                         }
                     })
 
@@ -236,7 +244,7 @@ if __name__ == "__main__":
 
         print('--Working on {}'.format(country['country']))
 
-        create_national_sites_layer(country)
+        # create_national_sites_layer(country)
 
         create_regional_sites_layer(country)
 

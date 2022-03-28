@@ -87,8 +87,8 @@ def query_hazard_layers(country, scenario, technology):
         gid_level = 'GID_{}'.format(regional_level)
         gid_id = region[gid_level]
 
-        # if not gid_id == 'GHA.9.7_1':
-        #     continue
+        if not gid_id == 'GHA.9.7_1':
+            continue
 
         filename = '{}_{}_{}.shp'.format(technology, gid_id, scenario_name)
         folder_out = os.path.join(DATA_PROCESSED, iso3, 'scenarios', scenario_name, technology)
@@ -196,6 +196,9 @@ def generate_coverage_polygons(country, scenario, technology):
 
         gid_level = 'GID_{}'.format(regional_level)
         gid_id = region[gid_level]
+
+        if not gid_id == 'GHA.1.12_1':
+            continue
 
         filename = '{}_{}_{}.shp'.format(technology, gid_id, scenario)
         folder_out = os.path.join(DATA_PROCESSED, iso3, 'scenarios', scenario, technology, 'buffer')
@@ -456,10 +459,10 @@ if __name__ == '__main__':
     countries = pd.read_csv(path, encoding='latin-1')
 
     technologies = [
-        'GSM',
-        'UMTS',
+        # 'GSM',
+        # 'UMTS',
         'LTE',
-        'NR',
+        # 'NR',
     ]
 
     for idx, country in countries.iterrows():
@@ -477,25 +480,28 @@ if __name__ == '__main__':
         # scenarios.to_csv(os.path.join(DATA_PROCESSED, iso3, 'scenarios', 'scenarios.csv'),index=False)
 
         for scenario in tqdm(scenarios):
-            # print(scenario)
+
+            if not os.path.basename(scenario) == 'inunriver_rcp4p5_MIROC-ESM-CHEM_2080_rp00500.tif':
+                continue
+
             for technology in technologies:
 
                 print('  {} - {}'.format(technology, scenario))
 
-                if not scenario == 'baseline':
-                    # print('Querying hazard layers')
-                    query_hazard_layers(country, scenario, technology)
+                # if not scenario == 'baseline':
+                #     # print('Querying hazard layers')
+                #     query_hazard_layers(country, scenario, technology)
 
-    #             print('Generating coverage polygons')
-    #             generate_coverage_polygons(country, scenario, technology)
+                print('Generating coverage polygons')
+                generate_coverage_polygons(country, scenario, technology)
 
-    #             print('Estimating coverage')
-    #             estimate_coverage_by_region(country, scenario, technology)
+                print('Estimating coverage')
+                estimate_coverage_by_region(country, scenario, technology)
 
-                # print('Estimating coverage')
-                write_out_site_failures(country, scenario, technology)
+    #             # print('Estimating coverage')
+    #             write_out_site_failures(country, scenario, technology)
 
-        print('Collecting country results')
-        collect_country_results(country, scenarios, technologies)
+    #     print('Collecting country results')
+    #     collect_country_results(country, scenarios, technologies)
 
-    # print('Complete')
+    # # print('Complete')

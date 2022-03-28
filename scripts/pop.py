@@ -282,7 +282,6 @@ def process_settlement_layer(country):
     path_settlements = os.path.join(DATA_RAW,'settlement_layer',
         'ppp_2020_1km_Aggregated.tif')
 
-
     settlements = rasterio.open(path_settlements, 'r+')
     settlements.nodata = 255
     settlements.crs.from_epsg(4326)

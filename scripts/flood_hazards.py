@@ -83,6 +83,7 @@ def process_hazard_layer(country, path_in, path_out):
 
     return
 
+
 if __name__ == "__main__":
 
     os.environ['GDAL_DATA'] = ("C:\\Users\\edwar\\Anaconda3\\Library\\share\\gdal")
