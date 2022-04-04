@@ -100,14 +100,19 @@ def create_regional_sites_layer(country):
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
     path_shp = os.path.join(folder, filename)
     sites = gpd.read_file(path_shp, crs=crs)
+    sites = sites.to_crs(epsg=3857)
 
     filename = 'regions_{}_{}.shp'.format(regional_level, iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
     path = os.path.join(folder, filename)
     regions = gpd.read_file(path, crs=crs)#[:5]
+    regions = regions.to_crs(epsg=3857)
 
     print('Creating regional sites shapefiles')
     for idx, region in tqdm(regions.iterrows(), total=regions.shape[0]):
+
+        # if not region['GID_2'] == 'GHA.1.12_1':
+        #     continue
 
         output = []
 
@@ -136,7 +141,7 @@ def create_regional_sites_layer(country):
 
         if len(output) > 0:
 
-            output = gpd.GeoDataFrame.from_features(output, crs=crs)
+            output = gpd.GeoDataFrame.from_features(output, crs='epsg:3857')
             filename = '{}.shp'.format(gid_id)
             folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'regional_sites')
             if not os.path.exists(folder):
@@ -172,6 +177,9 @@ def tech_specific_sites(country):
 
     for idx, region in tqdm(regions.iterrows(), total=regions.shape[0]):
 
+        # if not region['GID_2'] == 'GHA.1.12_1':
+        #     continue
+
         gid_level = 'GID_{}'.format(regional_level)
         gid_id = region[gid_level]
 
@@ -180,7 +188,7 @@ def tech_specific_sites(country):
         path = os.path.join(folder, filename)
         if not os.path.exists(path):
             continue
-        sites = gpd.read_file(path, crs='epsg:4326')
+        sites = gpd.read_file(path, crs='epsg:3857')
 
         for technology in technologies:
 
@@ -208,7 +216,7 @@ def tech_specific_sites(country):
 
             if len(output) > 0:
 
-                output = gpd.GeoDataFrame.from_features(output, crs=crs)
+                output = gpd.GeoDataFrame.from_features(output, crs='epsg:3857')
                 filename = '{}_{}.shp'.format(technology, gid_id)
                 folder = os.path.join(DATA_PROCESSED, iso3, 'sites', technology)
                 if not os.path.exists(folder):
