@@ -91,7 +91,7 @@ def plot_regions_by_geotype(country, regions, path):
 
     metric = 'population_km2'
 
-    bins = [-1, 20, 43, 69, 109, 171, 257, 367, 541, 1104, 111607]
+    bins = [-1, 20, 43, 69, 109, 171, 257, 367, 541, 1104, 1e8]
     labels = [
         '<20 $\mathregular{km^2}$',
         '20-43 $\mathregular{km^2}$',
@@ -102,7 +102,8 @@ def plot_regions_by_geotype(country, regions, path):
         '257-367 $\mathregular{km^2}$',
         '367-541 $\mathregular{km^2}$',
         '541-1104 $\mathregular{km^2}$',
-        '>1104 $\mathregular{km^2}$']
+        '>1104 $\mathregular{km^2}$'
+    ]
 
     regions['bin'] = pd.cut(
         regions[metric],
@@ -110,14 +111,14 @@ def plot_regions_by_geotype(country, regions, path):
         labels=labels
     )
 
-    sns.set(font_scale=0.9, font="Times New Roman")
+    sns.set(font_scale=1, font="Times New Roman")
     fig, ax = plt.subplots(1, 1, figsize=country['figsize'])
     # minx, miny, maxx, maxy = regions.total_bounds
 
     # ax.set_xlim(minx-.5, maxx+.5)
     # ax.set_ylim(miny-0.1, maxy+.1)
 
-    regions.plot(column='bin', ax=ax, cmap='inferno_r', linewidth=0.2,
+    regions.plot(column='bin', ax=ax, cmap='viridis_r', linewidth=0.2, alpha=0.8,
     legend=True, edgecolor='grey')
 
     handles, labels = ax.get_legend_handles_labels()
@@ -157,6 +158,11 @@ def plot_cells_per_region(country, regions, path):
         ), crs='epsg:4326'
     )
 
+    filename = 'core_edges_existing.shp'
+    folder = os.path.join(DATA_PROCESSED, iso3, 'network_existing')
+    path_fiber = os.path.join(folder, filename)
+    fiber = gpd.read_file(path_fiber, crs='epsg:4326')
+
     fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(12,12))
     fig.subplots_adjust(hspace=.2, wspace=.2)
     fig.set_facecolor('gainsboro')
@@ -166,15 +172,20 @@ def plot_cells_per_region(country, regions, path):
     lte = sites.loc[sites['radio'] == 'LTE']
     nr = sites.loc[sites['radio'] == 'NR']
 
+    fiber.plot(color='orange', lw=0.8, ax=ax1[0])
+    fiber.plot(color='orange', lw=0.8, ax=ax1[1])
+    fiber.plot(color='orange', lw=0.8, ax=ax2[0])
+    fiber.plot(color='orange', lw=0.8, ax=ax2[1])
+
     regions.plot(facecolor="none", edgecolor="grey", ax=ax1[0])
     regions.plot(facecolor="none", edgecolor="grey", ax=ax1[1])
     regions.plot(facecolor="none", edgecolor="grey", ax=ax2[0])
     regions.plot(facecolor="none", edgecolor="grey", ax=ax2[1])
 
-    gsm.plot(color='red', markersize=1, ax=ax1[0])
-    umts.plot(color='blue', markersize=1, ax=ax1[1])
-    lte.plot(color='yellow', markersize=1, ax=ax2[0])
-    nr.plot(color='black', markersize=1, ax=ax2[1])
+    gsm.plot(color='red', markersize=1.5, ax=ax1[0])
+    umts.plot(color='blue', markersize=1.5, ax=ax1[1])
+    lte.plot(color='yellow', markersize=1.5, ax=ax2[0])
+    nr.plot(color='black', markersize=1.5, ax=ax2[1])
 
     ax1[0].set_title('2G GSM Cells')
     ax1[1].set_title('3G UMTS Cells')
@@ -199,146 +210,119 @@ def plot_cells_per_region(country, regions, path):
     plt.close()
 
 
-def plot_failed_cells_by_scenario_points(country, regions, outline, path):
-    """
-    Plot regions by geotype as points.
-
-    """
-    iso3 = country['iso3']
-    name = country['country']
-
-    filename = 'sites_{}.csv'.format(iso3)
-    path_data = os.path.join(RESULTS, filename)
-    data = pd.read_csv(path_data)
-
-    unique_scenarios = data['scenario'].unique()#[:4]
-    num_scenarios = len(unique_scenarios)
-
-    fig, axes = plt.subplots(4, 4, figsize=(10,10))
-    fig.subplots_adjust(hspace=.4, wspace=.4)
-    fig.set_facecolor('lightgrey')
-
-    technologies = [
-        ('GSM', 'black'),
-        ('UMTS', 'blue'),
-        ('LTE', 'green'),
-        ('NR', 'red')
-    ]
-
-    for idx, ax in enumerate(axes): #vertical
-
-        for i, technology in enumerate(technologies):
-
-            subset = data.loc[data['scenario'] == unique_scenarios[(idx)]] #not sure this works correctly
-
-            tech_subset = subset.loc[subset['technology'] == technology[0]]
-
-            tech_subset = tech_subset.loc[tech_subset['fragility'] > 0]
-
-            regions.plot(facecolor="none", edgecolor="lightgrey", lw=.5, ax=ax[i])
-
-            # cx.add_basemap(ax[i], crs=regions.crs)
-
-            scenario_name = 'S{}'.format(idx)
-            ax[i].set_title('{}_{}'.format(scenario_name, technology[0]))
-
-            if len(tech_subset) > 0:
-
-                sites = gpd.GeoDataFrame(
-                    tech_subset,
-                    geometry=gpd.points_from_xy(
-                        tech_subset.lon,
-                        tech_subset.lat
-                    ), crs='epsg:4326'
-                )
-
-                sites.plot(color=technology[1], markersize=3, ax=ax[i])
-
-    fig.tight_layout()
-
-    main_title = 'Mobile Cellular Infrastructure at Risk by Scenario'
-    plt.suptitle(main_title, fontsize=16, y=1.03)
-
-    # crs = 'epsg:4326'
-    # cx.add_basemap(ax1[0], crs=crs)
-    # cx.add_basemap(ax1[1], crs=crs)
-    # cx.add_basemap(ax2[0], crs=crs)
-    # cx.add_basemap(ax2[1], crs=crs)
-
-    plt.savefig(path,
-    pad_inches=0.4,
-    bbox_inches='tight'
-    )
-
-    plt.close()
-
-
-def plot_failed_cells_by_scenario_polygons(country, regions, path):
+def plot_coverage_by_region(country, regions, path):
     """
     Plot regions by geotype.
 
     """
     iso3 = country['iso3']
     name = country['country']
-    GID_level = 'GID_{}'.format(country['gid_region'])
 
-    filename = 'regions_{}.csv'.format(iso3)
-    path_data = os.path.join(RESULTS, filename)
-    data = pd.read_csv(path_data)
+    filename = 'baseline_coverage.csv'
+    folder = os.path.join(DATA_PROCESSED, iso3)
+    path_data = os.path.join(folder, filename)
+    data = pd.read_csv(path_data, encoding='latin-1')
+    data = data[['GID_id', 'technology', 'covered_pop_perc', 'uncovered_pop_perc']]
+    data = format_data(data, regions)
+    data = pd.DataFrame(data)
 
-    unique_scenarios = data['scenario'].unique()[:4]
-    num_scenarios = len(unique_scenarios)
+    regions = regions.merge(data, left_on='GID_2', right_on='GID_id')
+    regions.reset_index(drop=True, inplace=True)
 
-    fig, axes = plt.subplots(len(unique_scenarios), 4, figsize=(10,10))
-    fig.subplots_adjust(hspace=.4, wspace=.4)
-    fig.set_facecolor('lightgrey')
-
-    technologies = [
-        ('GSM', 'black'),
-        ('UMTS', 'blue'),
-        ('LTE', 'green'),
-        ('NR', 'red')
+    bins = [-1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 1e8]
+    labels = [
+        '<10%',
+        '10-20%',
+        '20-30%',
+        '30-40%',
+        '40-50%',
+        '50-60%',
+        '60-70%',
+        '70-80%',
+        '80-90%',
+        '90-100%'
     ]
 
-    for idx, ax in enumerate(axes): #vertical
-        for i, technology in enumerate(technologies):
+    regions['bin'] = pd.cut(
+        regions['covered_pop_perc'],
+        bins=bins,
+        labels=labels
+    )#.add_categories('missing')
 
-            subset = data.loc[data['scenario'] == unique_scenarios[idx]]
+    regions['bin'].fillna('<10%')
 
-            tech_subset = subset.loc[subset['technology'] == technology[0]]
+    regions.to_csv(os.path.join(VIS, 'test.csv'))
 
-            scenario_name = 'S{}'.format(idx)
-            ax[i].set_title('{}_{}'.format(scenario_name, technology[0]))
+    fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(13,13))
+    fig.subplots_adjust(hspace=.2, wspace=.2)
+    fig.set_facecolor('gainsboro')
 
-            tech_subset = regions.merge(tech_subset, left_on=GID_level, right_on='GID_id', how='outer')
+    gsm = regions.loc[regions['technology'] == 'GSM']
+    umts = regions.loc[regions['technology'] == 'UMTS']
+    lte = regions.loc[regions['technology'] == 'LTE']
+    nr = regions.loc[regions['technology'] == 'NR']
 
-            cx.add_basemap(ax[i], crs=regions.crs)
+    gsm.plot(column='bin', cmap='viridis_r', linewidth=0.2, alpha=0.8,
+    legend=True, edgecolor='grey', ax=ax1[0])
+    umts.plot(column='bin', cmap='viridis_r', linewidth=0.2, alpha=0.8,
+    legend=True, edgecolor='grey', ax=ax1[1])
+    lte.plot(column='bin', cmap='viridis_r', linewidth=0.2, alpha=0.8,
+    legend=True, edgecolor='grey', ax=ax2[0])
+    nr.plot(column='bin', cmap='viridis_r', linewidth=0.2, alpha=0.8,
+    legend=True, edgecolor='grey', ax=ax2[1])
 
-            tech_subset = tech_subset[['geometry', 'sites_fail']]
-
-            tech_subset['sites_fail'] = tech_subset['sites_fail'].replace(np.nan, 0)
-
-            if len(tech_subset) > 0:
-                tech_subset.plot(column='sites_fail', cmap='viridis',
-                    edgecolor="lightgrey", lw=.5, ax=ax[i])
+    ax1[0].set_title('Covered by 2G GSM (%)')
+    ax1[1].set_title('Covered by 3G UMTS (%)')
+    ax2[0].set_title('Covered by 4G LTE (%)')
+    ax2[1].set_title('Covered by 5G NR (%)')
 
     fig.tight_layout()
 
-    main_title = 'Mobile Cellular Infrastructure at Risk by Scenario'
-    plt.suptitle(main_title, fontsize=16, y=1.03)
+    main_title = 'Covered Population by Region: {}'.format(name)
+    plt.suptitle(main_title, fontsize=20, y=1.03)
 
-    # crs = 'epsg:4326'
-    # cx.add_basemap(ax1[0], crs=crs)
-    # cx.add_basemap(ax1[1], crs=crs)
-    # cx.add_basemap(ax2[0], crs=crs)
-    # cx.add_basemap(ax2[1], crs=crs)
+    crs = 'epsg:4326'
+    cx.add_basemap(ax1[0], crs=crs)
+    cx.add_basemap(ax1[1], crs=crs)
+    cx.add_basemap(ax2[0], crs=crs)
+    cx.add_basemap(ax2[1], crs=crs)
 
     plt.savefig(path,
     pad_inches=0.4,
     bbox_inches='tight'
     )
-
     plt.close()
+
+
+def format_data(data, regions):
+    """
+
+    """
+    output = []
+
+    technologies = data['technology'].unique()
+    regions = regions['GID_2'].unique()
+
+    for region in regions:
+        for technology in technologies:
+
+            if ((data['GID_id'] == region) & (data['technology'] == technology)).any():
+                subset = data.loc[(data['GID_id'] == region) & (data['technology'] == technology)]
+                covered_pop_perc = subset['covered_pop_perc'].values[0]
+                uncovered_pop_perc = subset['uncovered_pop_perc'].values[0]
+            else:
+                covered_pop_perc = 0
+                uncovered_pop_perc = 100
+
+            output.append({
+                'GID_id': region,
+                'technology': technology,
+                'covered_pop_perc': covered_pop_perc,
+                'uncovered_pop_perc': uncovered_pop_perc,
+            })
+
+    return output
+
 
 def single_extreme_plot(country, regions, outline, path):
     """
@@ -372,6 +356,12 @@ def single_extreme_plot(country, regions, outline, path):
     regions.plot(facecolor="none", edgecolor="lightgrey", lw=1, ax=axes)
     outline.plot(facecolor="none", edgecolor="black", lw=1, ax=axes)
 
+    filename = 'core_edges_existing.shp'
+    folder = os.path.join(DATA_PROCESSED, iso3, 'network_existing')
+    path_fiber = os.path.join(folder, filename)
+    fiber = gpd.read_file(path_fiber, crs='epsg:4326')
+    fiber.plot(color='orange', lw=0.5, ax=axes)
+
     cx.add_basemap(axes, crs=regions.crs)
 
     if len(riverine) > 0:
@@ -382,7 +372,10 @@ def single_extreme_plot(country, regions, outline, path):
                 riverine.lat
             ), crs='epsg:4326'
         )
-        sites.plot(color='red', markersize=4, marker="o", ax=axes)
+        sites.plot(color='red', markersize=2, marker="o", ax=axes)
+        buffers_red = sites
+        buffers_red['geometry'] = buffers_red['geometry'].buffer(0.05)
+        buffers_red.plot(color='red', alpha=.08, ax=axes)
 
     if len(coastal) > 0:
         sites = gpd.GeoDataFrame(
@@ -392,9 +385,12 @@ def single_extreme_plot(country, regions, outline, path):
                 coastal.lat
             ), crs='epsg:4326'
         )
-        sites.plot(color='blue', markersize=4, marker="*", ax=axes)
+        sites.plot(color='blue', markersize=2, marker="*", ax=axes)
+        buffers_blue = sites
+        buffers_blue['geometry'] = buffers_blue['geometry'].buffer(0.05)
+        buffers_blue.plot(color='blue', alpha=.08, ax=axes)
 
-    axes.legend(["Riverine Flooding", "Coastal Flooding"], loc="lower right")
+    axes.legend(["Fiber Network","Riverine Flooding", "Coastal Flooding"], loc="lower right")
 
     fig.tight_layout()
 
@@ -444,24 +440,20 @@ if __name__ == '__main__':
         path = os.path.join(DATA_PROCESSED, iso3, filename)
         outline = gpd.read_file(path, crs='epsg:4326')
 
-        path = os.path.join(folder_vis, '{}_by_pop_density.png'.format(iso3))
-        if not os.path.exists(path):
-            plot_regions_by_geotype(country, shapes, path)
+        # path = os.path.join(folder_vis, '{}_by_pop_density.png'.format(iso3))
+        # if not os.path.exists(path):
+        #     plot_regions_by_geotype(country, shapes, path)
 
-        path = os.path.join(folder_vis, '{}_cells_by_region.png'.format(iso3))
-        if not os.path.exists(path):
-            plot_cells_per_region(country, shapes, path)
-
-        # path = os.path.join(folder_vis, '{}_failed_cells_by_scenario_points.png'.format(iso3))
+        # path = os.path.join(folder_vis, '{}_cells_by_region.png'.format(iso3))
         # # if not os.path.exists(path):
-        # plot_failed_cells_by_scenario_points(country, shapes, outline, path)
+        # plot_cells_per_region(country, shapes, path)
+
+        # path = os.path.join(folder_vis, '{}_uncovered_by_region.png'.format(iso3))
+        # if not os.path.exists(path):
+        #     plot_coverage_by_region(country, shapes, path)
 
         path = os.path.join(folder_vis, '{}_single_extreme_plot.png'.format(iso3))
         # if not os.path.exists(path):
         single_extreme_plot(country, shapes, outline, path)
-
-        # path = os.path.join(folder_vis, '{}_failed_cells_by_scenario.png'.format(iso3))
-        # # if not os.path.exists(path):
-        # plot_failed_cells_by_scenario_polygons(country, shapes, path)
 
         print('Complete')
