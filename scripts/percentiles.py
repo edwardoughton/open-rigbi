@@ -199,8 +199,7 @@ def allocate_groups(country, technologies):
             'population':'sum', 'area_km2':'sum'}).reset_index()
         decile_results['population_km2'] = (
             decile_results['population'] / decile_results['area_km2'])
-        if technology == 'NR':
-            decile_results['population'] = 0
+
         decile_results = decile_results.to_dict('records')
         output = output + decile_results
 
