@@ -39,8 +39,8 @@ def econ_interim_impacts(country, technologies, scenarios):
     folder_out = os.path.join(RESULTS)
     path_output = os.path.join(folder_out, filename)
 
-    if os.path.exists(path_output):
-        return
+    # if os.path.exists(path_output):
+    #     return
 
     output = []
 
@@ -94,6 +94,7 @@ def econ_interim_impacts(country, technologies, scenarios):
             })
 
     output = pd.DataFrame(output)
+    output = output.drop_duplicates()
 
     if not os.path.exists(folder_out):
         os.mkdir(folder_out)
@@ -321,6 +322,7 @@ def coverage_interim_impacts(country, regions, technologies, scenarios):
             })
 
     output = pd.DataFrame(output)
+    output = output.drop_duplicates()
 
     if not os.path.exists(folder_out):
         os.mkdir(folder_out)
@@ -451,6 +453,7 @@ def coverage_estimation_using_failures(country, regions, technologies, scenarios
             })
 
     output = pd.DataFrame(output)
+    output = output.drop_duplicates()
 
     if not os.path.exists(folder_out):
         os.mkdir(folder_out)
@@ -460,85 +463,96 @@ def coverage_estimation_using_failures(country, regions, technologies, scenarios
     return
 
 
-
-def load_site_results(country):
+def site_damage_impacts(country, technologies, scenarios):
     """
-    Load results.
+    Estimate coverage.
+
+    Aqueduct flood scenarios as structured as follows:
+
+    floodtype_climatescenario_subsidence_year_returnperiod_projection
 
     """
     iso3 = country['iso3']
 
-    filename = 'final_{}.csv'.format(iso3)
-    folder_in = os.path.join(RESULTS)
-    path_in = os.path.join(folder_in, filename)
+    filename = 'sites_affected_by_failures_{}.csv'.format(iso3)
+    folder_out = os.path.join(RESULTS)
+    path_output = os.path.join(folder_out, filename)
 
-    data = pd.read_csv(path_in)
-
-    # data = data[data['projection'] != '0_perc_05']
-    # data = data[data['projection'] != '0_perc_50']
-
-    # data = data[data['subsidence'] != '00000NorESM1-M']
-    # data = data[data['subsidence'] != '0000HadGEM2-ES']
-    # data = data[data['subsidence'] != '00IPSL-CM5A-LR']
-    # data = data[data['subsidence'] != 'MIROC-ESM-CHEM']
-    # data = data[data['subsidence'] != 'wtsub']
-
-    data = process_edit_return_periods(data)
-
-    # data = edit_year(data)
-
-    data = pd.DataFrame(data)
-
-    data = data.groupby([
-        # 'floodtype',
-        'climatescenario',
-        # 'subsidence',
-        'year',
-        'returnperiod',
-        # 'projection'
-        ], as_index=True).sum().reset_index()
+    # if not os.path.exists(path_output):
+    #     return
 
     output = []
 
-    for idx, item in data.iterrows():
+    for scenario in tqdm(scenarios):
 
-        # if item['climatescenario'] == 'historical':
-        #     cost = item['cost'] / 2
-        # elif item['climatescenario'] == 'rcp4p5':
-        #     cost = item['cost'] * 1.2
-        # elif item['climatescenario'] == 'rcp8p5':
-        #     cost = item['cost'] * 1.6
+        scenario = os.path.basename(scenario)
 
-        output.append({
-            'climatescenario': item['climatescenario'],
-            'year': item['year'],
-            'returnperiod': item['returnperiod'],
-            'cost': item['cost'],
-        })
+        ### floodtype_climatescenario_subsidence_year_returnperiod_projection
+        floodtype = scenario.split('_')[0]
+        climatescenario = scenario.split('_')[1]
+        subsidence = scenario.split('_')[2]
+        year = scenario.split('_')[3]
+        returnperiod = scenario.split('_')[4].strip('.tif')
+        projection = scenario.split('_')[5:] #not all same length
+
+        if floodtype == 'inuncoast': #deal with differences between climate scenarios
+            projection = '_'.join(projection)
+        elif floodtype == 'inunriver':
+            projection = 'inunriver'
+        else:
+            print('Did not recognize floodtype')
+        projection = projection.strip('.tif')
+
+        if returnperiod == 'rp01000' or returnperiod == 'rp1000':
+            returnperiod = '1000-year'
+        elif returnperiod == 'rp00500' or returnperiod == 'rp0500':
+            returnperiod = '500-year'
+        elif returnperiod == 'rp00250' or returnperiod == 'rp0250':
+            returnperiod = '250-year'
+        elif returnperiod == 'rp00100' or returnperiod == 'rp0100':
+            returnperiod = '100-year'
+        else:
+            print('Return period not recognized {}'.format(returnperiod))
+
+        for technology in technologies:
+
+            filename = 'sites_{}_{}.csv'.format(technology, scenario)
+            folder_in = os.path.join(DATA_PROCESSED, iso3, 'failed_sites')
+            path_in = os.path.join(folder_in, filename)
+
+            if not os.path.exists(path_in):
+                continue
+            data = pd.read_csv(path_in)
+
+            affected_sites = 0
+            cost = 0
+            for idx, item in data.iterrows():
+                if int(item['fragility']) > 0:
+                    affected_sites += 1
+                    cost += (100000 * item['fragility'])
+
+            output.append({
+                'floodtype': floodtype,
+                'climatescenario': climatescenario,
+                'subsidence': subsidence,
+                'year': year,
+                'returnperiod': returnperiod,
+                'projection': projection,
+                'affected_sites': affected_sites,
+                'cost': cost,
+                'technology': technology,
+                'scenario': scenario,
+            })
 
     output = pd.DataFrame(output)
+    output = output.drop_duplicates()
 
-    output.to_csv(os.path.join(RESULTS, 'site_data.csv'), index=False)
+    if not os.path.exists(folder_out):
+        os.mkdir(folder_out)
 
-    return output
+    output.to_csv(path_output, index=False)
 
-
-def edit_year(data):
-    """
-
-    """
-    output = []
-
-    for item in data:
-
-        # if item['year'] in ('2030', '2050', '2080'):
-        #     output.append(item)
-        if item['year'] == 'hist' or item['year'] == '1980':
-            item['year'] = 'historical'
-
-        output.append(item)
-
-    return output
+    return
 
 
 if __name__ == "__main__":
@@ -563,4 +577,4 @@ if __name__ == "__main__":
 
         coverage_estimation_using_failures(country, regions, technologies, scenarios)
 
-        load_site_results(country)
+        site_damage_impacts(country, technologies, scenarios)
