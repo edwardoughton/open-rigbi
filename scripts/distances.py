@@ -31,6 +31,13 @@ DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 
+
+
+
+
+
+
+
 def cut_settlement_layers(country, region):
     """
     Cut the settlement layer by each regional shape
@@ -1267,40 +1274,40 @@ if __name__ == '__main__':
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'GHA':
+        if not country['iso3'] == 'MWI':
             continue
 
         scenarios  = get_scenarios(country)
 
         regions = get_regions(country)
 
-        # for idx, region in tqdm(regions.iterrows(), total=regions.shape[0]):
+        for idx, region in tqdm(regions.iterrows(), total=regions.shape[0]):
 
-        #     GID_level = 'GID_{}'.format(country['lowest'])
-        #     gid_id = region[GID_level]
+            GID_level = 'GID_{}'.format(country['lowest'])
+            gid_id = region[GID_level]
 
-            # if not gid_id == 'GHA.1.1_1': #'GHA.9.7_1': #:#: #'GHA.1.12_1':
-            #     continue
+            if not gid_id == 'MWI.1.1_1': #'GHA.9.7_1': #:#: #'GHA.1.12_1':
+                continue
 
-        #     cut_settlement_layers(country, region) # Cut settlement layers by region
+            cut_settlement_layers(country, region) # Cut settlement layers by region
 
             # convert_to_shapes(country, region) # Convert settlement layers to points
 
             # write_as_text(country, region) # Write out points as .csv
 
-        #     for technology in technologies:
+            # for technology in technologies:
 
-        #         # if not technology == 'GSM':
-        #         #     continue
+            #     # if not technology == 'GSM':
+            #     #     continue
 
-        #         folder_out = os.path.join(DATA_PROCESSED, country['iso3'], 'regional_data', gid_id)
+            #     folder_out = os.path.join(DATA_PROCESSED, country['iso3'], 'regional_data', gid_id)
 
-        #         if not os.path.exists(folder_out):
-        #             os.makedirs(folder_out)
+            #     if not os.path.exists(folder_out):
+            #         os.makedirs(folder_out)
 
-        #         calculate_distances_lut(country, region, technology)
+            #     calculate_distances_lut(country, region, technology)
 
-        #         calculate_sinr_lut(country, region, technology)
+            #     calculate_sinr_lut(country, region, technology)
 
         #         for scenario in scenarios:
 
@@ -1315,6 +1322,6 @@ if __name__ == '__main__':
 
         # write_out_baseline_coverage(country, scenarios, technologies)
 
-        write_out_site_failures(country, scenarios, technologies)
+        # write_out_site_failures(country, scenarios, technologies)
 
         # write_out_tiles_served_by_failures(country, scenarios, technologies)

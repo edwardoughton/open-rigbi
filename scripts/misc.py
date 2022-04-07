@@ -32,7 +32,7 @@ params = {
         'all_other_losses': 0.53, #All other losses
         'minimum_interference': -120, #Number of channels per satellite
         'functioning_sinr': 0,
-        'number_of_cells': 2, #Number of cells to check distance to
+        'number_of_cells': 3, #Number of cells to check distance to
 }
 
 
@@ -52,6 +52,13 @@ def get_countries():
     filename = "countries.csv"
     path = os.path.join(DATA_RAW, filename)
     countries = pd.read_csv(path, encoding='latin-1')
+
+    filename = "mobile_codes.csv"
+    path = os.path.join(DATA_RAW, filename)
+    mobile_codes = pd.read_csv(path)
+    mobile_codes = mobile_codes[['iso2', 'mcc']].drop_duplicates()
+    mobile_codes['iso2'] = mobile_codes['iso2'].str.upper()
+    countries = pd.merge(countries, mobile_codes, left_on = 'iso2', right_on = 'iso2')
 
     return countries
 
