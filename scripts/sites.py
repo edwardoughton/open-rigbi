@@ -40,7 +40,8 @@ def create_national_sites_layer(country):
     ### Produce national sites data layers
     if not os.path.exists(path_csv):
 
-        print('site .csv data does not exist')
+        print('site.csv data does not exist')
+        print('Subsetting site data for {}'.format(iso3))
 
         if not os.path.exists(folder):
             os.makedirs(folder)
@@ -58,6 +59,8 @@ def create_national_sites_layer(country):
         country_data.to_csv(path_csv, index=False)
 
     else:
+
+        print('Writing site shapefil data for {}'.format(iso3))
 
         country_data = pd.read_csv(path_csv)#[:10]
 
@@ -396,22 +399,22 @@ if __name__ == "__main__":
 
         print('--Working on {}'.format(country['country']))
 
-        ### Separate out site data to .csv
+        print('Separating out site data to .csv')
         create_national_sites_layer(country)
 
-        ### Write to shapefiles
+        print('Write sites to shapefiles')
         create_national_sites_layer(country)
 
-        ### Process country shapes
+        print('Processing country shapes')
         process_country_shapes(country)
 
-        ### Process region shapes
+        print('Processing region shapes')
         process_regions(country)
 
-        ### Create regional site layer
+        print('Creating regional site layer')
         create_regional_sites_layer(country)
 
-        ### Create technology specific site layer
+        print('Creating technology specific site layers')
         tech_specific_sites(country)
 
     print('--Complete')
