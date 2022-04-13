@@ -121,12 +121,11 @@ def process_country_shapes(country):
     shape_path = os.path.join(path, 'national_outline.shp')
 
     path = os.path.join(DATA_RAW, 'gadm36_levels_shp', 'gadm36_0.shp')
-    print('here')
+
     countries = gpd.read_file(path)
-    print('there')
+
     single_country = countries[countries.GID_0 == iso3].reset_index()
 
-    # # if not iso3 == 'MDV':
     single_country['geometry'] = single_country.apply(
         remove_small_shapes, axis=1)
 
@@ -206,8 +205,8 @@ def process_regions(country):
         folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
         path_processed = os.path.join(folder, filename)
 
-        # if os.path.exists(path_processed):
-        #     continue
+        if os.path.exists(path_processed):
+            continue
 
         if not os.path.exists(folder):
             os.mkdir(folder)
@@ -409,6 +408,13 @@ if __name__ == "__main__":
 
         print('Separating out site data to .csv')
         create_national_sites_layer(country)
+
+        filename = '{}.csv'.format(country['iso3'])
+        folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
+        path_csv = os.path.join(folder, filename)
+
+        if not os.path.exists(path_csv):
+            continue
 
         print('Write sites to shapefiles')
         create_national_sites_layer(country)
