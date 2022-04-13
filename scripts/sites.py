@@ -105,8 +105,8 @@ def process_country_shapes(country):
 
     path = os.path.join(DATA_PROCESSED, iso3)
 
-    # if os.path.exists(os.path.join(path, 'national_outline.shp')):
-    #     return 'Completed national outline processing'
+    if os.path.exists(os.path.join(path, 'national_outline.shp')):
+        return 'Completed national outline processing'
 
     if not os.path.exists(path):
         os.makedirs(path)
@@ -114,8 +114,9 @@ def process_country_shapes(country):
     shape_path = os.path.join(path, 'national_outline.shp')
 
     path = os.path.join(DATA_RAW, 'gadm36_levels_shp', 'gadm36_0.shp')
+    print('here')
     countries = gpd.read_file(path)
-
+    print('there')
     single_country = countries[countries.GID_0 == iso3].reset_index()
 
     # # if not iso3 == 'MDV':
