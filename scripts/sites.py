@@ -60,7 +60,16 @@ def create_national_sites_layer(country):
 
     else:
 
-        print('Writing site shapefil data for {}'.format(iso3))
+        filename = '{}.shp'.format(iso3)
+        path_shp = os.path.join(folder, filename)
+
+        if os.path.exists(path_shp):
+            return
+
+        if not os.path.exists(path_csv):
+            return
+
+        print('Writing site shapefile data for {}'.format(iso3))
 
         country_data = pd.read_csv(path_csv)#[:10]
 
@@ -84,8 +93,6 @@ def create_national_sites_layer(country):
 
         output = gpd.GeoDataFrame.from_features(output, crs=crs)
 
-        filename = '{}.shp'.format(iso3)
-        path_shp = os.path.join(folder, filename)
         output.to_file(path_shp)
 
     return
@@ -395,8 +402,8 @@ if __name__ == "__main__":
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'GHA':
-            continue
+        # if not country['iso3'] == 'GHA':
+        #     continue
 
         print('--Working on {}'.format(country['country']))
 
