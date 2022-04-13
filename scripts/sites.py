@@ -91,7 +91,7 @@ def create_national_sites_layer(country):
                 }
             })
 
-        output = gpd.GeoDataFrame.from_features(output, crs=crs)
+        output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
 
         output.to_file(path_shp)
 
@@ -235,6 +235,7 @@ def create_regional_sites_layer(country):
     """
     iso3 = country['iso3']
     regional_level = country['gid_region']
+    gid_id = 'GID_{}'.format(regional_level)
 
     project = pyproj.Transformer.from_proj(
         pyproj.Proj('epsg:4326'), # source coordinate system
@@ -250,13 +251,10 @@ def create_regional_sites_layer(country):
     filename = 'regions_{}_{}.shp'.format(regional_level, iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
     path = os.path.join(folder, filename)
-    regions = gpd.read_file(path, crs='epsg:4326')#[:5]
+    regions = gpd.read_file(path, crs='epsg:4326')#[:1]
     # regions = regions.to_crs(epsg=3857)
 
     for idx, region in tqdm(regions.iterrows(), total=regions.shape[0]):
-
-        if not region['GID_2'] == 'GHA.1.12_1':
-            continue
 
         output = []
 
@@ -282,11 +280,11 @@ def create_regional_sites_layer(country):
                         'cell': site['cell'],
                         'gid_level': gid_level,
                         'gid_id': region[gid_level],
-                        'cell_id_4326': '{}_{}'.format(
+                        'cellid4326': '{}_{}'.format(
                             round(geom_4326.coords.xy[0][0],6),
                             round(geom_4326.coords.xy[1][0],6)
                         ),
-                        'cell_id_3857': '{}_{}'.format(
+                        'cellid3857': '{}_{}'.format(
                             round(geom_3857.coords.xy[0][0],6),
                             round(geom_3857.coords.xy[1][0],6)
                         ),
@@ -295,7 +293,7 @@ def create_regional_sites_layer(country):
 
         if len(output) > 0:
 
-            output = gpd.GeoDataFrame.from_features(output, crs='epsg:3857')
+            output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
             filename = '{}.shp'.format(gid_id)
             folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'regional_sites')
             if not os.path.exists(folder):
@@ -316,6 +314,10 @@ def tech_specific_sites(country):
     """
     iso3 = country['iso3']
     regional_level = country['gid_region']
+
+    project = pyproj.Transformer.from_proj(
+        pyproj.Proj('epsg:4326'), # source coordinate system
+        pyproj.Proj('epsg:3857')) # destination coordinate system
 
     filename = 'regions_{}_{}.shp'.format(regional_level, iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
@@ -342,7 +344,7 @@ def tech_specific_sites(country):
         path = os.path.join(folder, filename)
         if not os.path.exists(path):
             continue
-        sites = gpd.read_file(path, crs='epsg:3857')
+        sites = gpd.read_file(path, crs='epsg:4326')
 
         for technology in technologies:
 
@@ -350,6 +352,12 @@ def tech_specific_sites(country):
 
             for idx, site in sites.iterrows():
                 if technology == site['radio']:
+
+                    geom_4326 = site['geometry']
+
+                    # apply projection
+                    geom_3857 = transform(project.transform, geom_4326)
+
                     output.append({
                         'type': 'Feature',
                         'geometry': site['geometry'],
@@ -361,16 +369,20 @@ def tech_specific_sites(country):
                             'cell': site['cell'],
                             'gid_level': gid_level,
                             'gid_id': region[gid_level],
-                            'cell_id': '{}_{}'.format(
-                                round(site['geometry'].coords.xy[0][0], 6),
-                                round(site['geometry'].coords.xy[1][0], 6)
+                            'cellid4326': '{}_{}'.format(
+                                round(geom_4326.coords.xy[0][0],6),
+                                round(geom_4326.coords.xy[1][0],6)
+                            ),
+                            'cellid3857': '{}_{}'.format(
+                                round(geom_3857.coords.xy[0][0],6),
+                                round(geom_3857.coords.xy[1][0],6)
                             ),
                         }
                     })
 
             if len(output) > 0:
 
-                output = gpd.GeoDataFrame.from_features(output, crs='epsg:3857')
+                output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
                 filename = '{}_{}.shp'.format(technology, gid_id)
                 folder = os.path.join(DATA_PROCESSED, iso3, 'sites', technology)
                 if not os.path.exists(folder):
@@ -400,9 +412,6 @@ if __name__ == "__main__":
     countries = pd.merge(countries, mobile_codes, left_on = 'iso2', right_on = 'iso2')
 
     for idx, country in countries.iterrows():
-
-        # if not country['iso3'] == 'GHA':
-        #     continue
 
         print('--Working on {}'.format(country['country']))
 
