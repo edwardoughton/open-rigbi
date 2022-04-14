@@ -75,7 +75,7 @@ def create_national_sites_layer(country):
 
         output = []
 
-        for idx, row in tqdm(country_data.iterrows(), total=country_data.shape[0]):
+        for idx, row in country_data.iterrows(): #tqdm(country_data.iterrows(), total=country_data.shape[0]):
             output.append({
                 'type': 'Feature',
                 'geometry': {
@@ -126,8 +126,8 @@ def process_country_shapes(country):
 
     single_country = countries[countries.GID_0 == iso3].reset_index()
 
-    single_country['geometry'] = single_country.apply(
-        remove_small_shapes, axis=1)
+    # single_country['geometry'] = single_country.apply(
+    #     remove_small_shapes, axis=1)
 
     glob_info_path = os.path.join(DATA_RAW, 'countries.csv')
     load_glob_info = pd.read_csv(glob_info_path, encoding = "ISO-8859-1",
@@ -254,7 +254,7 @@ def create_regional_sites_layer(country):
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
     # regions = regions.to_crs(epsg=3857)
 
-    for idx, region in tqdm(regions.iterrows(), total=regions.shape[0]):
+    for idx, region in regions.iterrows(): #tqdm(regions.iterrows(), total=regions.shape[0]):
 
         output = []
 
@@ -331,7 +331,7 @@ def tech_specific_sites(country):
         'NR',
     ]
 
-    for idx, region in tqdm(regions.iterrows(), total=regions.shape[0]):
+    for idx, region in regions.iterrows(): #tqdm(regions.iterrows(), total=regions.shape[0]):
 
         # if not region['GID_2'] == 'GHA.1.12_1':
         #     continue
@@ -403,6 +403,7 @@ if __name__ == "__main__":
     filename = "countries.csv"
     path = os.path.join(DATA_RAW, filename)
     countries = pd.read_csv(path, encoding='latin-1')
+    countries = countries[countries.Exclude == 0]
 
     filename = "mobile_codes.csv"
     path = os.path.join(DATA_RAW, filename)
@@ -415,29 +416,33 @@ if __name__ == "__main__":
 
         print('--Working on {}'.format(country['country']))
 
-        print('Separating out site data to .csv')
-        create_national_sites_layer(country)
+        try:
+            print('Separating out site data to .csv')
+            create_national_sites_layer(country)
 
-        filename = '{}.csv'.format(country['iso3'])
-        folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
-        path_csv = os.path.join(folder, filename)
+            filename = '{}.csv'.format(country['iso3'])
+            folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
+            path_csv = os.path.join(folder, filename)
 
-        if not os.path.exists(path_csv):
+            if not os.path.exists(path_csv):
+                continue
+
+            print('Write sites to shapefiles')
+            create_national_sites_layer(country)
+
+            print('Processing country shapes')
+            process_country_shapes(country)
+
+            print('Processing region shapes')
+            process_regions(country)
+
+            print('Creating regional site layer')
+            create_regional_sites_layer(country)
+
+            print('Creating technology specific site layers')
+            tech_specific_sites(country)
+
+        except:
             continue
-
-        print('Write sites to shapefiles')
-        create_national_sites_layer(country)
-
-        print('Processing country shapes')
-        process_country_shapes(country)
-
-        print('Processing region shapes')
-        process_regions(country)
-
-        print('Creating regional site layer')
-        create_regional_sites_layer(country)
-
-        print('Creating technology specific site layers')
-        tech_specific_sites(country)
 
     print('--Complete')
