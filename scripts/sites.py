@@ -414,6 +414,8 @@ if __name__ == "__main__":
 
     for idx, country in countries.iterrows():
 
+        if not country['iso3'] == 'DZA':
+            continue
         print('--Working on {}'.format(country['country']))
 
         try:
