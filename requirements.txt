@@ -1,4 +1,4 @@
-geopandas==0.10.2
+geopandas==0.10.1
 rasterio==1.2.10
 requests==2.27.1
 tqdm==4.64.0

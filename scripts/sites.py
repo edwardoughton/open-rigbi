@@ -75,7 +75,7 @@ def create_national_sites_layer(country):
 
         output = []
 
-        for idx, row in country_data.iterrows(): #tqdm(country_data.iterrows(), total=country_data.shape[0]):
+        for idx, row in country_data.iterrows():
             output.append({
                 'type': 'Feature',
                 'geometry': {
@@ -112,8 +112,10 @@ def process_country_shapes(country):
 
     path = os.path.join(DATA_PROCESSED, iso3)
 
-    if os.path.exists(os.path.join(path, 'national_outline.shp')):
-        return 'Completed national outline processing'
+    # if os.path.exists(os.path.join(path, 'national_outline.shp')):
+    #     return 'Completed national outline processing'
+
+    print('Processing country shapes')
 
     if not os.path.exists(path):
         os.makedirs(path)
@@ -126,8 +128,12 @@ def process_country_shapes(country):
 
     single_country = countries[countries.GID_0 == iso3].reset_index()
 
-    # single_country['geometry'] = single_country.apply(
-    #     remove_small_shapes, axis=1)
+    single_country = single_country.copy()
+    single_country["geometry"] = single_country.geometry.simplify(
+        tolerance=0.01, preserve_topology=True)
+
+    single_country['geometry'] = single_country.apply(
+        remove_small_shapes, axis=1)
 
     glob_info_path = os.path.join(DATA_RAW, 'countries.csv')
     load_glob_info = pd.read_csv(glob_info_path, encoding = "ISO-8859-1",
@@ -205,8 +211,10 @@ def process_regions(country):
         folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
         path_processed = os.path.join(folder, filename)
 
-        if os.path.exists(path_processed):
-            continue
+        # if os.path.exists(path_processed):
+        #     continue
+
+        print('Processing GID_{} region shapes'.format(regional_level))
 
         if not os.path.exists(folder):
             os.mkdir(folder)
@@ -216,6 +224,10 @@ def process_regions(country):
         regions = gpd.read_file(path_regions)
 
         regions = regions[regions.GID_0 == iso3]
+
+        regions = regions.copy()
+        regions["geometry"] = regions.geometry.simplify(
+            tolerance=0.01, preserve_topology=True)
 
         regions['geometry'] = regions.apply(remove_small_shapes, axis=1)
 
@@ -256,10 +268,22 @@ def create_regional_sites_layer(country):
 
     for idx, region in regions.iterrows(): #tqdm(regions.iterrows(), total=regions.shape[0]):
 
-        output = []
-
         gid_level = 'GID_{}'.format(regional_level)
         gid_id = region[gid_level]
+
+        filename = '{}.shp'.format(gid_id)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'regional_sites')
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        path = os.path.join(folder, filename)
+
+        if os.path.exists(path):
+            continue
+
+        if idx == 0:
+            print('Working on regional site layer')
+
+        output = []
 
         for idx, site in sites.iterrows():
             if region['geometry'].intersects(site['geometry']):
@@ -294,11 +318,6 @@ def create_regional_sites_layer(country):
         if len(output) > 0:
 
             output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
-            filename = '{}.shp'.format(gid_id)
-            folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'regional_sites')
-            if not os.path.exists(folder):
-                os.mkdir(folder)
-            path = os.path.join(folder, filename)
             output.to_file(path)
 
         else:
@@ -348,6 +367,18 @@ def tech_specific_sites(country):
 
         for technology in technologies:
 
+            filename = '{}_{}.shp'.format(technology, gid_id)
+            folder = os.path.join(DATA_PROCESSED, iso3, 'sites', technology)
+            if not os.path.exists(folder):
+                os.mkdir(folder)
+            path = os.path.join(folder, filename)
+
+            if os.path.exists(path):
+                continue
+
+            if technology == 'GSM' and idx == 0:
+                print('Creating technology specific site layers')
+
             output = []
 
             for idx, site in sites.iterrows():
@@ -383,11 +414,6 @@ def tech_specific_sites(country):
             if len(output) > 0:
 
                 output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
-                filename = '{}_{}.shp'.format(technology, gid_id)
-                folder = os.path.join(DATA_PROCESSED, iso3, 'sites', technology)
-                if not os.path.exists(folder):
-                    os.mkdir(folder)
-                path = os.path.join(folder, filename)
                 output.to_file(path)
 
             else:
@@ -414,35 +440,26 @@ if __name__ == "__main__":
 
     for idx, country in countries.iterrows():
 
-        # if not country['iso3'] == 'DZA':
-        #     continue
+        if not country['iso3'] == 'BRA':
+            continue
 
-        print('--Working on {}'.format(country['country']))
+        print('-- {}'.format(country['country']))
 
         try:
-            print('Separating out site data to .csv')
-            create_national_sites_layer(country)
-
-            filename = '{}.csv'.format(country['iso3'])
-            folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
-            path_csv = os.path.join(folder, filename)
 
             if not os.path.exists(path_csv):
                 continue
 
-            print('Write sites to shapefiles')
             create_national_sites_layer(country)
 
-            print('Processing country shapes')
+            create_national_sites_layer(country)
+
             process_country_shapes(country)
 
-            print('Processing region shapes')
             process_regions(country)
 
-            print('Creating regional site layer')
             create_regional_sites_layer(country)
 
-            print('Creating technology specific site layers')
             tech_specific_sites(country)
 
         except:
