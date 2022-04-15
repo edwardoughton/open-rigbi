@@ -440,8 +440,8 @@ if __name__ == "__main__":
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'BRA':
-            continue
+        # if not country['iso3'] == 'BRA':
+        #     continue
 
         print('-- {}'.format(country['country']))
 
