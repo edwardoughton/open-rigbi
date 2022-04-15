@@ -6,6 +6,7 @@ Ed Oughton
 February 2022
 
 """
+import sys
 import os
 import configparser
 import pandas as pd
@@ -24,15 +25,31 @@ DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 
-def create_national_sites_layer(country):
+def run_site_processing(iso3, level):
     """
-    Create a national sites layer for a selected country.
+    Meta function for running site processing.
 
     """
-    iso3 = country['iso3']
-    name = country['country']
-    mcc = country['mcc']
+    create_national_sites_csv(iso3)
 
+    create_national_sites_shp(iso3)
+
+    process_country_shapes(iso3)
+
+    process_regions(iso3, level)
+
+    create_regional_sites_layer(iso3, level)
+
+    tech_specific_sites(iso3, level)
+
+    return
+
+
+def create_national_sites_csv(iso3):
+    """
+    Create a national sites csv layer for a selected country.
+
+    """
     filename = '{}.csv'.format(iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
     path_csv = os.path.join(folder, filename)
@@ -46,6 +63,13 @@ def create_national_sites_layer(country):
         if not os.path.exists(folder):
             os.makedirs(folder)
 
+        filename = "mobile_codes.csv"
+        path = os.path.join(DATA_RAW, filename)
+        mobile_codes = pd.read_csv(path)
+        mobile_codes = mobile_codes[['iso3', 'mcc']].drop_duplicates()
+        subset = mobile_codes[mobile_codes['iso3'] == iso3]
+        mcc = subset['mcc'].values[0]
+
         filename = "cell_towers.csv"
         path = os.path.join(DATA_RAW, filename)
         all_data = pd.read_csv(path)#[:10]
@@ -53,21 +77,27 @@ def create_national_sites_layer(country):
         country_data = all_data.loc[all_data['mcc'] == mcc]
 
         if len(country_data) == 0:
-            print('{} had no data'.format(name))
+            print('{} had no data'.format(iso3))
             return
 
         country_data.to_csv(path_csv, index=False)
 
-    else:
+    return
 
-        filename = '{}.shp'.format(iso3)
-        path_shp = os.path.join(folder, filename)
 
-        if os.path.exists(path_shp):
-            return
+def create_national_sites_shp(iso3):
+    """
+    Create a national sites csv layer for a selected country.
 
-        if not os.path.exists(path_csv):
-            return
+    """
+    filename = '{}.csv'.format(iso3)
+    folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
+    path_csv = os.path.join(folder, filename)
+
+    filename = '{}.shp'.format(iso3)
+    path_shp = os.path.join(folder, filename)
+
+    if not os.path.exists(path_shp):
 
         print('Writing site shapefile data for {}'.format(iso3))
 
@@ -95,10 +125,8 @@ def create_national_sites_layer(country):
 
         output.to_file(path_shp)
 
-    return
 
-
-def process_country_shapes(country):
+def process_country_shapes(iso3):
     """
     Creates a single national boundary for the desired country.
 
@@ -108,8 +136,6 @@ def process_country_shapes(country):
         Contains all desired country information.
 
     """
-    iso3 = country['iso3']
-
     path = os.path.join(DATA_PROCESSED, iso3)
 
     # if os.path.exists(os.path.join(path, 'national_outline.shp')):
@@ -189,7 +215,7 @@ def remove_small_shapes(x):
         return MultiPolygon(new_geom)
 
 
-def process_regions(country):
+def process_regions(iso3, level):
     """
     Function for processing the lowest desired subnational
     regions for the chosen country.
@@ -202,10 +228,7 @@ def process_regions(country):
     """
     regions = []
 
-    iso3 = country['iso3']
-    level = country['lowest']
-
-    for regional_level in range(1, level + 1):
+    for regional_level in range(1, int(level) + 1):
 
         filename = 'regions_{}_{}.shp'.format(regional_level, iso3)
         folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
@@ -240,14 +263,12 @@ def process_regions(country):
     return
 
 
-def create_regional_sites_layer(country):
+def create_regional_sites_layer(iso3, level):
     """
     Create regional site layers.
 
     """
-    iso3 = country['iso3']
-    regional_level = country['gid_region']
-    gid_id = 'GID_{}'.format(regional_level)
+    gid_id = 'GID_{}'.format(level)
 
     project = pyproj.Transformer.from_proj(
         pyproj.Proj('epsg:4326'), # source coordinate system
@@ -260,7 +281,7 @@ def create_regional_sites_layer(country):
     sites = gpd.read_file(path_shp, crs='epsg:4326')
     # sites = sites.to_crs(epsg=3857)
 
-    filename = 'regions_{}_{}.shp'.format(regional_level, iso3)
+    filename = 'regions_{}_{}.shp'.format(level, iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
     path = os.path.join(folder, filename)
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
@@ -268,7 +289,7 @@ def create_regional_sites_layer(country):
 
     for idx, region in regions.iterrows(): #tqdm(regions.iterrows(), total=regions.shape[0]):
 
-        gid_level = 'GID_{}'.format(regional_level)
+        gid_level = 'GID_{}'.format(level)
         gid_id = region[gid_level]
 
         filename = '{}.shp'.format(gid_id)
@@ -326,19 +347,16 @@ def create_regional_sites_layer(country):
     return
 
 
-def tech_specific_sites(country):
+def tech_specific_sites(iso3, level):
     """
     Break sites into tech-specific shapefiles.
 
     """
-    iso3 = country['iso3']
-    regional_level = country['gid_region']
-
     project = pyproj.Transformer.from_proj(
         pyproj.Proj('epsg:4326'), # source coordinate system
         pyproj.Proj('epsg:3857')) # destination coordinate system
 
-    filename = 'regions_{}_{}.shp'.format(regional_level, iso3)
+    filename = 'regions_{}_{}.shp'.format(level, iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
     path = os.path.join(folder, filename)
     regions = gpd.read_file(path, crs=crs)#[:5]
@@ -355,7 +373,7 @@ def tech_specific_sites(country):
         # if not region['GID_2'] == 'GHA.1.12_1':
         #     continue
 
-        gid_level = 'GID_{}'.format(regional_level)
+        gid_level = 'GID_{}'.format(level)
         gid_id = region[gid_level]
 
         filename = '{}.shp'.format(gid_id)
@@ -424,45 +442,9 @@ def tech_specific_sites(country):
 
 if __name__ == "__main__":
 
-    crs = 'epsg:4326'
+    args = sys.argv
 
-    filename = "countries.csv"
-    path = os.path.join(DATA_RAW, filename)
-    countries = pd.read_csv(path, encoding='latin-1')
-    countries = countries[countries.Exclude == 0]
+    iso3 = args[1]
+    level = args[2]
 
-    filename = "mobile_codes.csv"
-    path = os.path.join(DATA_RAW, filename)
-    mobile_codes = pd.read_csv(path)
-    mobile_codes = mobile_codes[['iso2', 'mcc']].drop_duplicates()
-    mobile_codes['iso2'] = mobile_codes['iso2'].str.upper()
-    countries = pd.merge(countries, mobile_codes, left_on = 'iso2', right_on = 'iso2')
-
-    for idx, country in countries.iterrows():
-
-        # if not country['iso3'] == 'BRA':
-        #     continue
-
-        print('-- {}'.format(country['country']))
-
-        try:
-
-            if os.path.exists(path_csv):
-                continue
-
-            create_national_sites_layer(country)
-
-            create_national_sites_layer(country)
-
-            process_country_shapes(country)
-
-            process_regions(country)
-
-            create_regional_sites_layer(country)
-
-            tech_specific_sites(country)
-
-        except:
-            continue
-
-    print('--Complete')
+    run_site_processing(iso3, level)
