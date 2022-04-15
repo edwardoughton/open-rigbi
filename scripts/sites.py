@@ -447,7 +447,7 @@ if __name__ == "__main__":
 
         try:
 
-            if not os.path.exists(path_csv):
+            if os.path.exists(path_csv):
                 continue
 
             create_national_sites_layer(country)
