@@ -65,6 +65,7 @@ def create_national_sites_csv(iso3):
 
         filename = "mobile_codes.csv"
         path = os.path.join(DATA_RAW, filename)
+
         mobile_codes = pd.read_csv(path)
         mobile_codes = mobile_codes[['iso3', 'mcc']].drop_duplicates()
         subset = mobile_codes[mobile_codes['iso3'] == iso3]
@@ -72,15 +73,24 @@ def create_national_sites_csv(iso3):
 
         filename = "cell_towers.csv"
         path = os.path.join(DATA_RAW, filename)
-        all_data = pd.read_csv(path)#[:10]
 
-        country_data = all_data.loc[all_data['mcc'] == mcc]
+        output = []
 
-        if len(country_data) == 0:
+        chunksize = 10 ** 6
+        for idx, chunk in enumerate(pd.read_csv(path, chunksize=chunksize)):
+
+            country_data = chunk.loc[chunk['mcc'] == mcc]
+
+            country_data = country_data.to_dict('records')
+
+            output = output + country_data
+
+        if len(output) == 0:
             print('{} had no data'.format(iso3))
             return
 
-        country_data.to_csv(path_csv, index=False)
+        output = pd.DataFrame(output)
+        output.to_csv(path_csv, index=False)
 
     return
 
@@ -138,8 +148,8 @@ def process_country_shapes(iso3):
     """
     path = os.path.join(DATA_PROCESSED, iso3)
 
-    # if os.path.exists(os.path.join(path, 'national_outline.shp')):
-    #     return 'Completed national outline processing'
+    if os.path.exists(os.path.join(path, 'national_outline.shp')):
+        return 'Completed national outline processing'
 
     print('Processing country shapes')
 
@@ -234,8 +244,8 @@ def process_regions(iso3, level):
         folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
         path_processed = os.path.join(folder, filename)
 
-        # if os.path.exists(path_processed):
-        #     continue
+        if os.path.exists(path_processed):
+            continue
 
         print('Processing GID_{} region shapes'.format(regional_level))
 
@@ -286,6 +296,14 @@ def create_regional_sites_layer(iso3, level):
     path = os.path.join(folder, filename)
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
     # regions = regions.to_crs(epsg=3857)
+
+    region = regions.iloc[-1]
+    gid_id = region['GID_{}'.format(level)]
+    filename = '{}.shp'.format(gid_id)
+    folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'regional_sites')
+    path = os.path.join(folder, filename)
+    if os.path.exists(path):
+        return
 
     for idx, region in regions.iterrows(): #tqdm(regions.iterrows(), total=regions.shape[0]):
 
@@ -359,7 +377,15 @@ def tech_specific_sites(iso3, level):
     filename = 'regions_{}_{}.shp'.format(level, iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
     path = os.path.join(folder, filename)
-    regions = gpd.read_file(path, crs=crs)#[:5]
+    regions = gpd.read_file(path, crs='epsg:4326')#[:5]
+
+    region = regions.iloc[-1]
+    gid_id = region['GID_{}'.format(level)]
+    folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'GSM')
+    path = os.path.join(folder, 'GSM_{}.shp'.format(gid_id))
+
+    if os.path.exists(path):
+        return
 
     technologies = [
         'GSM',

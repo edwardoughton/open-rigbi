@@ -30,7 +30,12 @@ if __name__ == "__main__":
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
 
+    failed = []
+
     for idx, country in countries.iterrows():
+
+        # if not country['iso3'] == 'DZA':
+        #     continue
 
         print('-- {}'.format(country['country']))
 
@@ -38,7 +43,8 @@ if __name__ == "__main__":
             run_site_processing(country['iso3'], country['lowest'])
 
         except:
-
+            print('Failed on {}'.format(country['country']))
+            failed.append(country['country'])
             continue
-
+        print(failed)
     print('--Complete')

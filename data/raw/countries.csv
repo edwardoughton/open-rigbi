@@ -1,6 +1,6 @@
 iso3,iso2,country,continent,gid_region,lowest,Exclude
 AFG,AF,Afghanistan,Asia,1,2,0
-ALA,AX,Åland Islands,Europe,1,2,0
+ALA,AX,Åland Islands,Europe,1,2,1
 ALB,AL,Albania,Europe,1,2,0
 DZA,DZ,Algeria,Africa,1,2,0
 ASM,AS,American Samoa,Oceania,1,1,0
