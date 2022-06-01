@@ -27,7 +27,7 @@ DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 def run_site_processing(iso3, level):
     """
-    Meta function for running site processing.
+    Meta function for running site processing at GID 1 level.
 
     """
     create_national_sites_csv(iso3)
@@ -38,9 +38,12 @@ def run_site_processing(iso3, level):
 
     process_regions(iso3, level)
 
-    create_regional_sites_layer(iso3, level)
+    create_regional_sites_layer_gid_1(iso3, level)
+    tech_specific_sites_gid_1(iso3, level)
 
-    tech_specific_sites(iso3, level)
+    if str(level) == "2":
+        create_regional_sites_layer_gid_2(iso3, level)
+        tech_specific_sites_gid_2(iso3, level)
 
     return
 
@@ -273,7 +276,7 @@ def process_regions(iso3, level):
     return
 
 
-def create_regional_sites_layer(iso3, level):
+def create_regional_sites_layer_gid_1(iso3, level):
     """
     Create regional site layers.
 
@@ -365,7 +368,7 @@ def create_regional_sites_layer(iso3, level):
     return
 
 
-def tech_specific_sites(iso3, level):
+def tech_specific_sites_gid_1(iso3, level):
     """
     Break sites into tech-specific shapefiles.
 
@@ -459,6 +462,212 @@ def tech_specific_sites(iso3, level):
 
                 output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
                 output.to_file(path)
+
+            else:
+                continue
+
+    return
+
+
+def create_regional_sites_layer_gid_2(iso3, level):
+    """
+    Create regional site layers.
+
+    """
+    gid_id = 'GID_{}'.format(level)
+
+    project = pyproj.Transformer.from_proj(
+        pyproj.Proj('epsg:4326'), # source coordinate system
+        pyproj.Proj('epsg:3857')) # destination coordinate system
+
+    filename = 'regions_{}_{}.shp'.format(level, iso3)
+    folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
+    path = os.path.join(folder, filename)
+    regions = gpd.read_file(path, crs='epsg:4326')#[:1]
+    # regions = regions.to_crs(epsg=3857)
+
+    ##Check if complete processing has been carried out yet
+    region = regions.iloc[-1]
+    gid_id = region['GID_{}'.format(level)]
+    filename = '{}.shp'.format(gid_id)
+    folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'regional_sites')
+    path = os.path.join(folder, filename)
+    if os.path.exists(path):
+        return
+
+    for idx, region in regions.iterrows(): #tqdm(regions.iterrows(), total=regions.shape[0]):
+
+        gid_level = 'GID_{}'.format(level)
+        gid_2 = region[gid_level]
+        gid_1_num = gid_2.split('.')[1]
+        gid_1 = "{}.{}_1".format(iso3, gid_1_num)
+
+        # if not gid_1 == 'AFG.14_1':
+        #     continue
+
+        filename = '{}.shp'.format(gid_2)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'regional_sites')
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        path_out = os.path.join(folder, filename)
+
+        # if os.path.exists(path_out):
+        #     continue
+
+        filename = '{}.shp'.format(gid_1)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'regional_sites')
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        path = os.path.join(folder, filename)
+        sites = gpd.read_file(path, crs='epsg:4326')
+
+        if idx == 0:
+            print('Working on regional site layer')
+
+        output = []
+
+        for idx, site in sites.iterrows():
+            if region['geometry'].intersects(site['geometry']):
+
+                geom_4326 = site['geometry']
+
+                # apply projection
+                geom_3857 = transform(project.transform, geom_4326)
+
+                output.append({
+                    'type': 'Feature',
+                    'geometry': site['geometry'],
+                    'properties': {
+                        'radio': site['radio'],
+                        'mcc': site['mcc'],
+                        'net': site['net'],
+                        'area': site['area'],
+                        'cell': site['cell'],
+                        'gid_level': gid_level,
+                        'gid_id': region[gid_level],
+                        'cellid4326': '{}_{}'.format(
+                            round(geom_4326.coords.xy[0][0],6),
+                            round(geom_4326.coords.xy[1][0],6)
+                        ),
+                        'cellid3857': '{}_{}'.format(
+                            round(geom_3857.coords.xy[0][0],6),
+                            round(geom_3857.coords.xy[1][0],6)
+                        ),
+                    }
+                })
+
+        if len(output) > 0:
+
+            output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
+            output.to_file(path_out)
+
+        else:
+            continue
+
+    return
+
+
+def tech_specific_sites_gid_2(iso3, level):
+    """
+    Break sites into tech-specific shapefiles.
+
+    """
+    project = pyproj.Transformer.from_proj(
+        pyproj.Proj('epsg:4326'), # source coordinate system
+        pyproj.Proj('epsg:3857')) # destination coordinate system
+
+    filename = 'regions_{}_{}.shp'.format(level, iso3)
+    folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
+    path = os.path.join(folder, filename)
+    regions = gpd.read_file(path, crs='epsg:4326')#[:5]
+
+    region = regions.iloc[-1]
+    gid_id = region['GID_{}'.format(level)]
+    folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'GSM')
+    path = os.path.join(folder, 'GSM_{}.shp'.format(gid_id))
+
+    # if os.path.exists(path):
+    #     return
+
+    technologies = [
+        'GSM',
+        'UMTS',
+        'LTE',
+        'NR',
+    ]
+
+    for idx, region in regions.iterrows(): #tqdm(regions.iterrows(), total=regions.shape[0]):
+
+        # if not region['GID_2'] == 'GHA.1.12_1':
+        #     continue
+
+        gid_level = 'GID_{}'.format(level)
+        gid_2 = region[gid_level]
+        gid_1_num = gid_2.split('.')[1]
+        gid_1 = "{}.{}_1".format(iso3, gid_1_num)
+
+        # if not gid_1 == 'AFG.14_1':
+        #     continue
+
+        for technology in technologies:
+
+            filename = '{}_{}.shp'.format(technology, gid_2)
+            folder = os.path.join(DATA_PROCESSED, iso3, 'sites', technology)
+            if not os.path.exists(folder):
+                os.mkdir(folder)
+            path_out = os.path.join(folder, filename)
+
+            # if os.path.exists(path):
+            #     continue
+
+            filename = '{}_{}.shp'.format(technology, gid_1)
+            folder = os.path.join(DATA_PROCESSED, iso3, 'sites', technology)
+            if not os.path.exists(folder):
+                os.mkdir(folder)
+            path = os.path.join(folder, filename)
+            if not os.path.exists(path):
+                continue
+            sites = gpd.read_file(path, crs="epsg:4326")
+
+            if technology == 'GSM' and idx == 0:
+                print('Creating technology specific site layers')
+
+            output = []
+
+            for idx, site in sites.iterrows():
+                if technology == site['radio']:
+
+                    geom_4326 = site['geometry']
+
+                    # apply projection
+                    geom_3857 = transform(project.transform, geom_4326)
+
+                    output.append({
+                        'type': 'Feature',
+                        'geometry': site['geometry'],
+                        'properties': {
+                            'radio': site['radio'],
+                            'mcc': site['mcc'],
+                            'net': site['net'],
+                            'area': site['area'],
+                            'cell': site['cell'],
+                            'gid_level': gid_level,
+                            'gid_id': region[gid_level],
+                            'cellid4326': '{}_{}'.format(
+                                round(geom_4326.coords.xy[0][0],6),
+                                round(geom_4326.coords.xy[1][0],6)
+                            ),
+                            'cellid3857': '{}_{}'.format(
+                                round(geom_3857.coords.xy[0][0],6),
+                                round(geom_3857.coords.xy[1][0],6)
+                            ),
+                        }
+                    })
+
+            if len(output) > 0:
+
+                output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
+                output.to_file(path_out)
 
             else:
                 continue

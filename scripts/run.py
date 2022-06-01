@@ -29,22 +29,26 @@ if __name__ == "__main__":
     path = os.path.join(DATA_RAW, filename)
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
+    countries = countries.sort_values(by='iso3', ascending=True)
 
     failed = []
 
     for idx, country in countries.iterrows():
 
-        # if not country['iso3'] == 'DZA':
+        # if not country['iso3'] in ['BRA', 'IND', 'USA']:
         #     continue
 
         print('-- {}'.format(country['country']))
 
+        gid_region = country['gid_region']
+        lowest = country['lowest']
+
         try:
-            run_site_processing(country['iso3'], country['lowest'])
+            run_site_processing(country['iso3'], lowest)
 
         except:
             print('Failed on {}'.format(country['country']))
             failed.append(country['country'])
             continue
-        print(failed)
+
     print('--Complete')
