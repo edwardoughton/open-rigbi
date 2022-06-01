@@ -63,20 +63,29 @@ def get_countries():
     return countries
 
 
-def get_regions(country):
+def get_regions(country, region_type):
     """
 
 
     """
 
-    filename = 'regions_{}_{}.shp'.format(
-        country['lowest'],
-        country['iso3']
-    )
+    if region_type == 'use_csv':
+        filename = 'regions_{}_{}.shp'.format(
+            country['lowest'],
+            country['iso3']
+        )
+    else:
+        filename = 'regions_{}_{}.shp'.format(
+            region_type,
+            country['iso3']
+        )
 
     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'regions')
 
     path = os.path.join(folder, filename)
+
+    if not os.path.exists(path):
+        return []
 
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
 

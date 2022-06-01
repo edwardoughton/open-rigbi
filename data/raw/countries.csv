@@ -1,15 +1,15 @@
 iso3,iso2,country,continent,gid_region,lowest,Exclude
-AFG,AF,Afghanistan,Asia,1,2,0
-ALA,AX,Åland Islands,Europe,1,2,1
-ALB,AL,Albania,Europe,1,2,0
-DZA,DZ,Algeria,Africa,1,2,0
+AFG,AF,Afghanistan,Asia,2,2,0
+ALA,AX,Åland Islands,Europe,2,2,1
+ALB,AL,Albania,Europe,2,2,0
+DZA,DZ,Algeria,Africa,2,2,0
 ASM,AS,American Samoa,Oceania,1,1,0
 AND,AD,Andorra,Europe,1,1,0
-AGO,AO,Angola,Africa,1,2,0
+AGO,AO,Angola,Africa,2,2,0
 AIA,AI,Anguilla,North America,0,0,1
-ATA,AQ,Antarctica,Antarctica,1,2,0
+ATA,AQ,Antarctica,Antarctica,2,2,0
 ATG,AG,Antigua and Barbuda,North America,1,1,1
-ARG,AR,Argentina,South America,1,2,0
+ARG,AR,Argentina,South America,2,2,0
 ARM,AM,Armenia,Asia,1,1,0
 ABW,AW,Aruba,North America,0,0,0
 AUS,AU,Australia,Oceania,2,2,0
@@ -17,19 +17,19 @@ AUT,AT,Austria,Europe,1,1,0
 AZE,AZ,Azerbaijan,Asia,1,1,0
 BHS,BS,Bahamas (the),North America,1,1,0
 BHR,BH,Bahrain,Asia,1,1,0
-BGD,BD,Bangladesh,Asia,1,2,0
+BGD,BD,Bangladesh,Asia,2,2,0
 BRB,BB,Barbados,North America,1,1,0
-BLR,BY,Belarus,Europe,1,2,0
-BEL,BE,Belgium,Europe,1,2,0
+BLR,BY,Belarus,Europe,2,2,0
+BEL,BE,Belgium,Europe,2,2,0
 BLZ,BZ,Belize,North America,1,1,0
 BEN,BJ,Benin,Africa,1,1,0
 BMU,BM,Bermuda,North America,1,1,0
-BTN,BT,Bhutan,Asia,1,2,0
-BOL,BO,Bolivia (Plurinational State of),South America,1,2,0
+BTN,BT,Bhutan,Asia,2,2,0
+BOL,BO,Bolivia (Plurinational State of),South America,2,2,0
 BES,BQ,"Bonaire, Sint Eustatius and Saba",North America,1,1,0
-BIH,BA,Bosnia and Herzegovina,Europe,1,2,0
-BWA,BW,Botswana,Africa,1,2,0
-BVT,BV,Bouvet Island,Antarctica,1,2,0
+BIH,BA,Bosnia and Herzegovina,Europe,2,2,0
+BWA,BW,Botswana,Africa,2,2,0
+BVT,BV,Bouvet Island,Antarctica,2,2,0
 BRA,BR,Brazil,South America,1,2,0
 IOT,IO,British Indian Ocean Territory (the),Asia,1,2,0
 BRN,BN,Brunei Darussalam,Asia,1,2,0
@@ -246,6 +246,6 @@ VGB,VG,Virgin Islands (British),North America,1,1,0
 VIR,VI,Virgin Islands (U.S.),North America,1,1,0
 WLF,WF,Wallis and Futuna,Oceania,1,1,0
 ESH,EH,Western Sahara,Africa,1,1,0
-YEM,YE,Yemen,Asia,1,2,0
-ZMB,ZM,Zambia,Africa,1,2,0
-ZWE,ZW,Zimbabwe,Africa,1,2,0
+YEM,YE,Yemen,Asia,2,2,0
+ZMB,ZM,Zambia,Africa,2,2,0
+ZWE,ZW,Zimbabwe,Africa,2,2,0

@@ -82,7 +82,7 @@ def plot_regions_by_geotype(country, regions, path):
     data['population_km2'] = round(data['population_total'] / data['area_km2'], 2)
     data = data[['GID_id', 'population_km2']]
 
-    GID_level = 'GID_{}'.format(country['gid_region'])
+    GID_level = 'GID_{}'.format(country['lowest'])
     regions = regions[[GID_level, 'geometry']]#[:1000]
     regions = regions.copy()
 
@@ -113,10 +113,10 @@ def plot_regions_by_geotype(country, regions, path):
 
     sns.set(font_scale=1, font="Times New Roman")
     fig, ax = plt.subplots(1, 1, figsize=country['figsize'])
-    # minx, miny, maxx, maxy = regions.total_bounds
+    minx, miny, maxx, maxy = regions.total_bounds
 
-    # ax.set_xlim(minx-.5, maxx+.5)
-    # ax.set_ylim(miny-0.1, maxy+.1)
+    ax.set_xlim(minx-.5, maxx+.5)
+    ax.set_ylim(miny-0.1, maxy+.1)
 
     regions.plot(column='bin', ax=ax, cmap='viridis_r', linewidth=0.2, alpha=0.8,
     legend=True, edgecolor='grey')
@@ -124,9 +124,9 @@ def plot_regions_by_geotype(country, regions, path):
     handles, labels = ax.get_legend_handles_labels()
 
     fig.legend(handles[::-1], labels[::-1])
-    # print(cx.providers.CartoDB.Voyager)
+
     cx.add_basemap(ax, crs=regions.crs, source=cx.providers.CartoDB.Voyager)
-    # cx.add_basemap(ax, crs='epsg:4326')
+    cx.add_basemap(ax, crs='epsg:4326')
 
     name = 'Population Density Deciles for Sub-National Regions (n={})'.format(n)
     fig.suptitle(name)
@@ -158,24 +158,22 @@ def plot_cells_per_region(country, regions, path):
         ), crs='epsg:4326'
     )
 
-    filename = 'core_edges_existing.shp'
-    folder = os.path.join(DATA_PROCESSED, iso3, 'network_existing')
-    path_fiber = os.path.join(folder, filename)
-    fiber = gpd.read_file(path_fiber, crs='epsg:4326')
-
     fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(12,12))
     fig.subplots_adjust(hspace=.2, wspace=.2)
+
+    minx, miny, maxx, maxy = regions.total_bounds
+    buffer = 2
+    for ax in [ax1, ax2]:
+        for dim in [0,1]:
+            ax[dim].set_xlim(minx-buffer, maxx+buffer)
+            ax[dim].set_ylim(miny-0.1, maxy+.1)
+
     fig.set_facecolor('gainsboro')
 
     gsm = sites.loc[sites['radio'] == 'GSM']
     umts = sites.loc[sites['radio'] == 'UMTS']
     lte = sites.loc[sites['radio'] == 'LTE']
     nr = sites.loc[sites['radio'] == 'NR']
-
-    fiber.plot(color='orange', lw=0.8, ax=ax1[0])
-    fiber.plot(color='orange', lw=0.8, ax=ax1[1])
-    fiber.plot(color='orange', lw=0.8, ax=ax2[0])
-    fiber.plot(color='orange', lw=0.8, ax=ax2[1])
 
     regions.plot(facecolor="none", edgecolor="grey", ax=ax1[0])
     regions.plot(facecolor="none", edgecolor="grey", ax=ax1[1])
@@ -192,12 +190,23 @@ def plot_cells_per_region(country, regions, path):
     ax2[0].set_title('4G LTE Cells')
     ax2[1].set_title('5G NR Cells')
 
+    filename = 'core_edges_existing.shp'
+    folder = os.path.join(DATA_PROCESSED, iso3, 'network_existing')
+    path_fiber = os.path.join(folder, filename)
+    if os.path.exists(path_fiber):
+        fiber = gpd.read_file(path_fiber, crs='epsg:4326')
+        fiber.plot(color='orange', lw=0.8, ax=ax1[0])
+        fiber.plot(color='orange', lw=0.8, ax=ax1[1])
+        fiber.plot(color='orange', lw=0.8, ax=ax2[0])
+        fiber.plot(color='orange', lw=0.8, ax=ax2[1])
+
     fig.tight_layout()
 
     main_title = 'Mobile Cellular Infrastructure: {}'.format(name)
     plt.suptitle(main_title, fontsize=20, y=1.03)
 
     crs = 'epsg:4326'
+
     cx.add_basemap(ax1[0], crs=crs)
     cx.add_basemap(ax1[1], crs=crs)
     cx.add_basemap(ax2[0], crs=crs)
@@ -253,8 +262,16 @@ def plot_coverage_by_region(country, regions, path):
 
     regions.to_csv(os.path.join(VIS, 'test.csv'))
 
-    fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(13,13))
+    fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(12,12))
     fig.subplots_adjust(hspace=.2, wspace=.2)
+
+    minx, miny, maxx, maxy = regions.total_bounds
+    buffer = 2
+    for ax in [ax1, ax2]:
+        for dim in [0,1]:
+            ax[dim].set_xlim(minx-buffer, maxx+buffer)
+            ax[dim].set_ylim(miny-0.1, maxy+.1)
+
     fig.set_facecolor('gainsboro')
 
     gsm = regions.loc[regions['technology'] == 'GSM']
@@ -262,8 +279,13 @@ def plot_coverage_by_region(country, regions, path):
     lte = regions.loc[regions['technology'] == 'LTE']
     nr = regions.loc[regions['technology'] == 'NR']
 
+    if len(nr) == 0:
+        nr = lte.copy()
+        nr['technology'] = 'NR'
+        nr['bin'] = '<10%'
+
     gsm.plot(column='bin', cmap='viridis_r', linewidth=0.2, alpha=0.8,
-    legend=True, edgecolor='grey', ax=ax1[0])
+        legend=True, edgecolor='grey', ax=ax1[0])
     umts.plot(column='bin', cmap='viridis_r', linewidth=0.2, alpha=0.8,
     legend=True, edgecolor='grey', ax=ax1[1])
     lte.plot(column='bin', cmap='viridis_r', linewidth=0.2, alpha=0.8,
@@ -279,7 +301,7 @@ def plot_coverage_by_region(country, regions, path):
     fig.tight_layout()
 
     main_title = 'Covered Population by Region: {}'.format(name)
-    plt.suptitle(main_title, fontsize=20, y=1.03)
+    plt.suptitle(main_title, fontsize=20, y=1.01)
 
     crs = 'epsg:4326'
     cx.add_basemap(ax1[0], crs=crs)
@@ -288,7 +310,89 @@ def plot_coverage_by_region(country, regions, path):
     cx.add_basemap(ax2[1], crs=crs)
 
     plt.savefig(path,
-    pad_inches=0.4,
+    # pad_inches=0.4,
+    bbox_inches='tight'
+    )
+    plt.close()
+
+
+def plot_uncovered_pop_by_region(country, outline, path):
+    """
+    Plot uncovered population by region.
+
+    """
+    iso3 = country['iso3']
+    name = country['country']
+
+    fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(12,12))
+    fig.subplots_adjust(hspace=.2, wspace=.2)
+
+    minx, miny, maxx, maxy = outline.total_bounds
+    buffer = 2
+    for ax in [ax1, ax2]:
+        for dim in [0,1]:
+            ax[dim].set_xlim(minx-buffer, maxx+buffer)
+            ax[dim].set_ylim(miny-0.1, maxy+.1)
+
+    fig.set_facecolor('gainsboro')
+
+    outline.plot(facecolor="none", edgecolor="grey", ax=ax1[0])
+    outline.plot(facecolor="none", edgecolor="grey", ax=ax1[1])
+    outline.plot(facecolor="none", edgecolor="grey", ax=ax2[0])
+    outline.plot(facecolor="none", edgecolor="grey", ax=ax2[1])
+
+    folder = os.path.join(DATA_PROCESSED, iso3, 'coverage')
+
+    path1 = os.path.join(folder, 'baseline_uncovered_GSM.shp')
+    if os.path.exists(path1):
+        gsm = gpd.read_file(path1, crs='epsg:3857')
+        gsm = gsm.to_crs(4326)
+        gsm.plot(color='red', linewidth=0.2, alpha=0.4,
+            legend=True, edgecolor='grey', ax=ax1[0])
+
+    path2 = os.path.join(folder, 'baseline_uncovered_UMTS.shp')
+    if os.path.exists(path2):
+        umts = gpd.read_file(path2, crs='epsg:3857')
+        umts = umts.to_crs(4326)
+        umts.plot(color='blue', linewidth=0.2, alpha=0.4,
+            legend=True, edgecolor='grey', ax=ax1[1])
+
+    path3 = os.path.join(folder, 'baseline_uncovered_LTE.shp')
+    if os.path.exists(path3):
+        lte = gpd.read_file(path3, crs='epsg:3857')
+        lte = lte.to_crs(4326)
+        lte.plot(color='yellow', linewidth=0.2, alpha=0.4,
+            legend=True, edgecolor='grey', ax=ax2[0])
+
+    path4 = os.path.join(folder, 'baseline_uncovered_NR.shp')
+    if os.path.exists(path4):
+        nr = gpd.read_file(path4, crs='epsg:3857')
+        nr = nr.to_crs(4326)
+        nr.plot(color='black', linewidth=0.2, alpha=0.4,
+            legend=True, edgecolor='grey', ax=ax2[1])
+    else:
+        nr = gpd.read_file(os.path.join(folder, '..', 'national_outline.shp'), crs='epsg:4326')
+        nr.plot(color='black', linewidth=0.2, alpha=0.4,
+            legend=True, edgecolor='grey', ax=ax2[1])
+
+    ax1[0].set_title('2G GSM Uncovered')
+    ax1[1].set_title('3G UMTS Uncovered')
+    ax2[0].set_title('4G LTE Uncovered')
+    ax2[1].set_title('5G NR Uncovered')
+
+    fig.tight_layout()
+
+    main_title = 'Uncovered Population: {}'.format(name)
+    plt.suptitle(main_title, fontsize=20, y=1.01)
+
+    crs = 'epsg:4326'
+    cx.add_basemap(ax1[0], crs=crs)
+    cx.add_basemap(ax1[1], crs=crs)
+    cx.add_basemap(ax2[0], crs=crs)
+    cx.add_basemap(ax2[1], crs=crs)
+
+    plt.savefig(path,
+    # pad_inches=0.4,
     bbox_inches='tight'
     )
     plt.close()
@@ -416,7 +520,7 @@ if __name__ == '__main__':
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'GHA':
+        if not country['iso3'] in ['MWI']: #['MWI','GHA']
             continue
 
         iso3 = country['iso3']
@@ -432,7 +536,7 @@ if __name__ == '__main__':
         if not os.path.exists(folder_vis):
             os.makedirs(folder_vis)
 
-        filename = 'regions_{}_{}.shp'.format(country['gid_region'], iso3)
+        filename = 'regions_{}_{}.shp'.format(country['lowest'], iso3)
         path = os.path.join(DATA_PROCESSED, iso3, 'regions', filename)
         shapes = gpd.read_file(path, crs='epsg:4326')
 
@@ -440,20 +544,24 @@ if __name__ == '__main__':
         path = os.path.join(DATA_PROCESSED, iso3, filename)
         outline = gpd.read_file(path, crs='epsg:4326')
 
-        # path = os.path.join(folder_vis, '{}_by_pop_density.png'.format(iso3))
-        # if not os.path.exists(path):
-        #     plot_regions_by_geotype(country, shapes, path)
+        path = os.path.join(folder_vis, '{}_by_pop_density.png'.format(iso3))
+        if not os.path.exists(path):
+            plot_regions_by_geotype(country, shapes, path)
 
-        # path = os.path.join(folder_vis, '{}_cells_by_region.png'.format(iso3))
+        path = os.path.join(folder_vis, '{}_cells_by_region.png'.format(iso3))
+        if not os.path.exists(path):
+            plot_cells_per_region(country, shapes, path)
+
+        path = os.path.join(folder_vis, '{}_covered_by_region.png'.format(iso3))
+        if not os.path.exists(path):
+            plot_coverage_by_region(country, shapes, path)
+
+        path = os.path.join(folder_vis, '{}_uncovered_by_region.png'.format(iso3))
+        # if not os.path.exists(path):
+        plot_uncovered_pop_by_region(country, outline, path)
+
+        # path = os.path.join(folder_vis, '{}_single_extreme_plot.png'.format(iso3))
         # # if not os.path.exists(path):
-        # plot_cells_per_region(country, shapes, path)
-
-        # path = os.path.join(folder_vis, '{}_uncovered_by_region.png'.format(iso3))
-        # if not os.path.exists(path):
-        #     plot_coverage_by_region(country, shapes, path)
-
-        path = os.path.join(folder_vis, '{}_single_extreme_plot.png'.format(iso3))
-        # if not os.path.exists(path):
-        single_extreme_plot(country, shapes, outline, path)
+        # single_extreme_plot(country, shapes, outline, path)
 
         print('Complete')

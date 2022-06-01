@@ -24,7 +24,6 @@ def process_existing_fiber(country):
     Load and process existing fiber data.
 
     """
-
     iso3 = country['iso3']
     iso2 = country['iso2'].lower()
 
@@ -72,7 +71,6 @@ def process_existing_fiber(country):
                             }
                         })
 
-
     if len(data) == 0:
         return print('No existing infrastructure')
 
@@ -88,7 +86,7 @@ if __name__ == '__main__':
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'GHA':
+        if not country['iso3'] in ['GHA','MWI']:
             continue
 
         process_existing_fiber(country)

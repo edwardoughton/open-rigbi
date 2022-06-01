@@ -18,7 +18,7 @@ import rasterio
 from rasterio.mask import mask
 from rasterio import features
 from tqdm import tqdm
-from shapely.geometry import shape, Point, mapping, LineString, MultiPolygon
+from shapely.geometry import shape, Point, Polygon, mapping, LineString, MultiPolygon
 from rasterstats import zonal_stats
 import math
 import pyproj
@@ -330,6 +330,10 @@ def process_regions(country):
 
         regions = regions[regions.GID_0 == iso3]
 
+        regions = regions.copy()
+        regions["geometry"] = regions.geometry.simplify(
+            tolerance=0.001, preserve_topology=True)
+
         regions['geometry'] = regions.apply(remove_small_shapes, axis=1)
 
         try:
@@ -353,9 +357,9 @@ def process_settlement_layer(country):
 
     """
     iso3 = country['iso3']
-    regional_level = country['gid_region']
+    # regional_level = country['gid_region']
 
-    path_settlements = os.path.join(DATA_RAW,'settlement_layer',
+    path_settlements = os.path.join(DATA_RAW, 'settlement_layer',
         'ppp_2020_1km_Aggregated.tif')
 
     settlements = rasterio.open(path_settlements, 'r+')
@@ -371,8 +375,7 @@ def process_settlement_layer(country):
     else:
         print('Must generate national_outline.shp first' )
 
-    path_country = os.path.join(DATA_PROCESSED, iso3)
-    shape_path = os.path.join(path_country, 'settlements.tif')
+    shape_path = os.path.join(DATA_PROCESSED, iso3, 'settlements.tif')
 
     if os.path.exists(shape_path):
         return
@@ -470,6 +473,53 @@ def area_of_polygon(geom):
     )
 
     return abs(poly_area)
+
+
+def cut_surface_water_layers(country, region):
+    """
+    Cut the settlement layer by each regional shape
+
+    """
+    #This needs to be based on the outline of the region.
+    filename = 'occurrence_30E_10Sv1_3_2020.tif'
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water')
+    path = os.path.join(folder, filename)
+
+    surface_water = rasterio.open(path, 'r+')
+    surface_water.nodata = 255
+    surface_water.crs.from_epsg(4326)
+
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'regional_data',
+        region['GID_{}'.format(country['lowest'])], 'surface_water')
+    shape_path = os.path.join(folder, 'surface_water.tif')
+
+    if os.path.exists(shape_path):
+        return
+
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    if region['geometry'].type == 'Polygon':
+        geo = gpd.GeoDataFrame({'geometry': region['geometry']}, index=[0])
+    elif region['geometry'].type == 'MultiPolygon':
+        geo = gpd.GeoDataFrame()
+        for idx, item in enumerate(list(region['geometry'].geoms)):
+            geo = geo.append({'geometry': item}, ignore_index=True)
+
+    coords = [json.loads(geo.to_json())['features'][0]['geometry']]
+
+    out_img, out_transform = mask(surface_water, coords, crop=True)
+    out_meta = surface_water.meta.copy()
+    out_meta.update({"driver": "GTiff",
+                    "height": out_img.shape[1],
+                    "width": out_img.shape[2],
+                    "transform": out_transform,
+                    "crs": 'epsg:4326'})
+
+    with rasterio.open(shape_path, "w", **out_meta) as dest:
+            dest.write(out_img)
+
+    return
 
 
 def cut_settlement_layers(country, region):
@@ -646,7 +696,7 @@ def calculate_distances_lut(country, region, technology):
 
     path_tile_points = os.path.join(folder, 'settlements', 'tile_points.shp')
 
-    if not os.path.exists(path_out):
+    if not os.path.exists(path_tile_points):
         return
 
     tile_points = gpd.read_file(path_tile_points, crs='epsg:4326')#[100:101]
@@ -660,6 +710,8 @@ def calculate_distances_lut(country, region, technology):
         return
 
     sites = gpd.read_file(path_sites, crs='epsg:4326')#[:1]
+    if len(sites) == 0:
+        return
     sites = sites.to_crs(epsg=3857)
 
     output = []
@@ -668,8 +720,16 @@ def calculate_distances_lut(country, region, technology):
 
         # ## Get sites within x km of the point (e.g. 20 km)
         point_geom = point['geometry'].buffer(10000)
-        point_buffer = gpd.GeoDataFrame(geometry=[point_geom], crs='epsg:3857')
-        subset_sites = gpd.overlay(sites, point_buffer, how='intersection')
+        point_buffer = gpd.GeoDataFrame(geometry=[point_geom], index=[0], crs='epsg:3857')
+
+        if len(point_buffer) == 0:
+            continue
+
+        try:
+            subset_sites = gpd.overlay(sites, point_buffer, how='intersection')
+        except:
+            continue
+
         if len(subset_sites) == 0:
             continue
 
@@ -852,6 +912,9 @@ def write_out_baseline_tile_coverage(country, technologies):
 
             gid_id = item['GID_id']
 
+            if gid_id in ['MWI.13.1_1', 'MWI.20.1_1', 'MWI.26.1_1', 'MWI.6.2_1']:
+                continue
+
             folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'settlements')
             path_in = os.path.join(folder, 'tile_points.shp')
             if not os.path.exists(path_in):
@@ -910,6 +973,148 @@ def write_out_baseline_tile_coverage(country, technologies):
 
         output = pd.DataFrame(output)
         output.to_csv(path_output, index=False)
+
+    return
+
+
+def write_out_tile_coverage_layer(country, technologies):
+    """
+    Write out tile coverage layer to .shp.
+
+    """
+    iso3 = country['iso3']
+
+    for technology in technologies:
+
+        output = []
+
+        filename = 'baseline_tile_coverage_{}.csv'.format(technology)
+        folder = os.path.join(DATA_PROCESSED, iso3)
+        path = os.path.join(folder, filename)
+        if not os.path.exists(path):
+            continue
+        data = pd.read_csv(path)#[:1000]
+
+        filename = 'baseline_tile_coverage_{}.shp'.format(technology)
+        folder_out = os.path.join(DATA_PROCESSED, iso3, 'coverage')
+        if not os.path.exists(folder_out):
+            os.mkdir(folder_out)
+        path_output = os.path.join(folder_out, filename)
+
+        if os.path.exists(path_output):
+            continue
+
+        for idx, item in data.iterrows():
+            # print(data)
+            if item['covered'] == 1:
+                # print(item)
+                geom = Point([
+                            float(item['tile_point'].split('_')[0]),
+                            float(item['tile_point'].split('_')[1]),
+                    ])
+
+                geom = geom.buffer(500, cap_style = 3)
+
+                output.append({
+                    'type': 'Feature',
+                    'geometry': geom,
+                    'properties': {
+                        'cell_point': item['cell_point'],
+                        'pop_km2': item['population_km2'],
+                        'covered': 1,
+                    }
+                })
+
+        if not len(output) > 0:
+            return
+
+        output = gpd.GeoDataFrame.from_features(output, crs='epsg:3857')
+        output = output.dissolve(by='covered')
+
+        output = remove_small_holes(output)
+
+        output = gpd.GeoDataFrame.from_features(output, crs='epsg:3857')
+        output.to_file(path_output, index=False)
+
+    return
+
+
+def remove_small_holes(output):
+    """
+    Remove small uncovered holes.
+
+    """
+    list_parts = []
+    eps = 1000000
+
+    for polygon in output['geometry'].values[0].geoms:
+
+        list_interiors = []
+
+        for interior in polygon.interiors:
+            p = Polygon(interior)
+
+            if p.area > eps:
+                list_interiors.append(interior)
+
+        temp_pol = Polygon(polygon.exterior.coords, holes=list_interiors)
+        list_parts.append({
+            'type': 'Polygon',
+            'geometry': temp_pol,
+            'properties':{}
+        })
+
+    return list_parts
+
+
+def write_out_uncovered_layer(country, technologies):
+    """
+    Write out tile uncovered layer to .shp.
+
+    """
+    iso3 = country['iso3']
+
+    for technology in technologies:
+
+        # if not technology == 'LTE':
+        #     continue
+
+        filename = 'baseline_uncovered_{}.shp'.format(technology)
+        folder_out = os.path.join(DATA_PROCESSED, iso3, 'coverage')
+        if not os.path.exists(folder_out):
+            os.mkdir(folder_out)
+        path_output = os.path.join(folder_out, filename)
+
+        # if os.path.exists(path_output):
+        #     continue
+
+        filename = 'baseline_tile_coverage_{}.shp'.format(technology)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'coverage')
+        path = os.path.join(folder, filename)
+        if not os.path.exists(path):
+            continue
+        covered = gpd.read_file(path, crs='epsg:3857')#[:1]
+        covered['covered'] = 'Covered'
+        covered = covered[['geometry', 'covered']]
+
+        filename = 'national_outline.shp'
+        folder = os.path.join(DATA_PROCESSED, iso3)
+        path = os.path.join(folder, filename)
+        if not os.path.exists(path):
+            continue
+        outline = gpd.read_file(path, crs='epsg:4326')#[:1]
+        outline = outline.to_crs(3857)
+        outline = outline[['geometry']]
+
+        output = gpd.overlay(covered, outline, how='symmetric_difference') #
+        output['covered'] = 'Uncovered'
+
+        output = pd.concat([output, covered])
+
+        if not len(output) > 0:
+            return
+
+        output.to_file(path_output, index=False)
 
     return
 
@@ -1002,7 +1207,7 @@ if __name__ == '__main__':
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'MWI':
+        if not country['iso3'] == 'GHA':
             continue
 
         create_national_sites_layer(country)
@@ -1015,7 +1220,7 @@ if __name__ == '__main__':
 
         scenarios  = get_scenarios(country)
 
-        regions = get_regions(country)
+        regions = get_regions(country)#[:6]
 
         get_regional_data(country, regions)
 
@@ -1024,12 +1229,14 @@ if __name__ == '__main__':
             GID_level = 'GID_{}'.format(country['lowest'])
             gid_id = region[GID_level]
 
-            # if not gid_id == 'MWI.1.1_1': #'GHA.9.7_1': #:#: #'GHA.1.12_1':
+            # if not gid_id == 'MWI.11.14_1': #'MWI.1.1_1': #'GHA.9.7_1': #:#: #'GHA.1.12_1':
             #     continue
-
+            print('Working on {}'.format(gid_id))
             process_regional_sites_layer(country, region)
 
             process_tech_specific_sites(country, region, technologies)
+
+            # cut_surface_water_layers(country, region)
 
             cut_settlement_layers(country, region) # Cut settlement layers by region
 
@@ -1053,4 +1260,8 @@ if __name__ == '__main__':
 
         write_out_baseline_tile_coverage(country, technologies)
 
-        write_out_baseline_coverage(country, scenarios, technologies)
+        write_out_tile_coverage_layer(country, technologies)
+
+        write_out_uncovered_layer(country, technologies)
+
+        # write_out_baseline_coverage(country, scenarios, technologies)
