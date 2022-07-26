@@ -15,6 +15,7 @@ BASE_PATH = CONFIG['file_locations']['base_path']
 
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 
+
 def dl_flood_layers():
     """
 
@@ -69,8 +70,8 @@ def dl_water_mask_layer():
         for lat in lats:
             filename = DATASET_NAME + "_" + str(lng) + "_" + str(lat) + "v1_3_2020.tif"
 
-            if not filename == 'occurrence_30E_10Sv1_3_2020.tif':
-                continue
+            # if not filename == 'occurrence_30E_10Sv1_3_2020.tif':
+            #     continue
 
             path = os.path.join(folder,  filename)
 
