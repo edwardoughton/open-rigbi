@@ -30,89 +30,6 @@ DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 
-def find_country_list(continent_list):
-    """
-    This function produces country information by continent.
-
-    Parameters
-    ----------
-    continent_list : list
-        Contains the name of the desired continent, e.g. ['Africa']
-
-    Returns
-    -------
-    countries : list of dicts
-        Contains all desired country information for countries in
-        the stated continent.
-
-    """
-    # print('Loading all countries')
-    path = os.path.join(DATA_RAW, 'gadm36_levels_shp', 'gadm36_0.shp')
-    countries = gpd.read_file(path)
-
-    # print('Adding continent information to country shapes')
-    glob_info_path = os.path.join(BASE_PATH, 'countries.csv')
-    load_glob_info = pd.read_csv(glob_info_path, encoding = "ISO-8859-1",
-        keep_default_na=False)
-    countries = countries.merge(load_glob_info, left_on='GID_0',
-        right_on='iso3')
-
-    subset = countries.loc[countries['continent'].isin(continent_list)]
-
-    countries = []
-
-    for index, country in subset.iterrows():
-
-        # if country['GID_0'] in ['COM','CPV','ESH','LBY','LSO','MUS','MYT','SYC'] :
-        #     regional_level =  1
-        # else:
-        #     regional_level = 2
-
-        countries.append({
-            'country_name': country['country'],
-            'iso3': country['GID_0'],
-            'iso2': country['iso2'],
-            'gid_region': country['gid_region'],
-            'region': country['continent']
-        })
-
-    return countries
-
-
-def get_cluster(country):
-    """
-    Gets the country cluster.
-
-    Parameters
-    ----------
-    country : dict
-        Contains all desired country information.
-
-    Returns
-    -------
-    country : dict
-        Contains all desired country information.
-
-    """
-    path = os.path.join(DATA_PROCESSED, 'data_clustering_results.csv')
-    data = pd.read_csv(path)
-
-    data = data.to_dict('records')
-
-    for item in data:
-        if country['iso3'] == item['ISO_3digit']:
-            country['cluster'] = item['cluster']
-            return country
-
-    if country['iso3'] == 'BGD':
-        country['cluster'] = 'C3'
-        return country
-
-    if country['iso3'] == 'MDV':
-        country['cluster'] = 'C3'
-        return country
-
-
 def process_country_shapes(country):
     """
     Creates a single national boundary for the desired country.
@@ -1037,8 +954,6 @@ if __name__ == '__main__':
         print('----')
         print('-- Working on {}'.format(country['country']))
 
-        # country = get_cluster(country)
-        # try:
         # print('Processing country boundary')
         process_country_shapes(country)
 
