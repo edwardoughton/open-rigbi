@@ -675,6 +675,173 @@ def tech_specific_sites_gid_2(iso3, level):
     return
 
 
+def extract_oci_site_info(country):
+    """
+    Extract site info on unique cells and sites.
+
+    """
+    if country['iso3'] in ['GUM']:
+        return
+
+    filename = 'unique_cells.csv'
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
+    path_out = os.path.join(folder, filename)
+
+    if os.path.exists(path_out):
+        return
+
+    print('--Working on {}: {}'.format(country['iso3'], country['country']))
+
+    output = []
+
+    unique_entries = set()
+
+    filename = "{}.csv".format(country['iso3'])
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
+    path = os.path.join(folder, filename)
+    if not os.path.exists(path):
+        return
+    sites = pd.read_csv(path)
+
+    for idx, site in sites.iterrows():
+
+        handle = "{}_{}_{}".format(
+            site['radio'],
+            site['net'],
+            site['cell'],
+        )
+        unique_entries.add(handle)
+
+    radios = sites['radio'].unique()
+    nets = sites['net'].unique()
+
+    for radio in list(radios):
+        for net in list(nets):
+
+            cells = 0
+
+            for item in list(unique_entries):
+                if item.split("_")[0] == radio:
+                    if str(item.split("_")[1]) == str(net):
+                        cells += 1
+
+            output.append({
+                'iso3': country['iso3'],
+                'iso2': country['iso2'],
+                'country': country['country'],
+                'radio': radio,
+                'mcc': country['mcc'],
+                'net': net,
+                'cells': cells
+            })
+
+    if len(output) == 0:
+        return
+
+    output = pd.DataFrame(output)
+    output.to_csv(path_out, index=False)
+
+    return
+
+
+def collect_site_info(countries):
+    """
+
+    """
+    output = []
+
+    for idx, country in countries.iterrows():
+
+        # if not country['iso3'] == 'AFG':
+        #     continue
+
+        filename = 'unique_cells.csv'
+        folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
+        path = os.path.join(folder, filename)
+        if not os.path.exists(path):
+            continue
+        site_info = pd.read_csv(path)
+
+        for idx, info in site_info.iterrows():
+
+            output.append({
+                'iso3': info['iso3'],
+                'iso2': info['iso2'],
+                'country': info['country'],
+                'radio': info['radio'],
+                'mcc': info['mcc'],
+                'net': info['net'],
+                'cells': info['cells'],
+            })
+
+    if len(output) == 0:
+        return
+
+    output = pd.DataFrame(output)
+    filename = 'globally_unique_cells.csv'
+    path_out = os.path.join(DATA_PROCESSED, filename)
+    output.to_csv(path_out, index=False)
+
+    return
+
+
+def collect_regional_site_info(countries):
+    """
+
+    """
+    for idx, country in countries.iterrows():
+
+        # if not country['iso3'] == 'AFG':
+        #     continue
+
+        folder = os.path.join(DATA_PROCESSED, country['iso3'], 'regions')
+        filename = "regions_{}_{}.shp".format(country['gid_region'], country['iso3'])
+        path = os.path.join(folder, filename)
+        if not os.path.exists(path):
+            continue
+        regions = gpd.read_file(path)
+
+        directory = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', 'regional_sites')
+
+        output = []
+
+        for idx, region in regions.iterrows():
+
+            gid_level = "GID_{}".format(country['gid_region'])
+            gid_id = region[gid_level]
+
+            path = os.path.join(directory, gid_id + '.shp')
+            if os.path.exists(path):
+                sites = gpd.read_file(path)
+
+                for idx, site in sites.iterrows():
+
+                    output.append({
+                        'radio': site['radio'],
+                        'mcc': site['mcc'],
+                        'net': site['net'],
+                        'area': site['area'],
+                        'cell': site['cell'],
+                        'gid_level': site['gid_level'],
+                        'gid_id': site['gid_id'],
+                        # 'iso3': site['iso3'],
+                        # 'iso2': site['iso2'],
+                        # 'country': info['country'],
+                    })
+            else:
+                continue
+
+        if len(output) == 0:
+            return
+
+        output = pd.DataFrame(output)
+        filename = 'cells_by_region.csv'
+        path_out = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', filename)
+        output.to_csv(path_out, index=False)
+
+    return
+
+
 if __name__ == "__main__":
 
     args = sys.argv
@@ -683,3 +850,9 @@ if __name__ == "__main__":
     level = args[2]
 
     run_site_processing(iso3, level)
+
+    extract_oci_site_info()
+
+    collect_site_info()
+
+    collect_regional_site_info(countries)
