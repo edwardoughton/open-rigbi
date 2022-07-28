@@ -145,6 +145,14 @@ def plot_cells_per_region(country, regions, path):
     iso3 = country['iso3']
     name = country['country']
 
+    filename = 'national_outline.shp'
+    path_outline = os.path.join(DATA_PROCESSED, iso3, filename)
+    national_outline = gpd.read_file(path_outline, crs='epsg:4326')
+
+    filename = 'surface_water.shp'
+    path_water = os.path.join(DATA_PROCESSED, iso3, 'surface_water', filename)
+    surface_water = gpd.read_file(path_water, crs='epsg:4326')
+
     filename = '{}.csv'.format(iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
     path_sites = os.path.join(folder, filename)
@@ -157,6 +165,9 @@ def plot_cells_per_region(country, regions, path):
             sites.lat
         ), crs='epsg:4326'
     )
+
+    sites = sites.overlay(surface_water, how='difference')
+    sites = sites.overlay(national_outline, how='intersection')
 
     fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(12,12))
     fig.subplots_adjust(hspace=.2, wspace=.2)
@@ -175,15 +186,20 @@ def plot_cells_per_region(country, regions, path):
     lte = sites.loc[sites['radio'] == 'LTE']
     nr = sites.loc[sites['radio'] == 'NR']
 
-    regions.plot(facecolor="none", edgecolor="grey", ax=ax1[0])
-    regions.plot(facecolor="none", edgecolor="grey", ax=ax1[1])
-    regions.plot(facecolor="none", edgecolor="grey", ax=ax2[0])
-    regions.plot(facecolor="none", edgecolor="grey", ax=ax2[1])
+    # regions.plot(facecolor="none", lw=.5, edgecolor="grey", ax=ax1[0])
+    # regions.plot(facecolor="none", lw=.5, edgecolor="grey", ax=ax1[1])
+    # regions.plot(facecolor="none", lw=.5, edgecolor="grey", ax=ax2[0])
+    # regions.plot(facecolor="none", lw=.5, edgecolor="grey", ax=ax2[1])
 
-    gsm.plot(color='red', markersize=1.5, ax=ax1[0])
-    umts.plot(color='blue', markersize=1.5, ax=ax1[1])
-    lte.plot(color='yellow', markersize=1.5, ax=ax2[0])
-    nr.plot(color='black', markersize=1.5, ax=ax2[1])
+    national_outline.plot(facecolor="none", lw=2, edgecolor="black", ax=ax1[0])
+    national_outline.plot(facecolor="none", lw=2, edgecolor="black", ax=ax1[1])
+    national_outline.plot(facecolor="none", lw=2, edgecolor="black", ax=ax2[0])
+    national_outline.plot(facecolor="none", lw=2, edgecolor="black", ax=ax2[1])
+
+    gsm.plot(color='red', markersize=3, ax=ax1[0])
+    umts.plot(color='blue', markersize=3, ax=ax1[1])
+    lte.plot(color='yellow', markersize=3, ax=ax2[0])
+    nr.plot(color='black', markersize=3, ax=ax2[1])
 
     ax1[0].set_title('2G GSM Cells')
     ax1[1].set_title('3G UMTS Cells')
@@ -195,10 +211,10 @@ def plot_cells_per_region(country, regions, path):
     path_fiber = os.path.join(folder, filename)
     if os.path.exists(path_fiber):
         fiber = gpd.read_file(path_fiber, crs='epsg:4326')
-        fiber.plot(color='orange', lw=0.8, ax=ax1[0])
-        fiber.plot(color='orange', lw=0.8, ax=ax1[1])
-        fiber.plot(color='orange', lw=0.8, ax=ax2[0])
-        fiber.plot(color='orange', lw=0.8, ax=ax2[1])
+        fiber.plot(color='orange', lw=2, ax=ax1[0])
+        fiber.plot(color='orange', lw=2, ax=ax1[1])
+        fiber.plot(color='orange', lw=2, ax=ax2[0])
+        fiber.plot(color='orange', lw=2, ax=ax2[1])
 
     fig.tight_layout()
 
@@ -544,21 +560,21 @@ if __name__ == '__main__':
         path = os.path.join(DATA_PROCESSED, iso3, filename)
         outline = gpd.read_file(path, crs='epsg:4326')
 
-        path = os.path.join(folder_vis, '{}_by_pop_density.png'.format(iso3))
-        if not os.path.exists(path):
-            plot_regions_by_geotype(country, shapes, path)
+        # path = os.path.join(folder_vis, '{}_by_pop_density.png'.format(iso3))
+        # if not os.path.exists(path):
+        #     plot_regions_by_geotype(country, shapes, path)
 
         path = os.path.join(folder_vis, '{}_cells_by_region.png'.format(iso3))
-        if not os.path.exists(path):
-            plot_cells_per_region(country, shapes, path)
-
-        path = os.path.join(folder_vis, '{}_covered_by_region.png'.format(iso3))
-        if not os.path.exists(path):
-            plot_coverage_by_region(country, shapes, path)
-
-        path = os.path.join(folder_vis, '{}_uncovered_by_region.png'.format(iso3))
         # if not os.path.exists(path):
-        plot_uncovered_pop_by_region(country, outline, path)
+        plot_cells_per_region(country, shapes, path)
+
+        # path = os.path.join(folder_vis, '{}_covered_by_region.png'.format(iso3))
+        # if not os.path.exists(path):
+        #     plot_coverage_by_region(country, shapes, path)
+
+        # path = os.path.join(folder_vis, '{}_uncovered_by_region.png'.format(iso3))
+        # # if not os.path.exists(path):
+        # plot_uncovered_pop_by_region(country, outline, path)
 
         # path = os.path.join(folder_vis, '{}_single_extreme_plot.png'.format(iso3))
         # # if not os.path.exists(path):

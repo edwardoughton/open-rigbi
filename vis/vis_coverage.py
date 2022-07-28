@@ -167,7 +167,7 @@ def visualize(countries):
     output['coverage'] = output['coverage'].replace(['GSM'], '2G')
     output['coverage'] = output['coverage'].replace(['UMTS'], '3G')
     output['coverage'] = output['coverage'].replace(['LTE'], '4G')
-    output['coverage'] = output['coverage'].replace(['GSM'], '2G')
+    # output['coverage'] = output['coverage'].replace(['GSM'], '2G')
 
     fig, ax = plt.subplots(1, 1, figsize=(10,8))
     output.plot(column='coverage', categorical=True, ax=ax, cmap='viridis_r',
@@ -197,32 +197,32 @@ if __name__ == '__main__':
 
     countries = get_countries()
 
-    # for idx, country in tqdm(countries.iterrows(), total=countries.shape[0]):
+    for idx, country in tqdm(countries.iterrows(), total=countries.shape[0]):
 
-    #     # if not country['iso3'] == 'SSD':
-    #     #     continue
+        # if not country['iso3'] == 'SSD':
+        #     continue
 
-    #     # if not country['continent'] == 'Africa':
-    #     #     continue
+        # if not country['continent'] == 'Africa':
+        #     continue
 
-    #     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'coverage')
-    #     if not os.path.exists(folder):
-    #         os.mkdir(folder)
-    #     filename = 'coverage_grid.shp'
-    #     path_out = os.path.join(folder, filename)
+        folder = os.path.join(DATA_PROCESSED, country['iso3'], 'coverage')
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        filename = 'coverage_grid.shp'
+        path_out = os.path.join(folder, filename)
 
-    #     if os.path.exists(path_out):
-    #         continue
+        if os.path.exists(path_out):
+            continue
 
-    #     print('-Working on {}'.format(country['country']))
+        print('-Working on {}'.format(country['country']))
 
-    #     regions = get_regions(country, gid_level)
+        regions = get_regions(country, gid_level)
 
-    #     if len(regions) == 0:
-    #         continue
+        if len(regions) == 0:
+            continue
 
-    #     grid = get_grid_tiles(country)
+        grid = get_grid_tiles(country)
 
-    #     find_coverage(regions, grid, gid_level, path_out)
+        find_coverage(regions, grid, gid_level, path_out)
 
     visualize(countries)
