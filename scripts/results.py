@@ -16,7 +16,7 @@ import rasterio
 import random
 
 from misc import params, technologies, get_countries, get_regions, get_scenarios
-
+from flood_hazards import process_flooding_layers
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -27,7 +27,7 @@ DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 RESULTS = os.path.join(BASE_PATH, '..', 'results')
 
 
-def query_hazard_layers(country, regions, technologies, scenarios):
+def query_hazard_layers(country, regions, scenarios):
     """
     Query each hazard layer and estimate fragility.
 
@@ -35,87 +35,93 @@ def query_hazard_layers(country, regions, technologies, scenarios):
     iso3 = country['iso3']
     name = country['country']
     regional_level = country['lowest']
-    gid_level = 'GID_{}'.format(regional_level)
+    gid_level = 'GID_{}'.format(1) #regional_level
 
     filename = 'fragility_curve.csv'
     path_fragility = os.path.join(DATA_RAW, filename)
     f_curve = pd.read_csv(path_fragility)
     f_curve = f_curve.to_dict('records')
 
-    for scenario in scenarios:
+    regions = get_regions(country, 1)#[:50]
+    # regions = regions[regions['GID_1'] == 'AFG.14_1']
+
+    for scenario in tqdm(scenarios):
 
         # if not scenario == 'data\processed\MWI\hazards\inunriver_rcp8p5_MIROC-ESM-CHEM_2080_rp01000.tif':
         #     continue
 
-        for technology in technologies:
+        for idx, region in regions.iterrows():
 
             output = []
 
-            for idx, region in regions.iterrows():
+            gid_id = region[gid_level]
+            scenario_name = os.path.basename(scenario)[:-4]
 
-                gid_id = region[gid_level]
-                scenario_name = os.path.basename(scenario)
+            # if not gid_id == 'MWI.13.12_1':
+            #     continue
 
-                # if not gid_id == 'MWI.13.12_1':
-                #     continue
+            filename = '{}_{}.csv'.format(gid_id, scenario_name)
+            folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
+            path_output = os.path.join(folder_out, filename)
 
-                filename = '{}_{}_{}.shp'.format(gid_id, technology, scenario_name)
-                folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'scenarios', scenario_name)
-                path_output = os.path.join(folder_out, filename)
+            # if os.path.exists(path_output):
+            #     continue
 
-                if os.path.exists(path_output):
-                    continue
+            filename = '{}.csv'.format(gid_id)
+            folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
+            path = os.path.join(folder, filename)
 
-                filename = '{}_{}.shp'.format(technology, gid_id)
-                folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'sites')
-                path = os.path.join(folder, filename)
+            if not os.path.exists(path):
+                continue
 
-                if not os.path.exists(path):
-                    continue
+            sites = pd.read_csv(path)#[:1] #, crs='epsg:4326'
 
-                sites = gpd.read_file(path, crs='epsg:4326')#[:1]
+            failures = 0
 
-                failures = 0
+            for idx, site in sites.iterrows():
 
-                for idx, site in sites.iterrows():
+                x = float(site['cellid4326'].split('_')[0])
+                y = float(site['cellid4326'].split('_')[1])
 
-                    with rasterio.open(scenario) as src:
+                with rasterio.open(scenario) as src:
 
-                        src.kwargs = {'nodata':255}
+                    src.kwargs = {'nodata':255}
 
-                        coords = [(site['geometry'].x, site['geometry'].y)]
+                    coords = [(x, y)]
 
-                        depth = [sample[0] for sample in src.sample(coords)][0]
+                    depth = [sample[0] for sample in src.sample(coords)][0]
 
-                        fragility = query_fragility_curve(f_curve, depth)
+                    # fragility = query_fragility_curve(f_curve, depth)
 
-                        failure_prob = random.uniform(0, 1)
+                    # failure_prob = random.uniform(0, 1)
 
-                        failed = (1 if failure_prob < fragility else 0)
+                    # failed = (1 if failure_prob < fragility else 0)
 
-                        if fragility > 0:
-                            failures += 1
+                    # if fragility > 0:
+                    #     failures += 1
 
-                        output.append({
-                            'type': 'Feature',
-                            'geometry': site['geometry'],
-                            'properties': {
-                                'radio': site['radio'],
-                                'mcc': site['mcc'],
-                                'net': site['net'],
-                                'area': site['area'],
-                                'cell': site['cell'],
-                                'gid_level': gid_level,
-                                'gid_id': region[gid_level],
-                                'depth': depth,
-                                'scenario': scenario_name,
-                                'fragility': fragility,
-                                'fail_prob': failure_prob,
-                                'failure': failed,
-                                'cost_usd': round(100000 * fragility),
-                                # 'cell_id': site['cell_id'],
-                            },
-                        })
+                    output.append({
+                        # 'type': 'Feature',
+                        # 'geometry': site['geometry'],
+                        # 'properties': {
+                        'radio': site['radio'],
+                        'mcc': site['mcc'],
+                        'net': site['net'],
+                        'area': site['area'],
+                        'cell': site['cell'],
+                        'gid_level': gid_level,
+                        'gid_id': region[gid_level],
+                        'cellid4326': site['cellid4326'],
+                        'cellid3857': site['cellid3857'],
+                        'depth': depth,
+                            # 'scenario': scenario_name,
+                            # 'fragility': fragility,
+                            # 'fail_prob': failure_prob,
+                            # 'failure': failed,
+                            # 'cost_usd': round(100000 * fragility),
+                            # 'cell_id': site['cell_id'],
+                        # },
+                    })
 
             if len(output) == 0:
                 return
@@ -123,8 +129,115 @@ def query_hazard_layers(country, regions, technologies, scenarios):
             if not os.path.exists(folder_out):
                 os.makedirs(folder_out)
 
-            output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
-            output.to_file(path_output, crs='epsg:4326')
+            output = pd.DataFrame(output)
+
+            output.to_csv(path_output, index=False)
+
+    return
+
+
+def query_hazard_layers2(country, regions, technologies, scenarios):
+    """
+    Query each hazard layer and estimate fragility.
+
+    """
+    iso3 = country['iso3']
+    name = country['country']
+    regional_level = country['lowest']
+    gid_level = 'GID_{}'.format(1) #regional_level
+
+    filename = 'fragility_curve.csv'
+    path_fragility = os.path.join(DATA_RAW, filename)
+    f_curve = pd.read_csv(path_fragility)
+    f_curve = f_curve.to_dict('records')
+
+    regions = get_regions(country, 1)#[:50]
+    regions = regions[regions['GID_1'] == 'AFG.14.6_1']
+
+    for scenario in tqdm(scenarios):
+
+        # if not scenario == 'data\processed\MWI\hazards\inunriver_rcp8p5_MIROC-ESM-CHEM_2080_rp01000.tif':
+        #     continue
+
+        output = []
+
+        for idx, region in regions.iterrows():
+
+            gid_id = region[gid_level]
+            scenario_name = os.path.basename(scenario)[:-4]
+
+            # if not gid_id == 'MWI.13.12_1':
+            #     continue
+
+            filename = '{}_{}.csv'.format(gid_id, scenario_name)
+            folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'scenarios')
+            path_output = os.path.join(folder_out, filename)
+
+            if os.path.exists(path_output):
+                continue
+
+            filename = '{}.csv'.format(gid_id)
+            folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
+            path = os.path.join(folder, filename)
+
+            if not os.path.exists(path):
+                continue
+
+            sites = pd.read_csv(path)#[:1], crs='epsg:4326'
+
+            failures = 0
+
+            for idx, site in sites.iterrows():
+
+                x = float(site['cellid4326'].split('_')[0])
+                y = float(site['cellid4326'].split('_')[1])
+
+                with rasterio.open(scenario) as src:
+
+                    src.kwargs = {'nodata':255}
+
+                    coords = [(x, y)]
+
+                    depth = [sample[0] for sample in src.sample(coords)][0]
+
+                    # fragility = query_fragility_curve(f_curve, depth)
+
+                    # failure_prob = random.uniform(0, 1)
+
+                    # failed = (1 if failure_prob < fragility else 0)
+
+                    # if fragility > 0:
+                    #     failures += 1
+
+                    output.append({
+                        # 'type': 'Feature',
+                        # 'geometry': site['geometry'],
+                        # 'properties': {
+                        'radio': site['radio'],
+                        'mcc': site['mcc'],
+                        'net': site['net'],
+                        'area': site['area'],
+                        'cell': site['cell'],
+                        'gid_level': gid_level,
+                        'gid_id': region[gid_level],
+                        'depth': depth,
+                            # 'scenario': scenario_name,
+                            # 'fragility': fragility,
+                            # 'fail_prob': failure_prob,
+                            # 'failure': failed,
+                            # 'cost_usd': round(100000 * fragility),
+                            # 'cell_id': site['cell_id'],
+                        # },
+                    })
+
+        if len(output) == 0:
+            return
+
+        if not os.path.exists(folder_out):
+            os.makedirs(folder_out)
+
+        output = pd.DataFrame(output)
+        output.to_csv(path_output)
 
     return
 
@@ -678,17 +791,29 @@ def site_damage_impacts(country, technologies, scenarios):
 
 if __name__ == "__main__":
 
-    countries = get_countries()
+    import cProfile
+    # cProfile.run('foo()')
+
+    countries = get_countries()[:50]
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'MWI':
+        if not country['iso3'] == 'IRL':
             continue
 
-        regions = get_regions(country)#[:50]
+        print('-Working on {}'.format(country['iso3']))
+
+        regions = get_regions(country, 1)#[:50]
         scenarios = get_scenarios(country)#[:10]
 
+        process_flooding_layers(country, scenarios)
+
+        # cProfile.run('query_hazard_layers(country, regions, technologies, scenarios)', 'profile.log')
         query_hazard_layers(country, regions, technologies, scenarios)
+        # # cProfile.run('query_hazard_layers2(country, regions, technologies, scenarios)')
+
+
+        # query_hazard_layers2(country, regions, technologies, scenarios)
 
         # econ_interim_impacts(country, technologies, scenarios)
 

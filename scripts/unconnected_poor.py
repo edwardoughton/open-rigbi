@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
     for idx, country in tqdm(countries.iterrows(), total=countries.shape[0]):
 
-        if not country['iso3'] in ['MWI']: #, 'GHA']:
+        if not country['iso3'] in ['GHA']: #, 'GHA']:
             continue
 
         find_uncovered_poor(country)

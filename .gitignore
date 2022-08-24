@@ -132,8 +132,11 @@ data/processed/*
 data/raw/settlement_layer/*
 data/raw/gadm36_levels_shp/*
 data/raw/hazard_scenarios/*
+data/test/
 
 results/*
 vis/figures/*
 data/raw/*
 vis/wb_maps/*
+
+rigbi-env/*

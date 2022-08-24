@@ -13,6 +13,9 @@ from tqdm import tqdm
 
 from sites import (run_site_processing, extract_oci_site_info,
     collect_site_info, collect_regional_site_info)
+from misc import get_countries, get_scenarios, get_regions
+from flood_hazards import process_flooding_layers
+from results import query_hazard_layers
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -26,31 +29,30 @@ if __name__ == "__main__":
 
     crs = 'epsg:4326'
 
-    filename = "countries.csv"
-    path = os.path.join(DATA_RAW, filename)
-    countries = pd.read_csv(path, encoding='latin-1')
-    countries = countries[countries.Exclude == 0]
-    countries = countries.sort_values(by='iso3', ascending=True)
+    countries = get_countries()
+    scenarios = get_scenarios()#[:10]
 
     failed = []
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] in ['MWI']:
-            continue
-
+        # if not country['iso3'] in ['IRL']:
+        #     continue
+        # print(country)
         print('-- {}'.format(country['country']))
 
-        gid_region = country['gid_region']
-        lowest = country['lowest']
+        # try:
+        run_site_processing(country)
 
-        try:
-            run_site_processing(country['iso3'], lowest)
+        process_flooding_layers(country, scenarios)
+        # regions = get_regions(country, 1)
+        # cProfile.run('query_hazard_layers(country, regions, technologies, scenarios)', 'profile.log')
+        query_hazard_layers(country, get_regions(country, 1), scenarios)
 
-        except:
-            print('Failed on {}'.format(country['country']))
-            failed.append(country['country'])
-            continue
+        # except:
+        #     print('Failed on {}'.format(country['country']))
+        #     failed.append(country['country'])
+        #     continue
 
     #     extract_oci_site_info(country)
 

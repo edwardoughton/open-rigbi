@@ -1,5 +1,8 @@
 """
-Preprocess sites data.
+Preprocesses by the flooding hazard and surface water layers.
+
+This involves clipping the global mosaic to each country geometry,
+and exporting as a .tiff file to the data/processed folder.
 
 Ed Oughton
 
@@ -15,6 +18,8 @@ import rasterio
 from rasterio.mask import mask
 import glob
 
+from misc import get_countries
+
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
 BASE_PATH = CONFIG['file_locations']['base_path']
@@ -22,23 +27,27 @@ BASE_PATH = CONFIG['file_locations']['base_path']
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
-filename = "countries.csv"
-path = os.path.join(DATA_RAW, filename)
-countries = pd.read_csv(path, encoding='latin-1')
 
-
-def process_flooding_layers():
+def process_flooding_layers(country, scenarios):
     """
     Loop to process all flood layers.
 
     """
-    hazard_dir = os.path.join(DATA_RAW, 'hazard_scenarios')
-    paths = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:5]
 
-    for path_in in paths:
+    iso3 = country['iso3']
+    name = country['country']
 
-        filename = os.path.basename(path_in)
-        folder = os.path.join(DATA_PROCESSED, iso3, 'hazards')
+    hazard_dir = os.path.join(DATA_RAW, 'flood_hazard')
+    # paths = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:5]
+
+    for scenario in scenarios:
+
+        filename = os.path.basename(scenario)
+        path_in = os.path.join(hazard_dir, filename)
+
+        folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding')
+        if not os.path.exists(folder):
+            os.makedirs(folder)
         path_out = os.path.join(folder, filename)
 
         if not os.path.exists(path_out):
@@ -48,15 +57,15 @@ def process_flooding_layers():
             if not os.path.exists(folder):
                 os.makedirs(folder)
 
-            try:
-                process_flood_layer(country, path_in, path_out)
-            except:
-                failures.append({
-                    'iso3': iso3,
-                    'filename': filename
-                })
+            # try:
+            process_flood_layer(country, path_in, path_out)
+            # except:
+            #     failures.append({
+            #         'iso3': iso3,
+            #         'filename': filename
+            #     })
 
-    return failures
+    return
 
 
 def process_flood_layer(country, path_in, path_out):
@@ -77,7 +86,7 @@ def process_flood_layer(country, path_in, path_out):
     iso3 = country['iso3']
     regional_level = country['gid_region']
 
-    hazard = rasterio.open(path_in, 'r+')
+    hazard = rasterio.open(path_in, 'r+', BIGTIFF='YES')
     hazard.nodata = 255
     hazard.crs.from_epsg(4326)
 
@@ -93,10 +102,9 @@ def process_flood_layer(country, path_in, path_out):
     if os.path.exists(path_out):
         return
 
-    bbox = country.envelope
     geo = gpd.GeoDataFrame()
 
-    geo = gpd.GeoDataFrame({'geometry': bbox})
+    geo = gpd.GeoDataFrame({'geometry': country['geometry']})
 
     coords = [json.loads(geo.to_json())['features'][0]['geometry']]
 
@@ -208,19 +216,20 @@ if __name__ == "__main__":
 
     os.environ['GDAL_DATA'] = ("C:\\Users\\edwar\\Anaconda3\\Library\\share\\gdal")
 
+    countries = get_countries()
+    scenarios = get_scenarios()
+
     failures = []
 
     for idx, country in countries.iterrows():
 
-        iso3 = country['iso3']
-        name = country['country']
+        # if not iso3 == 'MLT': #'GHA'
+        #     continue
 
-        if not iso3 == 'MWI': #'GHA'
-            continue
+        print('-Working on {}'.format(country['iso3']))
 
-        process_flooding_layers()
+        process_flooding_layers(country, scenarios)
 
-        process_surface_water_layers()
-
+        # process_surface_water_layers(country)
 
     print(failures)

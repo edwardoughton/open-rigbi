@@ -40,7 +40,7 @@ def create_national_sites_layer(country):
     Create a national sites layer for a selected country.
 
     """
-    filename = '{}.shp'.format(country['iso3'])
+    filename = '{}_{}.shp'.format(country['iso3'], country['mmc'])
     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
     path_shp = os.path.join(folder, filename)
 
@@ -1122,6 +1122,7 @@ def write_out_uncovered_layer(country, technologies):
 def write_out_baseline_coverage(country, scenarios, technologies):
     """
     Write out site failures to .csv.
+
     """
     iso3 = country['iso3']
     # name = country['country']
