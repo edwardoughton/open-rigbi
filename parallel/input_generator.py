@@ -9,7 +9,7 @@ August 2022.
 import os
 import sys
 import configparser
-import pandas as pd
+#import pandas as pd
 
 # sys.path.insert(0, sys.path[0] + '\\..\\scripts\\')
 # from misc import get_countries, get_scenarios, get_regions
