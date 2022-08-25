@@ -9,25 +9,26 @@ August 2022.
 import os
 import sys
 import configparser
-#import pandas as pd
+import pandas as pd
 
-# sys.path.insert(0, sys.path[0] + '\\..\\scripts\\')
-# from misc import get_countries, get_scenarios, get_regions
+CONFIG = configparser.ConfigParser()
+CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
+BASE_PATH = CONFIG['file_locations']['base_path']
+
+DATA_RAW = os.path.join(BASE_PATH, 'raw')
+DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 
 if __name__ == "__main__":
 
-    countries = ['IRL', 'GBR', 'USA']
+    filename = "countries.csv"
+    path = os.path.join(DATA_RAW, filename)
 
-    # countries = get_countries()
-    # scenarios = get_scenarios()
+    countries = pd.read_csv(path, encoding='latin-1')
+    countries = countries[countries.Exclude == 0]
 
-    # for idx, country in countries.iterrows():
-
-    #     # if not country['iso3'] in ['IRL']:
-    #     #     continue
-
-    #     print('-- {}'.format(country['iso3']))
-    # print(countries)
+    countries = countries[countries['Population'] > 5000000]
+    countries = countries.sort_values(by=['Population'], ascending=True)
+    countries = countries['iso3']
 
     print(*countries, sep='\n')
