@@ -53,6 +53,7 @@ def get_countries():
     """
     filename = "countries.csv"
     path = os.path.join(DATA_RAW, filename)
+    print(path)
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
 
@@ -64,11 +65,12 @@ def get_countries():
     # mobile_codes['iso2'] = mobile_codes['iso2'].str.upper()
     # countries = pd.merge(countries, mobile_codes, left_on = 'iso2', right_on = 'iso2')
 
-    countries.to_csv('test.csv')
+    # countries.to_csv('test.csv')
     countries = countries[countries['Population'] > 5000000]
     countries = countries.sort_values(by=['Population'], ascending=True)
+    countries = countries.to_dict('records')
 
-    return countries[:50]
+    return countries[:10]
 
 
 def get_regions(country, region_type):
@@ -287,7 +289,12 @@ def process_regions(iso3, level):
 
 if __name__ == '__main__':
 
-    scenarios = get_scenarios({'iso3': 'GHA'})
+    countries = get_countries()
 
-    for scenario in scenarios:
-        print(scenario)
+    for country in countries:
+        print(country)
+
+    # scenarios = get_scenarios({'iso3': 'GHA'})
+
+    # for scenario in scenarios:
+    #     print(scenario)

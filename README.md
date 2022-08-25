@@ -7,15 +7,19 @@ infrastructure.
 
 ## Using the code
 
-The recommended approach to using `rigbi` is via conda.
+The recommended approach to using `open-rigbi` is via conda.
 
 First, create a conda environment as follows:
 
-    conda create --name rigbi python=3.7
+    conda create --name rigbi-env python=3.7
 
-Install andy required packages, such as `geopandas`:
+Then activate it:
 
-    conda install geopandas rasterio rasterstats
+    conda activate rigbi-env
+
+Finally, install the necessary packages, such as `geopandas`:
+
+    conda install --file requirements.txt
 
 
 ## Overview of scripts
@@ -27,6 +31,4 @@ The scripts involved can be broadly summarized as follows:
 - `sites.py` preprocesses all cell site data.
 - `pop.py` preprocesses all population datalayers.
 - `distances.py` calculates the distance lookup from cells to grid tiles.
-
-
 - `econ.py` calculates the economic impacts of infrastructure damage.
