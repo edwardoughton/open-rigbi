@@ -26,27 +26,30 @@ DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 
-def run_site_processing(country):
+def run_site_processing(iso3):
     """
-    Meta function for running site processing at GID 1 level.
+    Meta function for running site processing.
 
     """
-    iso3 = country['iso3']
-    # level = country['lowest']
+    filename = "countries.csv"
+    path = os.path.join(DATA_RAW, filename)
+
+    countries = pd.read_csv(path, encoding='latin-1')
+    country = countries[countries.iso3 == iso3]
 
     create_national_sites_csv(country)
 
-    # process_country_shapes(iso3)
+    process_country_shapes(iso3)
 
-    # process_regions(iso3, 1)
+    process_regions(iso3, 1)
 
-    # create_national_sites_shp(iso3)
+    create_national_sites_shp(iso3)
 
     # # if level >=1:
 
-    # segment_by_gid_1(iso3, 1)
+    segment_by_gid_1(iso3, 1)
 
-    # create_regional_sites_layer(iso3, 1)
+    create_regional_sites_layer(iso3, 1)
 
     # if level >= 2:
 
@@ -68,7 +71,7 @@ def create_national_sites_csv(country):
     Create a national sites csv layer for a selected country.
 
     """
-    iso3 = country['iso3']
+    iso3 = country['iso3'].values[0]
 
     filename = "mobile_codes.csv"
     path = os.path.join(DATA_RAW, filename)
@@ -897,12 +900,5 @@ if __name__ == "__main__":
     args = sys.argv
 
     iso3 = args[1]
-    level = 1 #args[2]
 
-    run_site_processing(iso3, level)
-
-    # extract_oci_site_info()
-
-    # collect_site_info()
-
-    # collect_regional_site_info(countries)
+    run_site_processing(iso3)
