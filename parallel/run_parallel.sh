@@ -1,5 +1,7 @@
 #!/bin/bash
-countries=`python input_generator.py`
+conda activate rigbi-env
+
+countries=`python parallel/input_generator.py`
 
 echo $countries
 

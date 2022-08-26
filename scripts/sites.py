@@ -37,6 +37,7 @@ def run_site_processing(iso3):
     countries = pd.read_csv(path, encoding='latin-1')
     country = countries[countries.iso3 == iso3]
 
+    print('Working on create_national_sites_csv')
     create_national_sites_csv(country)
 
     process_country_shapes(iso3)
@@ -901,4 +902,5 @@ if __name__ == "__main__":
 
     iso3 = args[1]
 
+    print('Running site processing for {}'.format(iso3))
     run_site_processing(iso3)
