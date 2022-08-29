@@ -40,16 +40,19 @@ def run_site_processing(iso3):
     print('Working on create_national_sites_csv')
     create_national_sites_csv(country)
 
+    print('Working on process_country_shapes')
     process_country_shapes(iso3)
 
+    print('Working on process_regions')
     process_regions(iso3, 1)
 
+    print('Working on create_national_sites_shp')
     create_national_sites_shp(iso3)
 
-    # # if level >=1:
-
+    print('Working on segment_by_gid_1')
     segment_by_gid_1(iso3, 1)
 
+    print('Working on create_regional_sites_layer')
     create_regional_sites_layer(iso3, 1)
 
     # if level >= 2:
@@ -133,7 +136,7 @@ def segment_by_gid_1(iso3, level):
     filename = '{}.csv'.format(iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
     path = os.path.join(folder, filename)
-    sites = pd.read_csv(path)
+    sites = pd.read_csv(path)[:100]
 
     filename = 'regions_{}_{}.shp'.format(level, iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
@@ -161,7 +164,6 @@ def segment_by_gid_1(iso3, level):
         path = os.path.join(folder, filename)
 
         if os.path.exists(path):
-
             continue
 
         if idx == 0:
@@ -901,6 +903,6 @@ if __name__ == "__main__":
     args = sys.argv
 
     iso3 = args[1]
-
+    # print(len(iso3))
     print('Running site processing for {}'.format(iso3))
-    run_site_processing(iso3)
+    # run_site_processing(iso3)
