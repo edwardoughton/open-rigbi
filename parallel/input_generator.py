@@ -27,8 +27,8 @@ if __name__ == "__main__":
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
 
-    countries = countries[countries['Population'] > 5000000]
-    countries = countries.sort_values(by=['Population'], ascending=True)
+    #countries = countries[countries['Population'] > 5000000]
+    #countries = countries.sort_values(by=['Population'], ascending=True)
     countries = countries['iso3']
 
     print(*countries, sep='\n')

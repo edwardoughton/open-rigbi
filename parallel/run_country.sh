@@ -2,11 +2,13 @@
 # . /etc/profile.d/profile.sh
 echo $1: Running on `hostname`
 
-DIR=$(pwd)
+DIR=/projects/open-rigbi/   #$(pwd)
 
-# source activate rigbi-env
+echo $DIR
+
+source activate rigbi-env
 #cd D:/github/open-rigbi/
-cd $DIR
+#cd $DIR
 
 #cd /soge-home/projects/mistral/nismod/digital_comms
 #mkdir -p D:/github/open-rigbi/data/test/$1
