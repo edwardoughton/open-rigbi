@@ -4,7 +4,7 @@ echo $1: Running on `hostname`
 
 DIR=/projects/open-rigbi   #$(pwd)
 
-echo $DIR
+#echo $DIR
 
 source activate rigbi-env
 #cd D:/github/open-rigbi/
