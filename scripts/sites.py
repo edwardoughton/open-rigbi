@@ -21,7 +21,6 @@ from misc import process_country_shapes, process_regions
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
 BASE_PATH = CONFIG['file_locations']['base_path']
-print(BASE_PATH)
 
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
@@ -138,7 +137,7 @@ def segment_by_gid_1(iso3, level):
     filename = '{}.csv'.format(iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
     path = os.path.join(folder, filename)
-    sites = pd.read_csv(path)[:100]
+    sites = pd.read_csv(path)#[:100]
 
     filename = 'regions_{}_{}.shp'.format(level, iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
