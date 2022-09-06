@@ -19,8 +19,9 @@ from tqdm import tqdm
 from misc import process_country_shapes, process_regions
 
 CONFIG = configparser.ConfigParser()
-CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
+CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
 BASE_PATH = CONFIG['file_locations']['base_path']
+print(BASE_PATH)
 
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
@@ -31,6 +32,7 @@ def run_site_processing(iso3):
     Meta function for running site processing.
 
     """
+    print(DATA_RAW)
     filename = "countries.csv"
     path = os.path.join(DATA_RAW, filename)
 
@@ -90,14 +92,14 @@ def create_national_sites_csv(country):
     for row in all_mobile_codes:
 
         mcc = row['mcc']
-
-        filename = '{}.csv'.format(iso3)
-        folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
-        path_csv = os.path.join(folder, filename)
+    
+        filename = '{}.csv'.format(iso3) 
+        folder = os.path.join(DATA_PROCESSED, iso3, 'sites') 
+        path_csv = os.path.join(folder, filename) 
 
         ### Produce national sites data layers
-        if not os.path.exists(path_csv):
-
+        if not os.path.exists(path_csv): 
+        
             print('-site.csv data does not exist')
             print('-Subsetting site data for {}: {}'.format(iso3, mcc))
 
@@ -905,4 +907,4 @@ if __name__ == "__main__":
     iso3 = args[1]
     # print(len(iso3))
     print('Running site processing for {}'.format(iso3))
-    # run_site_processing(iso3)
+    run_site_processing(iso3)

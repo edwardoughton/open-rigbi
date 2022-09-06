@@ -2,9 +2,11 @@
 # . /etc/profile.d/profile.sh
 echo $1: Running on `hostname`
 
-DIR=$(pwd)
+DIR=/projects/open-rigbi   #$(pwd)
 
-# source activate rigbi-env
+echo $DIR
+
+source activate rigbi-env
 #cd D:/github/open-rigbi/
 cd $DIR
 
