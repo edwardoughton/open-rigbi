@@ -1,252 +1,251 @@
 iso3,iso2,country,continent,gid_region,lowest,Exclude,Population
-AFG,AF,Afghanistan,Asia,2,2,0,39835428
-ALA,AX,Åland Islands,Europe,2,2,1,0
-ALB,AL,Albania,Europe,2,2,0,2811666
-DZA,DZ,Algeria,Africa,2,2,0,44616626
-ASM,AS,American Samoa,Oceania,1,1,0,55103
-AND,AD,Andorra,Europe,1,1,0,77354
-AGO,AO,Angola,Africa,2,2,0,33933611
+ABW,AW,Aruba,North America,0,0,1,107195
 AIA,AI,Anguilla,North America,0,0,1,0
+ALA,AX,Åland Islands,Europe,2,2,1,0
 ATA,AQ,Antarctica,Antarctica,2,2,1,0
+ATF,TF,French Southern Territories (the),Antarctica,1,1,1,0
 ATG,AG,Antigua and Barbuda,North America,1,1,1,98728
+BES,BQ,"Bonaire, Sint Eustatius and Saba",North America,1,1,1,0
+BLM,BL,Saint Barthélemy,North America,1,1,1,0
+BVT,BV,Bouvet Island,Antarctica,2,2,1,0
+CCK,CC,Cocos (Keeling) Islands (the),Asia,1,1,1,0
+COK,CK,Cook Islands (the),Oceania,0,0,1,0
+COM,KM,Comoros (the),Africa,0,0,1,888456
+CUW,CY,Curaçao,North America,0,0,1,152369
+CXR,CX,Christmas Island,Asia,1,1,1,0
+ESH,EH,Western Sahara,Africa,1,1,1,0
+FLK,FK,Falkland Islands (the) [Malvinas],South America,0,0,1,0
+GGY,GG,Guernsey,Europe,1,1,1,0
+GIB,GI,Gibraltar,Europe,0,0,1,33691
+GLP,GP,Guadeloupe,North America,1,1,1,0
+GUF,GF,French Guiana,South America,1,2,1,0
+HMD,HM,Heard Island and McDonald Islands,Antarctica,1,1,1,0
+IMN,IM,Isle of Man,Europe,1,1,1,85410
+IOT,IO,British Indian Ocean Territory (the),Asia,1,2,1,0
+JEY,JE,Jersey,Europe,1,1,1,0
+KIR,KI,Kiribati,Oceania,0,0,1,121388
+MAF,MF,Saint Martin (French part),North America,1,1,1,39239
+MCO,MC,Monaco,Europe,1,0,1,39520
+MDV,MV,Maldives,Asia,0,0,1,543620
+MHL,MH,Marshall Islands (the),Oceania,1,1,1,59618
+MNP,MP,Northern Mariana Islands (the),Oceania,1,1,1,57910
+MSR,MS,Montserrat,North America,1,1,1,0
+MTQ,MQ,Martinique,North America,1,1,1,0
+MYT,YT,Mayotte,Africa,1,2,1,0
+NFK,NF,Norfolk Island,Oceania,1,1,1,0
+NIU,NU,Niue,Oceania,0,0,1,0
+NRU,NR,Nauru,Oceania,1,1,1,10873
+PCN,PN,Pitcairn,Oceania,1,1,1,0
+PRK,KP,Korea (the Democratic People's Republic of),Asia,1,2,1,25887045
+REU,RE,Réunion,Africa,1,1,1,0
+SGS,GS,South Georgia and the South Sandwich Islands,Antarctica,1,1,1,0
+SHN,SH,"Saint Helena, Ascension and Tristan da Cunha",Africa,1,1,1,0
+SJM,SJ,Svalbard and Jan Mayen,Europe,1,1,1,0
+SPM,PM,Saint Pierre and Miquelon,North America,1,1,1,0
+SXM,SX,Sint Maarten (Dutch part),North America,1,1,1,42846
+TJK,TJ,Tajikistan,Asia,1,2,1,9749625
+TKL,TK,Tokelau,Oceania,1,1,1,0
+TLS,TL,Timor-Leste,Asia,1,2,1,1343875
+UMI,UM,United States Minor Outlying Islands (the),Oceania,1,1,1,0
+VAT,VA,Holy See (the),Europe,1,1,1,0
+WLF,WF,Wallis and Futuna,Oceania,1,1,1,0
+XKO,,Kosovo,,0,0,1,0
+AFG,AF,Afghanistan,Asia,2,2,0,39835428
+AGO,AO,Angola,Africa,2,2,0,33933611
+ALB,AL,Albania,Europe,2,2,0,2811666
+AND,AD,Andorra,Europe,1,1,0,77354
+ARE,AE,United Arab Emirates (the),Asia,1,2,0,9991083
 ARG,AR,Argentina,South America,2,2,0,45808747
 ARM,AM,Armenia,Asia,1,1,0,2968128
-ABW,AW,Aruba,North America,0,0,0,107195
+ASM,AS,American Samoa,Oceania,1,1,0,55103
 AUS,AU,Australia,Oceania,2,2,0,25739256
 AUT,AT,Austria,Europe,1,1,0,8956279
 AZE,AZ,Azerbaijan,Asia,1,1,0,10145212
-BHS,BS,Bahamas (the),North America,1,1,0,396914
-BHR,BH,Bahrain,Asia,1,1,0,1748295
-BGD,BD,Bangladesh,Asia,2,2,0,166303494
-BRB,BB,Barbados,North America,1,1,0,287708
-BLR,BY,Belarus,Europe,2,2,0,9340314
-BEL,BE,Belgium,Europe,2,2,0,11587882
-BLZ,BZ,Belize,North America,1,1,0,404915
-BEN,BJ,Benin,Africa,1,1,0,12451031
-BMU,BM,Bermuda,North America,1,1,0,63867
-BTN,BT,Bhutan,Asia,2,2,0,779900
-BOL,BO,Bolivia (Plurinational State of),South America,2,2,0,11832936
-BES,BQ,"Bonaire, Sint Eustatius and Saba",North America,1,1,0,0
-BIH,BA,Bosnia and Herzegovina,Europe,2,2,0,3263459
-BWA,BW,Botswana,Africa,2,2,0,2397240
-BVT,BV,Bouvet Island,Antarctica,2,2,0,0
-BRA,BR,Brazil,South America,1,2,0,213993441
-IOT,IO,British Indian Ocean Territory (the),Asia,1,2,0,0
-BRN,BN,Brunei Darussalam,Asia,1,2,0,441532
-BGR,BG,Bulgaria,Europe,1,2,0,6899125
-BFA,BF,Burkina Faso,Africa,1,2,0,21497097
 BDI,BI,Burundi,Africa,1,2,0,12255429
-CPV,CV,Cabo Verde,Africa,1,1,0,561901
-KHM,KH,Cambodia,Asia,1,2,0,16946446
-CMR,CM,Cameroon,Africa,1,2,0,27224262
-CAN,CA,Canada,North America,2,2,0,38246108
-CYM,KY,Cayman Islands (the),North America,1,1,0,66498
+BEL,BE,Belgium,Europe,2,2,0,11587882
+BEN,BJ,Benin,Africa,1,1,0,12451031
+BFA,BF,Burkina Faso,Africa,1,2,0,21497097
+BGD,BD,Bangladesh,Asia,2,2,0,166303494
+BGR,BG,Bulgaria,Europe,1,2,0,6899125
+BHR,BH,Bahrain,Asia,1,1,0,1748295
+BHS,BS,Bahamas (the),North America,1,1,0,396914
+BIH,BA,Bosnia and Herzegovina,Europe,2,2,0,3263459
+BLR,BY,Belarus,Europe,2,2,0,9340314
+BLZ,BZ,Belize,North America,1,1,0,404915
+BMU,BM,Bermuda,North America,1,1,0,63867
+BOL,BO,Bolivia (Plurinational State of),South America,2,2,0,11832936
+BRA,BR,Brazil,South America,1,2,0,213993441
+BRB,BB,Barbados,North America,1,1,0,287708
+BRN,BN,Brunei Darussalam,Asia,1,2,0,441532
+BTN,BT,Bhutan,Asia,2,2,0,779900
+BWA,BW,Botswana,Africa,2,2,0,2397240
 CAF,CF,Central African Republic (the),Africa,1,2,0,4919987
-TCD,TD,Chad,Africa,1,2,0,16914985
+CAN,CA,Canada,North America,2,2,0,38246108
+CHE,CH,Switzerland,Europe,1,2,0,8697723
 CHL,CL,Chile,South America,1,2,0,19212362
 CHN,CN,China,Asia,2,2,0,1412360000
-CXR,CX,Christmas Island,Asia,1,1,0,0
-CCK,CC,Cocos (Keeling) Islands (the),Asia,1,1,0,0
-COL,CO,Colombia,South America,1,2,0,51265841
-COM,KM,Comoros (the),Africa,0,0,0,888456
+CIV,HR,Côte d'Ivoire,Africa,1,2,0,27053629
+CMR,CM,Cameroon,Africa,1,2,0,27224262
 COD,CD,Congo (the Democratic Republic of the),Africa,1,2,0,92377986
 COG,CG,Congo (the),Africa,1,2,0,5657017
-COK,CK,Cook Islands (the),Oceania,0,0,0,0
+COL,CO,Colombia,South America,1,2,0,51265841
+CPV,CV,Cabo Verde,Africa,1,1,0,561901
 CRI,CR,Costa Rica,North America,1,2,0,5139053
-CIV,HR,Côte d'Ivoire,Africa,1,2,0,27053629
-HRV,CU,Croatia,Europe,1,1,0,3899000
 CUB,CW,Cuba,North America,1,2,0,11317498
-CUW,CY,Curaçao,North America,0,0,0,152369
+CYM,KY,Cayman Islands (the),North America,1,1,0,66498
 CYP,CZ,Cyprus,Europe,1,1,0,1215588
 CZE,CI,Czechia,Europe,1,2,0,10703446
-DNK,DK,Denmark,Europe,1,2,0,5856733
+DEU,DE,Germany,Europe,1,2,0,83129285
 DJI,DJ,Djibouti,Africa,1,2,0,1002197
 DMA,DM,Dominica,North America,1,1,0,72172
+DNK,DK,Denmark,Europe,1,2,0,5856733
 DOM,DO,Dominican Republic (the),North America,1,2,0,10953714
+DZA,DZ,Algeria,Africa,2,2,0,44616626
 ECU,EC,Ecuador,South America,1,2,0,17888474
 EGY,EG,Egypt,Africa,1,2,0,104258327
-SLV,SV,El Salvador,North America,1,2,0,6518500
-GNQ,GQ,Equatorial Guinea,Africa,1,2,0,1449891
 ERI,ER,Eritrea,Africa,1,2,0,0
+ESP,ES,Spain,Europe,2,2,0,47326687
 EST,EE,Estonia,Europe,1,2,0,1329254
-SWZ,SZ,Eswatini,Africa,1,1,0,1172369
 ETH,ET,Ethiopia,Africa,1,2,0,117876226
-FLK,FK,Falkland Islands (the) [Malvinas],South America,0,0,0,0
-FRO,FO,Faroe Islands (the),Europe,1,1,0,49053
-FJI,FJ,Fiji,Oceania,1,1,0,902899
 FIN,FI,Finland,Europe,1,2,0,5541696
+FJI,FJ,Fiji,Oceania,1,1,0,902899
 FRA,FR,France,Europe,2,2,0,67499343
-GUF,GF,French Guiana,South America,1,2,0,0
-PYF,PF,French Polynesia,Oceania,1,1,0,282534
-ATF,TF,French Southern Territories (the),Antarctica,1,1,0,0
+FRO,FO,Faroe Islands (the),Europe,1,1,0,49053
+FSM,FM,Micronesia (Federated States of),Oceania,1,1,0,116255
 GAB,GA,Gabon,Africa,1,2,0,2278829
-GMB,GM,Gambia (the),Africa,1,2,0,2486937
+GBR,GB,United Kingdom,Europe,2,2,0,67326569
 GEO,GE,Georgia,Asia,1,2,0,3708610
-DEU,DE,Germany,Europe,1,2,0,83129285
 GHA,GH,Ghana,Africa,2,2,0,31732128
-GIB,GI,Gibraltar,Europe,0,0,0,33691
-GRC,GR,Greece,Europe,1,2,0,10664568
-GRL,GL,Greenland,North America,1,1,0,56653
-GRD,GD,Grenada,North America,1,1,0,113015
-GLP,GP,Guadeloupe,North America,1,1,0,0
-GUM,GU,Guam,Oceania,1,1,0,170184
-GTM,GT,Guatemala,North America,1,2,0,17109746
-GGY,GG,Guernsey,Europe,1,1,0,0
 GIN,GN,Guinea,Africa,1,2,0,13497237
+GMB,GM,Gambia (the),Africa,1,2,0,2486937
 GNB,GW,Guinea-Bissau,Africa,1,2,0,2015490
+GNQ,GQ,Equatorial Guinea,Africa,1,2,0,1449891
+GRC,GR,Greece,Europe,1,2,0,10664568
+GRD,GD,Grenada,North America,1,1,0,113015
+GRL,GL,Greenland,North America,1,1,0,56653
+GTM,GT,Guatemala,North America,1,2,0,17109746
+GUM,GU,Guam,Oceania,1,1,0,170184
 GUY,GY,Guyana,South America,1,2,0,790329
-HTI,HT,Haiti,North America,1,2,0,11541683
-HMD,HM,Heard Island and McDonald Islands,Antarctica,1,1,0,0
-VAT,VA,Holy See (the),Europe,1,1,0,0
-HND,HN,Honduras,North America,1,2,0,10062994
 HKG,HK,Hong Kong,Asia,1,1,0,7413100
+HND,HN,Honduras,North America,1,2,0,10062994
+HRV,CU,Croatia,Europe,1,1,0,3899000
+HTI,HT,Haiti,North America,1,2,0,11541683
 HUN,HU,Hungary,Europe,1,2,0,9709886
-ISL,IS,Iceland,Europe,1,2,0,372295
-IND,IN,India,Asia,2,2,0,1393409033
 IDN,ID,Indonesia,Asia,1,2,0,276361788
+IND,IN,India,Asia,2,2,0,1393409033
+IRL,IE,Ireland,Europe,1,1,0,5028230
 IRN,IR,Iran (Islamic Republic of),Asia,1,2,0,85028760
 IRQ,IQ,Iraq,Asia,1,2,0,41179351
-IRL,IE,Ireland,Europe,1,1,0,5028230
-IMN,IM,Isle of Man,Europe,1,1,0,85410
+ISL,IS,Iceland,Europe,1,2,0,372295
 ISR,IL,Israel,Asia,1,1,0,9364000
 ITA,IT,Italy,Europe,1,2,0,59066225
 JAM,JM,Jamaica,North America,1,1,0,2973462
-JPN,JP,Japan,Asia,1,2,0,125681593
-JEY,JE,Jersey,Europe,1,1,0,0
 JOR,JO,Jordan,Asia,1,2,0,10269022
+JPN,JP,Japan,Asia,1,2,0,125681593
 KAZ,KZ,Kazakhstan,Asia,1,2,0,19002586
 KEN,KE,Kenya,Africa,1,2,0,54985702
-KIR,KI,Kiribati,Oceania,0,0,0,121388
-PRK,KP,Korea (the Democratic People's Republic of),Asia,1,2,0,25887045
-KOR,KR,Korea (the Republic of),Asia,1,2,0,51744876
-XKO,,Kosovo,,0,0,0,0
-KWT,KW,Kuwait,Asia,1,1,0,4328553
 KGZ,KG,Kyrgyzstan,Asia,1,2,0,6694200
+KHM,KH,Cambodia,Asia,1,2,0,16946446
+KNA,KN,Saint Kitts and Nevis,North America,1,1,0,53546
+KOR,KR,Korea (the Republic of),Asia,1,2,0,51744876
+KWT,KW,Kuwait,Asia,1,1,0,4328553
 LAO,LA,Lao People's Democratic Republic (the),Asia,1,2,0,7379358
-LVA,LV,Latvia,Europe,1,2,0,1883162
 LBN,LB,Lebanon,Asia,1,2,0,6769151
-LSO,LS,Lesotho,Africa,1,1,0,2159067
 LBR,LR,Liberia,Africa,1,2,0,5180208
 LBY,LY,Libya,Africa,1,1,0,6958538
+LCA,LC,Saint Lucia,North America,1,1,0,184401
 LIE,LI,Liechtenstein,Europe,1,1,0,38254
+LKA,LK,Sri Lanka,Asia,1,2,0,22156000
+LSO,LS,Lesotho,Africa,1,1,0,2159067
 LTU,LT,Lithuania,Europe,1,2,0,2795321
 LUX,LU,Luxembourg,Europe,1,1,0,639070
+LVA,LV,Latvia,Europe,1,2,0,1883162
 MAC,MO,Macao,Asia,1,1,0,658391
+MAR,MA,Morocco,Africa,1,2,0,37344787
+MDA,MD,Moldova (the Republic of),Europe,1,1,0,2573928
 MDG,MG,Madagascar,Africa,1,2,0,28427333
-MWI,MW,Malawi,Africa,1,2,0,19647681
-MYS,MY,Malaysia,Asia,1,2,0,32776195
-MDV,MV,Maldives,Asia,0,0,1,543620
+MEX,MX,Mexico,North America,1,2,0,130262220
+MKD,MK,Republic of North Macedonia,Europe,1,1,0,2065092
 MLI,ML,Mali,Africa,1,2,0,20855724
 MLT,MT,Malta,Europe,1,2,0,516869
-MHL,MH,Marshall Islands (the),Oceania,1,1,0,59618
-MTQ,MQ,Martinique,North America,1,1,0,0
+MMR,MM,Myanmar,Asia,1,2,0,54806014
+MNE,ME,Montenegro,Europe,1,1,0,620173
+MNG,MN,Mongolia,Asia,1,2,0,3329282
+MOZ,MZ,Mozambique,Africa,1,2,0,32163045
 MRT,MR,Mauritania,Africa,1,1,0,4775110
 MUS,MU,Mauritius,Africa,1,1,0,1266060
-MYT,YT,Mayotte,Africa,1,2,0,0
-MEX,MX,Mexico,North America,1,2,0,130262220
-FSM,FM,Micronesia (Federated States of),Oceania,1,1,0,116255
-MDA,MD,Moldova (the Republic of),Europe,1,1,0,2573928
-MCO,MC,Monaco,Europe,1,0,1,39520
-MNG,MN,Mongolia,Asia,1,2,0,3329282
-MNE,ME,Montenegro,Europe,1,1,0,620173
-MSR,MS,Montserrat,North America,1,1,0,0
-MAR,MA,Morocco,Africa,1,2,0,37344787
-MOZ,MZ,Mozambique,Africa,1,2,0,32163045
-MMR,MM,Myanmar,Asia,1,2,0,54806014
+MWI,MW,Malawi,Africa,1,2,0,19647681
+MYS,MY,Malaysia,Asia,1,2,0,32776195
 NAM,NA,Namibia,Africa,1,2,0,2587344
-NRU,NR,Nauru,Oceania,1,1,0,10873
-NPL,NP,Nepal,Asia,1,2,0,29674920
-NLD,NL,Netherlands (the),Europe,1,2,0,17533405
 NCL,NC,New Caledonia,Oceania,1,2,0,272620
-NZL,NZ,New Zealand,Oceania,1,2,0,5122600
-NIC,NI,Nicaragua,North America,1,2,0,6702379
 NER,NE,Niger (the),Africa,1,2,0,25130810
 NGA,NG,Nigeria,Africa,1,2,0,211400704
-NIU,NU,Niue,Oceania,0,0,0,0
-NFK,NF,Norfolk Island,Oceania,1,1,0,0
-MNP,MP,Northern Mariana Islands (the),Oceania,1,1,0,57910
+NIC,NI,Nicaragua,North America,1,2,0,6702379
+NLD,NL,Netherlands (the),Europe,1,2,0,17533405
 NOR,NO,Norway,Europe,1,2,0,5408320
+NPL,NP,Nepal,Asia,1,2,0,29674920
+NZL,NZ,New Zealand,Oceania,1,2,0,5122600
 OMN,OM,Oman,Asia,1,2,0,5223376
 PAK,PK,Pakistan,Asia,1,2,0,225199929
-PLW,PW,Palau,Oceania,1,1,0,18174
-PSE,PS,"Palestine, State of",Asia,1,1,0,4922749
 PAN,PA,Panama,North America,1,2,0,4381583
-PNG,PG,Papua New Guinea,Oceania,1,2,0,9119005
-PRY,PY,Paraguay,South America,1,2,0,7219641
 PER,PE,Peru,South America,1,2,0,33359416
 PHL,PH,Philippines (the),Asia,1,2,0,111046910
-PCN,PN,Pitcairn,Oceania,1,1,0,0
+PLW,PW,Palau,Oceania,1,1,0,18174
+PNG,PG,Papua New Guinea,Oceania,1,2,0,9119005
 POL,PL,Poland,Europe,1,2,0,37781024
-PRT,PT,Portugal,Europe,1,2,0,10299423
 PRI,PR,Puerto Rico,North America,1,1,0,3263584
+PRT,PT,Portugal,Europe,1,2,0,10299423
+PRY,PY,Paraguay,South America,1,2,0,7219641
+PSE,PS,"Palestine, State of",Asia,1,1,0,4922749
+PYF,PF,French Polynesia,Oceania,1,1,0,282534
 QAT,QA,Qatar,Asia,1,1,0,2930524
-MKD,MK,Republic of North Macedonia,Europe,1,1,0,2065092
-REU,RE,Réunion,Africa,1,1,0,0
 ROU,RO,Romania,Europe,1,2,0,19115146
 RUS,RU,Russian Federation (the),Asia,1,2,0,143446060
 RWA,RW,Rwanda,Africa,1,2,0,13276517
-BLM,BL,Saint Barthélemy,North America,1,1,0,0
-SHN,SH,"Saint Helena, Ascension and Tristan da Cunha",Africa,1,1,0,0
-KNA,KN,Saint Kitts and Nevis,North America,1,1,0,53546
-LCA,LC,Saint Lucia,North America,1,1,0,184401
-MAF,MF,Saint Martin (French part),North America,1,1,0,39239
-SPM,PM,Saint Pierre and Miquelon,North America,1,1,0,0
-VCT,VC,Saint Vincent and the Grenadines,North America,1,1,0,111269
-WSM,WS,Samoa,Oceania,1,1,0,200144
-SMR,SM,San Marino,Europe,1,1,0,34010
-STP,ST,Sao Tome and Principe,Africa,1,1,0,223364
 SAU,SA,Saudi Arabia,Asia,1,1,0,35340680
+SDN,SD,Sudan (the),Africa,1,2,0,44909351
 SEN,SN,Senegal,Africa,1,2,0,17196308
-SRB,RS,Serbia,Europe,1,2,0,6844078
-SYC,SC,Seychelles,Africa,1,1,0,99202
-SLE,SL,Sierra Leone,Africa,1,2,0,8141343
 SGP,SG,Singapore,Asia,1,1,0,5453566
-SXM,SX,Sint Maarten (Dutch part),North America,1,1,0,42846
+SLB,SB,Solomon Islands,Oceania,1,1,0,703995
+SLE,SL,Sierra Leone,Africa,1,2,0,8141343
+SLV,SV,El Salvador,North America,1,2,0,6518500
+SMR,SM,San Marino,Europe,1,1,0,34010
+SOM,SO,Somalia,Africa,1,2,0,16359500
+SRB,RS,Serbia,Europe,1,2,0,6844078
+SSD,SS,South Sudan,Africa,1,1,0,11381377
+STP,ST,Sao Tome and Principe,Africa,1,1,0,223364
+SUR,SR,Suriname,South America,1,2,0,591798
 SVK,SK,Slovakia,Europe,1,2,0,5447247
 SVN,SI,Slovenia,Europe,1,2,0,2107007
-SLB,SB,Solomon Islands,Oceania,1,1,0,703995
-SOM,SO,Somalia,Africa,1,2,0,16359500
-ZAF,ZA,South Africa,Africa,1,2,0,60041996
-SGS,GS,South Georgia and the South Sandwich Islands,Antarctica,1,1,0,0
-SSD,SS,South Sudan,Africa,1,1,0,11381377
-ESP,ES,Spain,Europe,2,2,0,47326687
-LKA,LK,Sri Lanka,Asia,1,2,0,22156000
-SDN,SD,Sudan (the),Africa,1,2,0,44909351
-SUR,SR,Suriname,South America,1,2,0,591798
-SJM,SJ,Svalbard and Jan Mayen,Europe,1,1,0,0
 SWE,SE,Sweden,Europe,1,2,0,10415811
-CHE,CH,Switzerland,Europe,1,2,0,8697723
+SWZ,SZ,Eswatini,Africa,1,1,0,1172369
+SYC,SC,Seychelles,Africa,1,1,0,99202
 SYR,SY,Syrian Arab Republic,Asia,1,2,0,18275704
-TWN,TW,Taiwan (Province of China),Asia,1,2,0,0
-TJK,TJ,Tajikistan,Asia,1,2,0,9749625
-TZA,TZ,Tanzania,Africa,1,2,0,61498438
-THA,TH,Thailand,Asia,1,2,0,69950844
-TLS,TL,Timor-Leste,Asia,1,2,0,1343875
+TCA,TC,Turks and Caicos Islands (the),North America,1,1,0,39226
+TCD,TD,Chad,Africa,1,2,0,16914985
 TGO,TG,Togo,Africa,1,2,0,8478242
-TKL,TK,Tokelau,Oceania,1,1,0,0
+THA,TH,Thailand,Asia,1,2,0,69950844
+TKM,TM,Turkmenistan,Asia,1,1,0,6117933
 TON,TO,Tonga,Oceania,1,1,0,106759
 TTO,TT,Trinidad and Tobago,North America,1,1,0,1403374
 TUN,TN,Tunisia,Africa,1,2,0,11935764
 TUR,TR,Turkey,Europe,1,2,0,85042736
-TKM,TM,Turkmenistan,Asia,1,1,0,6117933
-TCA,TC,Turks and Caicos Islands (the),North America,1,1,0,39226
 TUV,TV,Tuvalu,Oceania,1,1,0,11925
+TWN,TW,Taiwan (Province of China),Asia,1,2,0,0
+TZA,TZ,Tanzania,Africa,1,2,0,61498438
 UGA,UG,Uganda,Africa,1,2,0,47123533
 UKR,UA,Ukraine,Europe,1,2,0,43814581
-ARE,AE,United Arab Emirates (the),Asia,1,2,0,9991083
-GBR,GB,United Kingdom,Europe,2,2,0,67326569
-UMI,UM,United States Minor Outlying Islands (the),Oceania,1,1,0,0
-USA,US,United States of America (the),North America,2,2,0,331893745
 URY,UY,Uruguay,South America,1,2,0,3485152
+USA,US,United States of America (the),North America,2,2,0,331893745
 UZB,UZ,Uzbekistan,Asia,1,2,0,34915100
-VUT,VU,Vanuatu,Oceania,1,1,0,314464
+VCT,VC,Saint Vincent and the Grenadines,North America,1,1,0,111269
 VEN,VE,Venezuela (Bolivarian Republic of),South America,1,2,0,28704947
-VNM,VN,Viet Nam,Asia,1,2,0,98168829
 VGB,VG,Virgin Islands (British),North America,1,1,0,30423
 VIR,VI,Virgin Islands (U.S.),North America,1,1,0,105870
-WLF,WF,Wallis and Futuna,Oceania,1,1,0,0
-ESH,EH,Western Sahara,Africa,1,1,0,0
+VNM,VN,Viet Nam,Asia,1,2,0,98168829
+VUT,VU,Vanuatu,Oceania,1,1,0,314464
+WSM,WS,Samoa,Oceania,1,1,0,200144
 YEM,YE,Yemen,Asia,2,2,0,30490639
+ZAF,ZA,South Africa,Africa,1,2,0,60041996
 ZMB,ZM,Zambia,Africa,2,2,0,18920657
 ZWE,ZW,Zimbabwe,Africa,2,2,0,15092171
-,,,,,,,

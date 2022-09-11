@@ -53,10 +53,12 @@ def get_countries():
     """
     filename = "countries.csv"
     path = os.path.join(DATA_RAW, filename)
-    print(path)
+
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
-
+    countries = countries.sort_values(by=['iso3'], ascending=True)
+    # print(len(countries[countries.Exclude == 0]))
+    # print(len(countries[countries.Exclude == 1]))
     # # if mmc == 'with_mmc':
     # filename = "mobile_codes.csv"
     # path = os.path.join(DATA_RAW, filename)
@@ -66,11 +68,11 @@ def get_countries():
     # countries = pd.merge(countries, mobile_codes, left_on = 'iso2', right_on = 'iso2')
 
     # countries.to_csv('test.csv')
-    countries = countries[countries['Population'] > 5000000]
-    countries = countries.sort_values(by=['Population'], ascending=True)
-    countries = countries.to_dict('records')
+    # countries = countries[countries['Population'] > 5000000]
+    # countries = countries.sort_values(by=['Population'], ascending=True)
+    # countries = countries.to_dict('records')
 
-    return countries[:10]
+    return countries#[:10]
 
 
 def get_regions(country, region_type):
@@ -78,23 +80,28 @@ def get_regions(country, region_type):
 
 
     """
-
     if region_type == 'use_csv':
         filename = 'regions_{}_{}.shp'.format(
             country['lowest'],
             country['iso3']
         )
-    else:
+        folder = os.path.join(DATA_PROCESSED, country['iso3'], 'regions')
+    elif region_type in [1, 2]:
         filename = 'regions_{}_{}.shp'.format(
             region_type,
             country['iso3']
         )
-
-    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'regions')
+        folder = os.path.join(DATA_PROCESSED, country['iso3'], 'regions')
+    elif region_type == 0:
+        filename = 'national_outline.shp'
+        folder = os.path.join(DATA_PROCESSED, country['iso3'])
+    else:
+        print("Did not recognize region_type arg provided to get_regions()")
 
     path = os.path.join(folder, filename)
 
     if not os.path.exists(path):
+        print('path did not exist: {}'.format(path))
         return []
 
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
@@ -291,8 +298,8 @@ if __name__ == '__main__':
 
     countries = get_countries()
 
-    for country in countries:
-        print(country)
+    # for country in countries:
+    #     print(country)
 
     # scenarios = get_scenarios({'iso3': 'GHA'})
 
