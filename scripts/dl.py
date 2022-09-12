@@ -31,7 +31,7 @@ def dl_flood_layers():
 
         filename = os.path.basename(in_path)
 
-        folder = os.path.join(DATA_RAW, 'hazard_scenarios')
+        folder = os.path.join(DATA_RAW, 'flood_hazard')
 
         if not os.path.exists(folder):
             os.mkdir(folder)
