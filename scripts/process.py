@@ -65,13 +65,16 @@ def run_site_processing(iso3):
 
     if regional_level > 1:
 
-        print('Working on segment_by_gid_1')
+        print('Working on segment_by_gid_2')
         segment_by_gid_2(iso3, 2)
 
         print('Working on create_regional_sites_layer')
         create_regional_sites_layer(iso3, 2)
 
+    print('Getting regions')
     regions = get_regions(country, regional_level)#[:5]
+
+    print('Getting scenarios')
     scenarios = get_scenarios()#[:5]
 
     print('Working on process_flooding_layers')
