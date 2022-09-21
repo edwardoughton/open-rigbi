@@ -301,7 +301,7 @@ if __name__ == '__main__':
     # for country in countries:
     #     print(country)
 
-    # scenarios = get_scenarios({'iso3': 'GHA'})
+    scenarios = get_scenarios()
 
-    # for scenario in scenarios:
-    #     print(scenario)
+    for scenario in scenarios:
+        print(scenario)
