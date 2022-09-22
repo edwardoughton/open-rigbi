@@ -520,21 +520,23 @@ if __name__ == "__main__":
 
     # import cProfile
 
-    # args = sys.argv
+    args = sys.argv
 
-    # iso3 = args[1]
+    iso3 = args[1]
 
-    countries = get_countries()
+    run_site_processing(iso3)
 
-    failures = []
+    # countries = get_countries()
 
-    for idx, country in countries.iterrows():
+    # failures = []
 
-        try:
-            print('Trying {}'.format(country['iso3']))
-            run_site_processing(country['iso3'])
-        except:
-            print('--Failed on {}'.format(country['iso3']))
-            failures.append(country['iso3'])
+    # for idx, country in countries.iterrows():
 
-    print(failures)
+    #     try:
+    #         print('Trying {}'.format(country['iso3']))
+    #         run_site_processing(country['iso3'])
+    #     except:
+    #         print('--Failed on {}'.format(country['iso3']))
+    #         failures.append(country['iso3'])
+
+    # print(failures)
