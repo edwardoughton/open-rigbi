@@ -2,8 +2,8 @@
 # . /etc/profile.d/profile.sh
 echo $1: Running on `hostname`
 
-# DIR=/projects/open-rigbi
-DIR=$(pwd)
+DIR=/projects/open-rigbi
+#DIR=$(pwd)
 
 # echo $DIR
 
