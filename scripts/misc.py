@@ -121,13 +121,13 @@ def get_scenarios():
     scenarios = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:20]
 
     return_periods = [
-        # 'rp0100',
-        # 'rp0250',
-        # 'rp0500',
-        # 'rp1000',
-        # 'rp00100',
-        # 'rp00250',
-        # 'rp00500',
+        'rp0100',
+        'rp0250',
+        'rp0500',
+        'rp1000',
+        'rp00100',
+        'rp00250',
+        'rp00500',
         'rp01000'
     ]
 
