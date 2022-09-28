@@ -28,7 +28,6 @@ BASE_PATH = CONFIG['file_locations']['base_path']
 
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
-RESULTS = os.path.join(BASE_PATH, '..', 'results')
 
 
 def run_site_processing(iso3):
@@ -527,7 +526,6 @@ def estimate_results(country, regions, scenarios, regional_level):
     """
     iso3 = country['iso3']
     name = country['country']
-    regional_level = country['lowest']
     gid_level = 'GID_{}'.format(regional_level)
 
     filename = 'fragility_curve.csv'
@@ -544,18 +542,16 @@ def estimate_results(country, regions, scenarios, regional_level):
             gid_id = region[gid_level]
             scenario_name = os.path.basename(scenario)[:-4]
 
-            # if not gid_id == 'GBR.1.3_1':
+            # if not gid_id == 'EGY.1_1':
             #     continue
 
             filename = '{}_{}.csv'.format(gid_id, scenario_name)
-            folder_out = os.path.join(RESULTS, iso3, 'regional_data', scenario_name)
+            folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario_name)
             path_output = os.path.join(folder_out, filename)
 
             if os.path.exists(path_output):
+                # print('here')
                 continue
-
-            if not os.path.exists(folder_out):
-                os.makedirs(folder_out)
 
             filename = '{}_{}.csv'.format(gid_id, scenario_name)
             folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
@@ -597,6 +593,9 @@ def estimate_results(country, regions, scenarios, regional_level):
 
             if len(output) == 0:
                 return
+
+            if not os.path.exists(folder_out):
+                os.makedirs(folder_out)
 
             output = pd.DataFrame(output)
 
