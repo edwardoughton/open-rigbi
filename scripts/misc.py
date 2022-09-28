@@ -101,7 +101,7 @@ def get_regions(country, region_type):
     path = os.path.join(folder, filename)
 
     if not os.path.exists(path):
-        print('path did not exist: {}'.format(path))
+        print('Created this path as it did not exist: {}'.format(path))
         return []
 
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
