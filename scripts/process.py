@@ -70,22 +70,25 @@ def run_site_processing(iso3):
         print('Working on create_regional_sites_layer')
         create_regional_sites_layer(iso3, 1)
 
-    #if regional_level > 1:
+    if regional_level > 1:
 
-    #    print('Working on segment_by_gid_2')
-    #    segment_by_gid_2(iso3, 2)
+       print('Working on segment_by_gid_2')
+       segment_by_gid_2(iso3, 2)
 
-    #    print('Working on create_regional_sites_layer')
-    #    create_regional_sites_layer(iso3, 2)
+       print('Working on create_regional_sites_layer')
+       create_regional_sites_layer(iso3, 2)
 
-    #print('Working on process_flooding_layers')
-    #process_flooding_layers(country, scenarios)
+    print('Working on process_flooding_layers')
+    process_flooding_layers(country, scenarios)
 
-    #print('Working on query_hazard_layers')
-    #query_hazard_layers(country, regions, scenarios, regional_level)
+    print('Working on query_hazard_layers')
+    query_hazard_layers(country, regions, scenarios, regional_level)
 
     print('Estimating results')
     estimate_results(country, regions, scenarios, regional_level)
+
+    print('Collect regional results')
+    collect_regional_results(country, regions, scenarios, regional_level)
 
     return
 
@@ -534,7 +537,7 @@ def estimate_results(country, regions, scenarios, regional_level):
     f_curve = f_curve.to_dict('records')
 
     for scenario in scenarios: #tqdm
-        print('working on {}'.format(scenario))
+
         for idx, region in regions.iterrows():
 
             output = []
@@ -550,7 +553,6 @@ def estimate_results(country, regions, scenarios, regional_level):
             path_output = os.path.join(folder_out, filename)
 
             if os.path.exists(path_output):
-                # print('here')
                 continue
 
             filename = '{}_{}.csv'.format(gid_id, scenario_name)
@@ -559,7 +561,7 @@ def estimate_results(country, regions, scenarios, regional_level):
             if not os.path.exists(path_in):
                 continue
             sites = pd.read_csv(path_in)
-            print('successfully loaded sites')
+
             for idx, site in sites.iterrows():
 
                 if not site['depth'] > 0:
@@ -592,7 +594,7 @@ def estimate_results(country, regions, scenarios, regional_level):
                 })
 
             if len(output) == 0:
-                continue 
+                continue
 
             if not os.path.exists(folder_out):
                 os.makedirs(folder_out)
@@ -600,7 +602,7 @@ def estimate_results(country, regions, scenarios, regional_level):
             output = pd.DataFrame(output)
 
             output.to_csv(path_output, index=False)
-            print('successfully wrote {}'.format(path_output))
+
     return
 
 
@@ -621,6 +623,50 @@ def query_fragility_curve(f_curve, depth):
     print('fragility curve failure: {}'.format(depth))
 
     return 0
+
+
+def collect_regional_results(country, regions, scenarios, regional_level):
+    """
+    Collect regional results and write to national results folder.
+
+    """
+
+    for scenario in scenarios: #tqdm
+
+        output = []
+
+        scenario_name = os.path.basename(scenario)[:-4]
+
+        folder = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario_name)
+
+        if not os.path.exists(folder):
+            continue
+
+        all_regional_results = os.listdir(folder)
+
+        if len(all_regional_results) == 0:
+            continue
+
+        for filename in all_regional_results:
+
+            path_in = os.path.join(folder, filename)
+            data = pd.read_csv(path_in)
+            data = data.to_dict('records')
+
+            output = output + data
+
+        if len(output) == 0:
+            continue
+
+        output = pd.DataFrame(output)
+
+        folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'national_data')
+        if not os.path.exists(folder_out):
+            os.mkdir(folder_out)
+        path_out = os.path.join(folder_out, scenario_name + '.csv')
+        output.to_csv(path_out, index=False)
+
+    return
 
 
 if __name__ == "__main__":
