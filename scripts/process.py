@@ -88,7 +88,7 @@ def run_site_processing(iso3):
     estimate_results(country, regions, scenarios, regional_level)
 
     print('Collect regional results')
-    collect_regional_results(country, regions, scenarios, regional_level)
+    collect_national_results(country, regions, scenarios, regional_level)
 
     return
 
@@ -625,7 +625,7 @@ def query_fragility_curve(f_curve, depth):
     return 0
 
 
-def collect_regional_results(country, regions, scenarios, regional_level):
+def collect_national_results(country, regions, scenarios, regional_level):
     """
     Collect regional results and write to national results folder.
 
@@ -669,6 +669,91 @@ def collect_regional_results(country, regions, scenarios, regional_level):
     return
 
 
+def collect_final_results():
+    """
+    Collect all results.
+
+    """
+    scenarios = get_scenarios()
+    countries = get_countries()
+
+    folder_out = os.path.join(DATA_PROCESSED, 'results')
+    if not os.path.exists(folder_out):
+        os.mkdir(folder_out)
+
+    for scenario in scenarios:
+
+        output = []
+
+        scenario_name = os.path.basename(scenario)[:-4]
+        path_out = os.path.join(folder_out, scenario_name + '.csv')
+
+        for idx, country in countries.iterrows():
+
+            # if not country['iso3'] == 'GBR':
+            #     continue
+
+            path = os.path.join(DATA_PROCESSED, country['iso3'], 'results', 'national_data', scenario_name + '.csv')
+
+            if not os.path.exists(path):
+                output.append({
+                        'iso3': country['iso3'],
+                        'iso2': country['iso2'],
+                        'country': country['country'],
+                        'continent': country['continent'],
+                        'radio': 'NA',
+                        'network': 'NA',
+                        'cell_count': 0,
+                        'cost_usd': 0,
+                    })
+                continue
+
+            data = pd.read_csv(path)
+
+            radios = list(data['radio'].unique())
+            networks = list(data['net'].unique())
+
+            for radio in radios:
+                for network in networks:
+
+                    cell_count = 0
+                    cost_usd = 0
+
+                    for idx, item in data.iterrows():
+
+                        if not item['radio'] == radio:
+                            continue
+
+                        if not item['net'] == network:
+                            continue
+
+                        if not item['failure'] == 1:
+                            continue
+
+                        cell_count += 1
+                        cost_usd += item['cost_usd']
+
+                    output.append({
+                        'iso3': country['iso3'],
+                        'iso2': country['iso2'],
+                        'country': country['country'],
+                        'continent': country['continent'],
+                        'radio': radio,
+                        'network': network,
+                        'cell_count': cell_count,
+                        'cost_usd': cost_usd,
+                    })
+
+        if len(output) == 0:
+            continue
+
+        output = pd.DataFrame(output)
+
+        output.to_csv(path_out, index=False)
+
+    return
+
+
 if __name__ == "__main__":
 
     # import cProfile
@@ -677,7 +762,13 @@ if __name__ == "__main__":
 
     iso3 = args[1]
 
-    run_site_processing(iso3)
+    if not iso3 == 'collect':
+
+        run_site_processing(iso3)
+
+    else:
+
+        collect_final_results()
 
     # countries = get_countries()
 
