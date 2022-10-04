@@ -70,19 +70,19 @@ def run_site_processing(iso3):
         print('Working on create_regional_sites_layer')
         create_regional_sites_layer(iso3, 1)
 
-    if regional_level > 1:
+    #if regional_level > 1:
 
-        print('Working on segment_by_gid_2')
-        segment_by_gid_2(iso3, 2)
+    #    print('Working on segment_by_gid_2')
+    #    segment_by_gid_2(iso3, 2)
 
-        print('Working on create_regional_sites_layer')
-        create_regional_sites_layer(iso3, 2)
+    #    print('Working on create_regional_sites_layer')
+    #    create_regional_sites_layer(iso3, 2)
 
-    print('Working on process_flooding_layers')
-    process_flooding_layers(country, scenarios)
+    #print('Working on process_flooding_layers')
+    #process_flooding_layers(country, scenarios)
 
-    print('Working on query_hazard_layers')
-    query_hazard_layers(country, regions, scenarios, regional_level)
+    #print('Working on query_hazard_layers')
+    #query_hazard_layers(country, regions, scenarios, regional_level)
 
     print('Estimating results')
     estimate_results(country, regions, scenarios, regional_level)
@@ -534,7 +534,7 @@ def estimate_results(country, regions, scenarios, regional_level):
     f_curve = f_curve.to_dict('records')
 
     for scenario in scenarios: #tqdm
-
+        print('working on {}'.format(scenario))
         for idx, region in regions.iterrows():
 
             output = []
@@ -559,7 +559,7 @@ def estimate_results(country, regions, scenarios, regional_level):
             if not os.path.exists(path_in):
                 continue
             sites = pd.read_csv(path_in)
-
+            print('successfully loaded sites')
             for idx, site in sites.iterrows():
 
                 if not site['depth'] > 0:
@@ -592,7 +592,7 @@ def estimate_results(country, regions, scenarios, regional_level):
                 })
 
             if len(output) == 0:
-                return
+                continue 
 
             if not os.path.exists(folder_out):
                 os.makedirs(folder_out)
@@ -600,7 +600,7 @@ def estimate_results(country, regions, scenarios, regional_level):
             output = pd.DataFrame(output)
 
             output.to_csv(path_output, index=False)
-
+            print('successfully wrote {}'.format(path_output))
     return
 
 
