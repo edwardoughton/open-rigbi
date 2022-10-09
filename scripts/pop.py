@@ -948,7 +948,7 @@ if __name__ == '__main__':
         'MDV']: #MDV has it's own set of scripts
             continue #see -> ~/qubic/scripts/MDV/
 
-        if not country['iso3'] == 'ALB':
+        if not country['iso3'] == 'GHA':
             continue
 
         print('----')

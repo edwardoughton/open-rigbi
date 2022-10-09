@@ -91,14 +91,14 @@ def create_national_sites_csv(country):
     for row in all_mobile_codes:
 
         mcc = row['mcc']
-    
-        filename = '{}.csv'.format(iso3) 
-        folder = os.path.join(DATA_PROCESSED, iso3, 'sites') 
-        path_csv = os.path.join(folder, filename) 
+
+        filename = '{}.csv'.format(iso3)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
+        path_csv = os.path.join(folder, filename)
 
         ### Produce national sites data layers
-        if not os.path.exists(path_csv): 
-        
+        if not os.path.exists(path_csv):
+
             print('-site.csv data does not exist')
             print('-Subsetting site data for {}: {}'.format(iso3, mcc))
 
