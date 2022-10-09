@@ -136,6 +136,7 @@ data/test/
 
 results/*
 vis/figures/*
+vis/results/*
 data/raw/*
 vis/wb_maps/*
 

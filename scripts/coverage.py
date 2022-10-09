@@ -40,7 +40,7 @@ def create_national_sites_layer(country):
     Create a national sites layer for a selected country.
 
     """
-    filename = '{}_{}.shp'.format(country['iso3'], country['mmc'])
+    filename = '{}.shp'.format(country['iso3'])
     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
     path_shp = os.path.join(folder, filename)
 
@@ -1027,13 +1027,14 @@ def write_out_tile_coverage_layer(country, technologies):
 
         if not len(output) > 0:
             return
-
+        # print(output)
         output = gpd.GeoDataFrame.from_features(output, crs='epsg:3857')
+
+        # try:
         output = output.dissolve(by='covered')
-
         output = remove_small_holes(output)
-
         output = gpd.GeoDataFrame.from_features(output, crs='epsg:3857')
+        # print(output)
         output.to_file(path_output, index=False)
 
     return
@@ -1219,9 +1220,9 @@ if __name__ == '__main__':
 
         process_settlement_layer(country)
 
-        scenarios  = get_scenarios(country)
+        scenarios  = get_scenarios()
 
-        regions = get_regions(country)#[:6]
+        regions = get_regions(country, country['lowest'])#[:6]
 
         get_regional_data(country, regions)
 

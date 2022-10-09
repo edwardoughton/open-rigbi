@@ -1,0 +1,265 @@
+﻿country,iso3,income_group
+Aruba,ABW,HIC
+Andorra,AND,HIC
+United Arab Emirates,ARE,HIC
+Antigua and Barbuda,ATG,HIC
+Australia,AUS,HIC
+Austria,AUT,HIC
+Belgium,BEL,HIC
+Bahrain,BHR,HIC
+"Bahamas, The",BHS,HIC
+Bermuda,BMU,HIC
+Barbados,BRB,HIC
+Brunei Darussalam,BRN,HIC
+Canada,CAN,HIC
+Switzerland,CHE,HIC
+Channel Islands,CHI,HIC
+Chile,CHL,HIC
+Curacao,CUW,HIC
+Cayman Islands,CYM,HIC
+Cyprus,CYP,HIC
+Czech Republic,CZE,HIC
+Germany,DEU,HIC
+Denmark,DNK,HIC
+Spain,ESP,HIC
+Estonia,EST,HIC
+Finland,FIN,HIC
+France,FRA,HIC
+Faroe Islands,FRO,HIC
+United Kingdom,GBR,HIC
+Gibraltar,GIB,HIC
+Greece,GRC,HIC
+Greenland,GRL,HIC
+Guam,GUM,HIC
+"Hong Kong SAR, China",HKG,HIC
+Croatia,HRV,HIC
+Hungary,HUN,HIC
+Isle of Man,IMN,HIC
+Ireland,IRL,HIC
+Iceland,ISL,HIC
+Israel,ISR,HIC
+Italy,ITA,HIC
+Japan,JPN,HIC
+St. Kitts and Nevis,KNA,HIC
+"Korea, Rep.",KOR,HIC
+Kuwait,KWT,HIC
+Liechtenstein,LIE,HIC
+Lithuania,LTU,HIC
+Luxembourg,LUX,HIC
+Latvia,LVA,HIC
+"Macao SAR, China",MAC,HIC
+St. Martin (French part),MAF,HIC
+Monaco,MCO,HIC
+Malta,MLT,HIC
+Northern Mariana Islands,MNP,HIC
+Mauritius,MUS,HIC
+New Caledonia,NCL,HIC
+Netherlands,NLD,HIC
+Norway,NOR,HIC
+Nauru,NRU,HIC
+New Zealand,NZL,HIC
+Oman,OMN,HIC
+Panama,PAN,HIC
+Palau,PLW,HIC
+Poland,POL,HIC
+Puerto Rico,PRI,HIC
+Portugal,PRT,HIC
+French Polynesia,PYF,HIC
+Qatar,QAT,HIC
+Romania,ROU,HIC
+Saudi Arabia,SAU,HIC
+Singapore,SGP,HIC
+San Marino,SMR,HIC
+Slovak Republic,SVK,HIC
+Slovenia,SVN,HIC
+Sweden,SWE,HIC
+Sint Maarten (Dutch part),SXM,HIC
+Seychelles,SYC,HIC
+Turks and Caicos Islands,TCA,HIC
+Trinidad and Tobago,TTO,HIC
+Uruguay,URY,HIC
+United States,USA,HIC
+British Virgin Islands,VGB,HIC
+Virgin Islands (U.S.),VIR,HIC
+Afghanistan,AFG,LIC
+Burundi,BDI,LIC
+Burkina Faso,BFA,LIC
+Central African Republic,CAF,LIC
+"Congo, Dem. Rep.",COD,LIC
+Eritrea,ERI,LIC
+Ethiopia,ETH,LIC
+Guinea,GIN,LIC
+"Gambia, The",GMB,LIC
+Guinea-Bissau,GNB,LIC
+Haiti,HTI,LIC
+Liberia,LBR,LIC
+Madagascar,MDG,LIC
+Mali,MLI,LIC
+Mozambique,MOZ,LIC
+Malawi,MWI,LIC
+Niger,NER,LIC
+"Korea, Dem. People’s Rep.",PRK,LIC
+Rwanda,RWA,LIC
+Sudan,SDN,LIC
+Sierra Leone,SLE,LIC
+Somalia,SOM,LIC
+South Sudan,SSD,LIC
+Syrian Arab Republic,SYR,LIC
+Chad,TCD,LIC
+Togo,TGO,LIC
+Tajikistan,TJK,LIC
+Uganda,UGA,LIC
+"Yemen, Rep.",YEM,LIC
+Angola,AGO,LMC
+Benin,BEN,LMC
+Bangladesh,BGD,LMC
+Bolivia,BOL,LMC
+Bhutan,BTN,LMC
+Cote d'Ivoire,CIV,LMC
+Cameroon,CMR,LMC
+"Congo, Rep.",COG,LMC
+Comoros,COM,LMC
+Cabo Verde,CPV,LMC
+Djibouti,DJI,LMC
+Algeria,DZA,LMC
+"Egypt, Arab Rep.",EGY,LMC
+"Micronesia, Fed. Sts.",FSM,LMC
+Ghana,GHA,LMC
+Honduras,HND,LMC
+India,IND,LMC
+Kenya,KEN,LMC
+Kyrgyz Republic,KGZ,LMC
+Cambodia,KHM,LMC
+Kiribati,KIR,LMC
+Lao PDR,LAO,LMC
+Sri Lanka,LKA,LMC
+Lesotho,LSO,LMC
+Morocco,MAR,LMC
+Moldova,MDA,LMC
+Myanmar,MMR,LMC
+Mongolia,MNG,LMC
+Mauritania,MRT,LMC
+Nigeria,NGA,LMC
+Nicaragua,NIC,LMC
+Nepal,NPL,LMC
+Pakistan,PAK,LMC
+Philippines,PHL,LMC
+Papua New Guinea,PNG,LMC
+West Bank and Gaza,PSE,LMC
+Senegal,SEN,LMC
+Solomon Islands,SLB,LMC
+El Salvador,SLV,LMC
+Sao Tome and Principe,STP,LMC
+Eswatini,SWZ,LMC
+Timor-Leste,TLS,LMC
+Tunisia,TUN,LMC
+Tanzania,TZA,LMC
+Ukraine,UKR,LMC
+Uzbekistan,UZB,LMC
+Vietnam,VNM,LMC
+Vanuatu,VUT,LMC
+Zambia,ZMB,LMC
+Zimbabwe,ZWE,LMC
+Albania,ALB,UMC
+Argentina,ARG,UMC
+Armenia,ARM,UMC
+American Samoa,ASM,UMC
+Azerbaijan,AZE,UMC
+Bulgaria,BGR,UMC
+Bosnia and Herzegovina,BIH,UMC
+Belarus,BLR,UMC
+Belize,BLZ,UMC
+Brazil,BRA,UMC
+Botswana,BWA,UMC
+China,CHN,UMC
+Colombia,COL,UMC
+Costa Rica,CRI,UMC
+Cuba,CUB,UMC
+Dominica,DMA,UMC
+Dominican Republic,DOM,UMC
+Ecuador,ECU,UMC
+Fiji,FJI,UMC
+Gabon,GAB,UMC
+Georgia,GEO,UMC
+Equatorial Guinea,GNQ,UMC
+Grenada,GRD,UMC
+Guatemala,GTM,UMC
+Guyana,GUY,UMC
+Indonesia,IDN,UMC
+"Iran, Islamic Rep.",IRN,UMC
+Iraq,IRQ,UMC
+Jamaica,JAM,UMC
+Jordan,JOR,UMC
+Kazakhstan,KAZ,UMC
+Lebanon,LBN,UMC
+Libya,LBY,UMC
+St. Lucia,LCA,UMC
+Maldives,MDV,UMC
+Mexico,MEX,UMC
+Marshall Islands,MHL,UMC
+North Macedonia,MKD,UMC
+Montenegro,MNE,UMC
+Malaysia,MYS,UMC
+Namibia,NAM,UMC
+Peru,PER,UMC
+Paraguay,PRY,UMC
+Russian Federation,RUS,UMC
+Serbia,SRB,UMC
+Suriname,SUR,UMC
+Thailand,THA,UMC
+Turkmenistan,TKM,UMC
+Tonga,TON,UMC
+Turkey,TUR,UMC
+Tuvalu,TUV,UMC
+St. Vincent and the Grenadines,VCT,UMC
+"Venezuela, RB",VEN,UMC
+Samoa,WSM,UMC
+Kosovo,XKX,UMC
+South Africa,ZAF,UMC
+Arab World,ARB,
+Central Europe and the Baltics,CEB,
+Caribbean small states,CSS,
+East Asia & Pacific (excluding high income),EAP,
+Early-demographic dividend,EAR,
+East Asia & Pacific,EAS,
+Europe & Central Asia (excluding high income),ECA,
+Europe & Central Asia,ECS,
+Euro area,EMU,
+European Union,EUU,
+Fragile and conflict affected situations,FCS,
+High income,HIC,
+Heavily indebted poor countries (HIPC),HPC,
+IBRD only,IBD,
+IDA & IBRD total,IBT,
+IDA total,IDA,
+IDA blend,IDB,
+IDA only,IDX,
+Not classified,INX,
+Latin America & Caribbean (excluding high income),LAC,
+Latin America & Caribbean,LCN,
+Least developed countries: UN classification,LDC,
+Low income,LIC,
+Lower middle income,LMC,
+Low & middle income,LMY,
+Late-demographic dividend,LTE,
+Middle East & North Africa,MEA,
+Middle income,MIC,
+Middle East & North Africa (excluding high income),MNA,
+North America,NAC,
+OECD members,OED,
+Other small states,OSS,
+Pre-demographic dividend,PRE,
+Pacific island small states,PSS,
+Post-demographic dividend,PST,
+South Asia,SAS,
+Sub-Saharan Africa (excluding high income),SSA,
+Sub-Saharan Africa,SSF,
+Small states,SST,
+East Asia & Pacific (IDA & IBRD countries),TEA,
+Europe & Central Asia (IDA & IBRD countries),TEC,
+Latin America & the Caribbean (IDA & IBRD countries),TLA,
+Middle East & North Africa (IDA & IBRD countries),TMN,
+South Asia (IDA & IBRD),TSA,
+Sub-Saharan Africa (IDA & IBRD countries),TSS,
+Upper middle income,UMC,
+World,WLD,
