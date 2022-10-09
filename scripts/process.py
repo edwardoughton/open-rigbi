@@ -72,11 +72,11 @@ def run_site_processing(iso3):
 
     if regional_level > 1:
 
-       print('Working on segment_by_gid_2')
-       segment_by_gid_2(iso3, 2)
+        print('Working on segment_by_gid_2')
+        segment_by_gid_2(iso3, 2)
 
-       print('Working on create_regional_sites_layer')
-       create_regional_sites_layer(iso3, 2)
+        print('Working on create_regional_sites_layer')
+        create_regional_sites_layer(iso3, 2)
 
     print('Working on process_flooding_layers')
     process_flooding_layers(country, scenarios)
@@ -553,12 +553,14 @@ def estimate_results(country, regions, scenarios, regional_level):
             path_output = os.path.join(folder_out, filename)
 
             if os.path.exists(path_output):
+                #print('path_output exists {}'.format(path_output))
                 continue
 
             filename = '{}_{}.csv'.format(gid_id, scenario_name)
             folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
             path_in = os.path.join(folder, filename)
             if not os.path.exists(path_in):
+                #print('path_in does not exist {}'.format(path_in))
                 continue
             sites = pd.read_csv(path_in)
 
@@ -594,13 +596,14 @@ def estimate_results(country, regions, scenarios, regional_level):
                 })
 
             if len(output) == 0:
+                #print('len(output) == 0')
                 continue
 
             if not os.path.exists(folder_out):
                 os.makedirs(folder_out)
 
             output = pd.DataFrame(output)
-
+            #print('writing {}'.format(path_output))
             output.to_csv(path_output, index=False)
 
     return
@@ -640,11 +643,13 @@ def collect_national_results(country, regions, scenarios, regional_level):
         folder = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario_name)
 
         if not os.path.exists(folder):
+            #print('collect_national_results: folder does not exist: {}'.format(folder))
             continue
 
         all_regional_results = os.listdir(folder)
 
         if len(all_regional_results) == 0:
+            #print('len of all_regional_results = 0')
             continue
 
         for filename in all_regional_results:
@@ -656,12 +661,14 @@ def collect_national_results(country, regions, scenarios, regional_level):
             output = output + data
 
         if len(output) == 0:
+            #print('len of output = 0')
             continue
 
         output = pd.DataFrame(output)
 
         folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'national_data')
         if not os.path.exists(folder_out):
+            print('folder out did not exist')
             os.mkdir(folder_out)
         path_out = os.path.join(folder_out, scenario_name + '.csv')
         output.to_csv(path_out, index=False)
@@ -674,7 +681,7 @@ def collect_final_results():
     Collect all results.
 
     """
-    scenarios = get_scenarios()
+    scenarios = get_scenarios()[::-1]
     countries = get_countries()
 
     folder_out = os.path.join(DATA_PROCESSED, 'results')
@@ -687,15 +694,16 @@ def collect_final_results():
 
         scenario_name = os.path.basename(scenario)[:-4]
         path_out = os.path.join(folder_out, scenario_name + '.csv')
-
+        print('working on {}'.format(scenario_name))
         for idx, country in countries.iterrows():
 
-            # if not country['iso3'] == 'GBR':
-            #     continue
+            #if not country['iso3'] == 'CHN':
+            #    continue
 
             path = os.path.join(DATA_PROCESSED, country['iso3'], 'results', 'national_data', scenario_name + '.csv')
-
+            #print(path)
             if not os.path.exists(path):
+                #print('path does not exist: {}'.format(path))
                 output.append({
                         'iso3': country['iso3'],
                         'iso2': country['iso2'],
@@ -709,7 +717,7 @@ def collect_final_results():
                 continue
 
             data = pd.read_csv(path)
-
+            #print(len(data))
             radios = list(data['radio'].unique())
             networks = list(data['net'].unique())
 
@@ -745,6 +753,7 @@ def collect_final_results():
                     })
 
         if len(output) == 0:
+            #print('output len = 0')
             continue
 
         output = pd.DataFrame(output)

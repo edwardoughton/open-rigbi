@@ -10,6 +10,7 @@ import os
 import sys
 import configparser
 import pandas as pd
+import numpy as np
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -21,7 +22,8 @@ DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 if __name__ == "__main__":
 
-    filename = "countries.csv"
+    #filename = "countries.csv"
+    filename = "failures.csv"
     path = os.path.join(DATA_RAW, filename)
 
     countries = pd.read_csv(path, encoding='latin-1')
@@ -30,5 +32,8 @@ if __name__ == "__main__":
     #countries = countries[countries['Population'] > 5000000]
     #countries = countries.sort_values(by=['Population'], ascending=True)
     countries = countries['iso3']
+    countries.reindex(np.random.permutation(countries.index))
 
+    #countries = countries[countries['iso3'] == 'USA']
+    #print('USA')
     print(*countries, sep='\n')
