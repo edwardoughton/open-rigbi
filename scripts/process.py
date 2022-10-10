@@ -72,8 +72,8 @@ def run_site_processing(iso3):
 
     if regional_level > 1:
 
-        print('Working on segment_by_gid_2')
-        segment_by_gid_2(iso3, 2)
+        #print('Working on segment_by_gid_2')
+        #segment_by_gid_2(iso3, 2)
 
         print('Working on create_regional_sites_layer')
         create_regional_sites_layer(iso3, 2)
@@ -268,8 +268,11 @@ def segment_by_gid_2(iso3, level):
 
         # if idx == 0:
             # print('-Working on GID_{} regional site layer'.format(level))
-
-        xmin, ymin, xmax, ymax = region['geometry'].bounds
+        #print(region, region['geometry'])            
+        try:
+            xmin, ymin, xmax, ymax = region['geometry'].bounds
+        except:
+            continue
 
         filename = '{}.csv'.format(region['GID_1'])
         folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_1', 'interim')
@@ -378,10 +381,10 @@ def create_regional_sites_layer(iso3, level):
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
 
     for idx, region in regions.iterrows(): #tqdm(regions.iterrows(), total=regions.shape[0]):
-
+    
         gid_level = 'GID_{}'.format(level)
         gid_id = region[gid_level]
-
+        
         filename = '{}.csv'.format(gid_id)
         folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
         if not os.path.exists(folder):
@@ -402,17 +405,17 @@ def create_regional_sites_layer(iso3, level):
         sites = pd.read_csv(path)
 
         output = []
-
+        
         for idx, site in sites.iterrows():
-
+            
             geom = Point(site['lon'], site['lat'])
-
+            print(geom)            
             if region['geometry'].intersects(geom):
-
+                print('3')
                 geom_4326 = geom
-
+                
                 geom_3857 = transform(project.transform, geom_4326)
-
+                
                 output.append({
                     'radio': site['radio'],
                     'mcc': site['mcc'],
@@ -452,7 +455,7 @@ def query_hazard_layers(country, regions, scenarios, regional_level):
     gid_level = 'GID_{}'.format(regional_level) #regional_level
 
     for scenario in scenarios: #tqdm(scenarios):
-
+        print('Working on {}'.format(scenario))
         # if not scenario == 'data\processed\MWI\hazards\inunriver_rcp8p5_MIROC-ESM-CHEM_2080_rp01000.tif':
         #     continue
 
@@ -676,7 +679,7 @@ def collect_national_results(country, regions, scenarios, regional_level):
     return
 
 
-def collect_final_results():
+def collect_final_results(collection_type):
     """
     Collect all results.
 
@@ -693,12 +696,19 @@ def collect_final_results():
         output = []
 
         scenario_name = os.path.basename(scenario)[:-4]
+        
+        if not 'rcp4p5' in scenario_name:
+            continue 
+
         path_out = os.path.join(folder_out, scenario_name + '.csv')
         print('working on {}'.format(scenario_name))
         for idx, country in countries.iterrows():
 
-            #if not country['iso3'] == 'CHN':
-            #    continue
+            if not collection_type == 'all': 
+                if not country['iso3'] == collection_type:
+                    continue
+
+            print('Collecting final results for {}'.format(country['iso3']))
 
             path = os.path.join(DATA_PROCESSED, country['iso3'], 'results', 'national_data', scenario_name + '.csv')
             #print(path)
@@ -722,34 +732,34 @@ def collect_final_results():
             networks = list(data['net'].unique())
 
             for radio in radios:
-                for network in networks:
+                #for network in networks:
 
-                    cell_count = 0
-                    cost_usd = 0
+                cell_count = 0
+                cost_usd = 0
 
-                    for idx, item in data.iterrows():
+                for idx, item in data.iterrows():
 
-                        if not item['radio'] == radio:
-                            continue
+                    if not item['radio'] == radio:
+                        continue
 
-                        if not item['net'] == network:
-                            continue
+                #        if not item['net'] == network:
+                #            continue
 
-                        if not item['failure'] == 1:
-                            continue
+                    if not item['failure'] == 1:
+                        continue
 
-                        cell_count += 1
-                        cost_usd += item['cost_usd']
+                    cell_count += 1
+                    cost_usd += item['cost_usd']
 
-                    output.append({
-                        'iso3': country['iso3'],
-                        'iso2': country['iso2'],
-                        'country': country['country'],
-                        'continent': country['continent'],
-                        'radio': radio,
-                        'network': network,
-                        'cell_count': cell_count,
-                        'cost_usd': cost_usd,
+                output.append({
+                    'iso3': country['iso3'],
+                    'iso2': country['iso2'],
+                    'country': country['country'],
+                    'continent': country['continent'],
+                    'radio': radio,
+                    #'network': network,
+                    'cell_count': cell_count,
+                    'cost_usd': cost_usd,
                     })
 
         if len(output) == 0:
@@ -776,8 +786,10 @@ if __name__ == "__main__":
         run_site_processing(iso3)
 
     else:
-
-        collect_final_results()
+        if len(args[2]) > 0:
+            collect_final_results(args[2])
+        else:
+            collect_final_results('all')
 
     # countries = get_countries()
 
