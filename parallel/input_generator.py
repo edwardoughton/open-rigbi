@@ -22,8 +22,8 @@ DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 if __name__ == "__main__":
 
-    #filename = "countries.csv"
-    filename = "failures.csv"
+    filename = "countries.csv"
+    #filename = "failures.csv"
     path = os.path.join(DATA_RAW, filename)
 
     countries = pd.read_csv(path, encoding='latin-1')
