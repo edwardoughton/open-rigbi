@@ -321,7 +321,7 @@ def get_regional_data(country):
 
     """
     iso3 = country['iso3']
-    level = country['gid_region']
+    level = country['lowest']
     gid_level = 'GID_{}'.format(level)
 
     filename = 'regional_data.csv'
@@ -948,7 +948,7 @@ if __name__ == '__main__':
         'MDV']: #MDV has it's own set of scripts
             continue #see -> ~/qubic/scripts/MDV/
 
-        if not country['iso3'] == 'GHA':
+        if not country['iso3'] == 'MWI':
             continue
 
         print('----')

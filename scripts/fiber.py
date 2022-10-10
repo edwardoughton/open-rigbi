@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] in ['GHA','MWI']:
+        if not country['iso3'] in ['MWI']: #'GHA',
             continue
 
         process_existing_fiber(country)

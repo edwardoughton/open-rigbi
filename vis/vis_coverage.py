@@ -184,7 +184,7 @@ def visualize(countries):
     name = 'Mobile Infrastructure Coverage (n={})'.format(len(output))
     fig.suptitle(name)
 
-    path = os.path.join(VIS, 'Coverage.png')
+    path = os.path.join(VIS, 'Coverage.tiff')
     fig.tight_layout()
     fig.savefig(path, dpi=600)
 

@@ -33,7 +33,7 @@ DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 
-def process_surface_water(country):
+def process_raw_surface_water_layers(country):
     """
     Load in intersecting raster layers, and export large
     water bodies as .shp.
@@ -46,11 +46,11 @@ def process_surface_water(country):
     """
     output = []
 
-    filename = 'surface_water.shp'
-    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water')
-    path_out = os.path.join(folder, filename)
-    if not os.path.exists(folder):
-        os.makedirs(folder)
+    # filename = 'surface_water.shp'
+    folder_out = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water', 'raw')
+    # path_out = os.path.join(folder, filename)
+    if not os.path.exists(folder_out):
+        os.makedirs(folder_out)
 
     path_national = os.path.join(DATA_PROCESSED, country['iso3'], 'national_outline.shp')
 
@@ -71,9 +71,10 @@ def process_surface_water(country):
 
     for surface_file in surface_files:
 
-        path = os.path.join(path_lc, surface_file)
-
-        src = rasterio.open(path, 'r+')
+        path_in = os.path.join(path_lc, surface_file)
+        # print(path_in)
+        # print(surface_file)
+        src = rasterio.open(path_in, 'r+')
 
         tiff_bounds = src.bounds
         tiff_bbox = box(*tiff_bounds)
@@ -82,33 +83,93 @@ def process_surface_water(country):
 
             print('-Working on {}'.format(surface_file))
 
-            data = src.read()
-            data[data < 10] = 0
-            data[data >= 10] = 1
-            polygons = rasterio.features.shapes(data, transform=src.transform)
-            for poly, value in polygons:
-                if value > 0:
-                    output.append({
-                        'geometry': poly,
-                        'properties': {
-                            'value': value
-                        }
-                    })
+            # data = src.read()
 
+            # data[data < 10] = 0
+            # data[data >= 10] = 1
+
+            # bbox = polygon.envelope
+
+            geo = gpd.GeoDataFrame()
+            geo = gpd.GeoDataFrame({'geometry': polygon['geometry']}, crs='epsg:4326')
+
+            coords = [json.loads(geo.to_json())['features'][0]['geometry']]
+
+            # night_lights = rasterio.open(path_night_lights, "r+")
+            src.nodata = 0
+
+            out_img, out_transform = mask(src, coords, crop=True)
+
+            out_meta = src.meta.copy()
+
+            out_meta.update({"driver": "GTiff",
+                            "height": out_img.shape[1],
+                            "width": out_img.shape[2],
+                            "transform": out_transform,
+                            "crs": 'epsg:4326'})
+
+            path_out = os.path.join(folder_out, os.path.basename(surface_file))
+
+            with rasterio.open(path_out, "w", **out_meta) as dest:
+                    dest.write(out_img)
+
+
+def process_surface_water(country):
+    """
+    Load in intersecting raster layers, and export large
+    water bodies as .shp.
+
+    Parameters
+    ----------
+    country : string
+        Country parameters.
+
+    """
+    output = []
+
+    filename = 'surface_water.shp'
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water')
+    path_out = os.path.join(folder, filename)
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+
+    folder_in = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water', 'raw')
+
+    for surface_file in os.listdir(folder_in):
+
+        path = os.path.join(folder_in, surface_file)
+
+        src = rasterio.open(path, 'r+')
+
+        data = src.read()
+
+        data[data < 10] = 0
+        data[data >= 10] = 1
+        polygons = rasterio.features.shapes(data, transform=src.transform)
+
+        for poly, value in polygons:
+
+            if value > 0:
+                output.append({
+                    'geometry': poly,
+                    'properties': {
+                        'value': value
+                    }
+                })
 
     output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
 
-    mask = output.area > country['threshold']
+    mask = output.area > 0.02 #country['threshold']
     output = output.loc[mask]
 
-    filename = 'national_outline.shp'
-    path = os.path.join(DATA_PROCESSED, country['iso3'], filename)
-    national_outline = gpd.read_file(path, crs='epsg:4326')
+    # filename = 'national_outline.shp'
+    # path = os.path.join(DATA_PROCESSED, country['iso3'], filename)
+    # national_outline = gpd.read_file(path, crs='epsg:4326')
 
-    output = output.overlay(national_outline, how='intersection')
+    # output = output.overlay(national_outline, how='intersection')
 
-    mask = output.area > country['threshold']
-    output = output.loc[mask]
+    # mask = output.area > country['threshold']
+    # output = output.loc[mask]
 
     output.to_file(path_out, crs='epsg:4326')
 
@@ -119,7 +180,11 @@ if __name__ == '__main__':
 
     for idx, country in tqdm(countries.iterrows(), total=countries.shape[0]):
 
-        if not country['iso3'] in ['MWI', 'GHA']:
+        if not country['iso3'] in ['MWI']: #, 'GHA'
             continue
+
+        print('Working on {}'.format(country['iso3']))
+
+        # process_raw_surface_water_layers(country)
 
         process_surface_water(country)
