@@ -896,7 +896,7 @@ def write_out_baseline_tile_coverage(country, technologies):
 
         # if not technology == 'NR':
         #     continue
-
+        # print(technology)
         output = []
 
         filename = 'baseline_tile_coverage_{}.csv'.format(technology)
@@ -917,6 +917,7 @@ def write_out_baseline_tile_coverage(country, technologies):
 
             folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'settlements')
             path_in = os.path.join(folder, 'tile_points.shp')
+
             if not os.path.exists(path_in):
                 continue
             tile_points = gpd.read_file(path_in, crs='epsg:4326')
@@ -1209,7 +1210,7 @@ if __name__ == '__main__':
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'GHA':
+        if not country['iso3'] == 'MWI':
             continue
 
         create_national_sites_layer(country)
@@ -1226,39 +1227,39 @@ if __name__ == '__main__':
 
         get_regional_data(country, regions)
 
-        for idx, region in tqdm(regions.iterrows(), total=regions.shape[0]):
+        # for idx, region in tqdm(regions.iterrows(), total=regions.shape[0]):
 
-            GID_level = 'GID_{}'.format(country['lowest'])
-            gid_id = region[GID_level]
+        #     GID_level = 'GID_{}'.format(country['lowest'])
+        #     gid_id = region[GID_level]
 
-            # if not gid_id == 'MWI.11.14_1': #'MWI.1.1_1': #'GHA.9.7_1': #:#: #'GHA.1.12_1':
-            #     continue
-            print('Working on {}'.format(gid_id))
-            process_regional_sites_layer(country, region)
+        #     # if not gid_id == 'MWI.11.14_1': #'MWI.1.1_1': #'GHA.9.7_1': #:#: #'GHA.1.12_1':
+        #     #     continue
+        #     print('Working on {}'.format(gid_id))
+        #     process_regional_sites_layer(country, region)
 
-            process_tech_specific_sites(country, region, technologies)
+        #     process_tech_specific_sites(country, region, technologies)
 
-            # cut_surface_water_layers(country, region)
+        #     # cut_surface_water_layers(country, region)
 
-            cut_settlement_layers(country, region) # Cut settlement layers by region
+        #     cut_settlement_layers(country, region) # Cut settlement layers by region
 
-            convert_to_shapes(country, region) # Convert settlement layers to points
+        #     convert_to_shapes(country, region) # Convert settlement layers to points
 
-            write_as_text(country, region) # Write out points as .csv
+        #     write_as_text(country, region) # Write out points as .csv
 
-            for technology in tqdm(technologies):
+        #     for technology in tqdm(technologies):
 
-                # if not technology == 'GSM':
-                #     continue
+        #         # if not technology == 'GSM':
+        #         #     continue
 
-                folder_out = os.path.join(DATA_PROCESSED, country['iso3'], 'regional_data', gid_id)
+        #         folder_out = os.path.join(DATA_PROCESSED, country['iso3'], 'regional_data', gid_id)
 
-                if not os.path.exists(folder_out):
-                    os.makedirs(folder_out)
+        #         if not os.path.exists(folder_out):
+        #             os.makedirs(folder_out)
 
-                calculate_distances_lut(country, region, technology)
+        #         calculate_distances_lut(country, region, technology)
 
-                calculate_sinr_lut(country, region, technology)
+        #         calculate_sinr_lut(country, region, technology)
 
         write_out_baseline_tile_coverage(country, technologies)
 
@@ -1266,4 +1267,4 @@ if __name__ == '__main__':
 
         write_out_uncovered_layer(country, technologies)
 
-        # write_out_baseline_coverage(country, scenarios, technologies)
+        write_out_baseline_coverage(country, scenarios, technologies)

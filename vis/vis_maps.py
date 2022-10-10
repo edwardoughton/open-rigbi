@@ -166,9 +166,12 @@ def plot_cells_per_region(country, regions, path):
         ), crs='epsg:4326'
     )
 
-    sites = sites.overlay(surface_water, how='difference')
-    sites = sites.overlay(national_outline, how='intersection')
-
+    # df1.union(df2)
+    # sites = sites.difference(surface_water)
+    # sites = sites.overlay(surface_water, how='difference')
+    # sites = sites.intersection(national_outline)
+    # sites = sites.overlay(national_outline, how='intersection')
+    # print(sites)
     fig, (ax1, ax2) = plt.subplots(2, 2, figsize=(12,12))
     fig.subplots_adjust(hspace=.2, wspace=.2)
 
@@ -230,7 +233,8 @@ def plot_cells_per_region(country, regions, path):
 
     plt.savefig(path,
     pad_inches=0.4,
-    bbox_inches='tight'
+    bbox_inches='tight',
+    dpi=600,
     )
     plt.close()
 
