@@ -30,11 +30,13 @@ DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 
-def run_site_processing(iso3):
+def run_site_processing(region):
     """
     Meta function for running site processing.
 
     """
+    iso3 = region[:3]
+
     filename = "countries.csv"
     path = os.path.join(DATA_RAW, filename)
 
@@ -44,53 +46,52 @@ def run_site_processing(iso3):
 
     regional_level = int(country['gid_region'])
 
-    print('Getting regions')
-    regions = get_regions(country, regional_level)#[:1]
-
     print('Getting scenarios')
     scenarios = get_scenarios()#[:5]
 
-    print('Working on create_national_sites_csv')
-    create_national_sites_csv(country)
+    ## print('Getting regions')
+    ## regions = get_regions(country, regional_level)#[:1]
+    ## region = pd.DataFrame()
 
-    print('Working on process_country_shapes')
-    process_country_shapes(iso3)
 
-    print('Working on process_regions')
-    process_regions(iso3, regional_level)
+    # print('Working on create_national_sites_csv')
+    # create_national_sites_csv(country)
 
-    print('Working on create_national_sites_shp')
-    create_national_sites_shp(iso3)
+    # print('Working on process_country_shapes')
+    # process_country_shapes(iso3)
 
-    if regional_level > 0:
+    # print('Working on process_regions')
+    # process_regions(iso3, regional_level)
 
-        print('Working on segment_by_gid_1')
-        segment_by_gid_1(iso3, 1)
+    # print('Working on create_national_sites_shp')
+    # create_national_sites_shp(iso3)
 
-        print('Working on create_regional_sites_layer')
-        create_regional_sites_layer(iso3, 1)
+    # if regional_level > 0:
 
-    if regional_level > 1:
+    #     print('Working on segment_by_gid_1')
+    #     segment_by_gid_1(iso3, 1)
 
-        #print('Working on segment_by_gid_2')
-        #segment_by_gid_2(iso3, 2)
+    #     print('Working on create_regional_sites_layer')
+    #     create_regional_sites_layer(iso3, 1)
 
-        print('Working on create_regional_sites_layer')
-        create_regional_sites_layer(iso3, 2)
+    # if regional_level > 1:
 
-    print('Working on process_flooding_layers')
-    process_flooding_layers(country, scenarios)
+    #     #print('Working on segment_by_gid_2')
+    #     #segment_by_gid_2(iso3, 2)
+
+    #     print('Working on create_regional_sites_layer')
+    #     create_regional_sites_layer(iso3, 2)
+
+    # print('Working on process_flooding_layers')
+    # process_flooding_layers(country, scenarios)
 
     print('Working on query_hazard_layers')
-    query_hazard_layers(country, regions, scenarios, regional_level)
+    query_hazard_layers(country, region, scenarios, regional_level)
 
     print('Estimating results')
-    estimate_results(country, regions, scenarios, regional_level)
+    estimate_results(country, region, scenarios, regional_level)
 
-    print('Collect regional results')
-    collect_national_results(country, regions, scenarios, regional_level)
-
-    return
+    return print('Completed processing')
 
 
 def create_national_sites_csv(country):
@@ -268,7 +269,7 @@ def segment_by_gid_2(iso3, level):
 
         # if idx == 0:
             # print('-Working on GID_{} regional site layer'.format(level))
-        #print(region, region['geometry'])            
+        #print(region, region['geometry'])
         try:
             xmin, ymin, xmax, ymax = region['geometry'].bounds
         except:
@@ -381,10 +382,10 @@ def create_regional_sites_layer(iso3, level):
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
 
     for idx, region in regions.iterrows(): #tqdm(regions.iterrows(), total=regions.shape[0]):
-    
+
         gid_level = 'GID_{}'.format(level)
         gid_id = region[gid_level]
-        
+
         filename = '{}.csv'.format(gid_id)
         folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
         if not os.path.exists(folder):
@@ -405,17 +406,17 @@ def create_regional_sites_layer(iso3, level):
         sites = pd.read_csv(path)
 
         output = []
-        
+
         for idx, site in sites.iterrows():
-            
+
             geom = Point(site['lon'], site['lat'])
-            print(geom)            
+            print(geom)
             if region['geometry'].intersects(geom):
                 print('3')
                 geom_4326 = geom
-                
+
                 geom_3857 = transform(project.transform, geom_4326)
-                
+
                 output.append({
                     'radio': site['radio'],
                     'mcc': site['mcc'],
@@ -445,7 +446,7 @@ def create_regional_sites_layer(iso3, level):
     return
 
 
-def query_hazard_layers(country, regions, scenarios, regional_level):
+def query_hazard_layers(country, region, scenarios, regional_level):
     """
     Query each hazard layer and estimate fragility.
 
@@ -455,78 +456,79 @@ def query_hazard_layers(country, regions, scenarios, regional_level):
     gid_level = 'GID_{}'.format(regional_level) #regional_level
 
     for scenario in scenarios: #tqdm(scenarios):
+
         print('Working on {}'.format(scenario))
         # if not scenario == 'data\processed\MWI\hazards\inunriver_rcp8p5_MIROC-ESM-CHEM_2080_rp01000.tif':
         #     continue
 
-        for idx, region in regions.iterrows():
+        # for idx, region in regions.iterrows():
 
-            output = []
+        output = []
 
-            gid_id = region[gid_level]
-            scenario_name = os.path.basename(scenario)[:-4]
+        gid_id = region #region[gid_level]
+        scenario_name = os.path.basename(scenario)[:-4]
 
-            # if not gid_id == 'GBR.1.3_1':
-            #     continue
+        # if not gid_id == 'GBR.1.3_1':
+        #     continue
 
-            filename = '{}_{}.csv'.format(gid_id, scenario_name)
-            folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
-            path_output = os.path.join(folder_out, filename)
+        filename = '{}_{}.csv'.format(gid_id, scenario_name)
+        folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
+        path_output = os.path.join(folder_out, filename)
 
-            # if os.path.exists(path_output):
-            #     continue
+        # if os.path.exists(path_output):
+        #     continue
 
-            filename = '{}.csv'.format(gid_id)
-            folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
-            path = os.path.join(folder, filename)
+        filename = '{}.csv'.format(gid_id)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
+        path = os.path.join(folder, filename)
 
-            if not os.path.exists(path):
-                continue
+        if not os.path.exists(path):
+            continue
 
-            sites = pd.read_csv(path)#[:1] #, crs='epsg:4326'
+        sites = pd.read_csv(path)#[:1] #, crs='epsg:4326'
 
-            failures = 0
+        failures = 0
 
-            for idx, site in sites.iterrows():
+        for idx, site in sites.iterrows():
 
-                x = float(site['cellid4326'].split('_')[0])
-                y = float(site['cellid4326'].split('_')[1])
+            x = float(site['cellid4326'].split('_')[0])
+            y = float(site['cellid4326'].split('_')[1])
 
-                with rasterio.open(scenario) as src:
+            with rasterio.open(scenario) as src:
 
-                    src.kwargs = {'nodata':255}
+                src.kwargs = {'nodata':255}
 
-                    coords = [(x, y)]
+                coords = [(x, y)]
 
-                    depth = [sample[0] for sample in src.sample(coords)][0]
+                depth = [sample[0] for sample in src.sample(coords)][0]
 
-                    output.append({
-                        'radio': site['radio'],
-                        'mcc': site['mcc'],
-                        'net': site['net'],
-                        'area': site['area'],
-                        'cell': site['cell'],
-                        'gid_level': gid_level,
-                        'gid_id': region[gid_level],
-                        'cellid4326': site['cellid4326'],
-                        'cellid3857': site['cellid3857'],
-                        'depth': depth,
-                    })
+                output.append({
+                    'radio': site['radio'],
+                    'mcc': site['mcc'],
+                    'net': site['net'],
+                    'area': site['area'],
+                    'cell': site['cell'],
+                    'gid_level': gid_level,
+                    'gid_id': region[gid_level],
+                    'cellid4326': site['cellid4326'],
+                    'cellid3857': site['cellid3857'],
+                    'depth': depth,
+                })
 
-            if len(output) == 0:
-                return
+        if len(output) == 0:
+            return
 
-            if not os.path.exists(folder_out):
-                os.makedirs(folder_out)
+        if not os.path.exists(folder_out):
+            os.makedirs(folder_out)
 
-            output = pd.DataFrame(output)
+        output = pd.DataFrame(output)
 
-            output.to_csv(path_output, index=False)
+        output.to_csv(path_output, index=False)
 
     return
 
 
-def estimate_results(country, regions, scenarios, regional_level):
+def estimate_results(country, region, scenarios, regional_level):
     """
 
     """
@@ -541,73 +543,73 @@ def estimate_results(country, regions, scenarios, regional_level):
 
     for scenario in scenarios: #tqdm
 
-        for idx, region in regions.iterrows():
+        # for idx, region in regions.iterrows():
 
-            output = []
+        output = []
 
-            gid_id = region[gid_level]
-            scenario_name = os.path.basename(scenario)[:-4]
+        gid_id = region#[gid_level]
+        scenario_name = os.path.basename(scenario)[:-4]
 
-            # if not gid_id == 'EGY.1_1':
-            #     continue
+        # if not gid_id == 'EGY.1_1':
+        #     continue
 
-            filename = '{}_{}.csv'.format(gid_id, scenario_name)
-            folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario_name)
-            path_output = os.path.join(folder_out, filename)
+        filename = '{}_{}.csv'.format(gid_id, scenario_name)
+        folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario_name)
+        path_output = os.path.join(folder_out, filename)
 
-            if os.path.exists(path_output):
-                #print('path_output exists {}'.format(path_output))
+        if os.path.exists(path_output):
+            #print('path_output exists {}'.format(path_output))
+            continue
+
+        filename = '{}_{}.csv'.format(gid_id, scenario_name)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
+        path_in = os.path.join(folder, filename)
+        if not os.path.exists(path_in):
+            #print('path_in does not exist {}'.format(path_in))
+            continue
+        sites = pd.read_csv(path_in)
+
+        for idx, site in sites.iterrows():
+
+            if not site['depth'] > 0:
                 continue
 
-            filename = '{}_{}.csv'.format(gid_id, scenario_name)
-            folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
-            path_in = os.path.join(folder, filename)
-            if not os.path.exists(path_in):
-                #print('path_in does not exist {}'.format(path_in))
-                continue
-            sites = pd.read_csv(path_in)
+            fragility = query_fragility_curve(f_curve, site['depth'])
 
-            for idx, site in sites.iterrows():
+            failure_prob = random.uniform(0, 1)
 
-                if not site['depth'] > 0:
-                    continue
+            failed = (1 if failure_prob < fragility else 0)
 
-                fragility = query_fragility_curve(f_curve, site['depth'])
+            output.append({
+                'radio': site['radio'],
+                'mcc': site['mcc'],
+                'net': site['net'],
+                'area': site['area'],
+                'cell': site['cell'],
+                'gid_level': gid_level,
+                'gid_id': region[gid_level],
+                'cellid4326': site['cellid4326'],
+                'cellid3857': site['cellid3857'],
+                'depth': site['depth'],
+                # 'scenario': scenario_name,
+                'fragility': fragility,
+                'fail_prob': failure_prob,
+                'failure': failed,
+                'cost_usd': round(100000 * fragility),
+                # 'cell_id': site['cell_id'],
+                # },
+            })
 
-                failure_prob = random.uniform(0, 1)
+        if len(output) == 0:
+            #print('len(output) == 0')
+            continue
 
-                failed = (1 if failure_prob < fragility else 0)
+        if not os.path.exists(folder_out):
+            os.makedirs(folder_out)
 
-                output.append({
-                    'radio': site['radio'],
-                    'mcc': site['mcc'],
-                    'net': site['net'],
-                    'area': site['area'],
-                    'cell': site['cell'],
-                    'gid_level': gid_level,
-                    'gid_id': region[gid_level],
-                    'cellid4326': site['cellid4326'],
-                    'cellid3857': site['cellid3857'],
-                    'depth': site['depth'],
-                    # 'scenario': scenario_name,
-                    'fragility': fragility,
-                    'fail_prob': failure_prob,
-                    'failure': failed,
-                    'cost_usd': round(100000 * fragility),
-                    # 'cell_id': site['cell_id'],
-                    # },
-                })
-
-            if len(output) == 0:
-                #print('len(output) == 0')
-                continue
-
-            if not os.path.exists(folder_out):
-                os.makedirs(folder_out)
-
-            output = pd.DataFrame(output)
-            #print('writing {}'.format(path_output))
-            output.to_csv(path_output, index=False)
+        output = pd.DataFrame(output)
+        #print('writing {}'.format(path_output))
+        output.to_csv(path_output, index=False)
 
     return
 
@@ -631,50 +633,50 @@ def query_fragility_curve(f_curve, depth):
     return 0
 
 
-def collect_national_results(country, regions, scenarios, regional_level):
+def collect_national_results(scenario):
     """
     Collect regional results and write to national results folder.
 
     """
 
-    for scenario in scenarios: #tqdm
+    # for scenario in scenarios: #tqdm
 
-        output = []
+    output = []
 
-        scenario_name = os.path.basename(scenario)[:-4]
+    scenario_name = os.path.basename(scenario)[:-4]
 
-        folder = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario_name)
+    folder = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario_name)
 
-        if not os.path.exists(folder):
-            #print('collect_national_results: folder does not exist: {}'.format(folder))
-            continue
+    if not os.path.exists(folder):
+        #print('collect_national_results: folder does not exist: {}'.format(folder))
+        return
 
-        all_regional_results = os.listdir(folder)
+    all_regional_results = os.listdir(folder)
 
-        if len(all_regional_results) == 0:
-            #print('len of all_regional_results = 0')
-            continue
+    if len(all_regional_results) == 0:
+        #print('len of all_regional_results = 0')
+        return
 
-        for filename in all_regional_results:
+    for filename in all_regional_results:
 
-            path_in = os.path.join(folder, filename)
-            data = pd.read_csv(path_in)
-            data = data.to_dict('records')
+        path_in = os.path.join(folder, filename)
+        data = pd.read_csv(path_in)
+        data = data.to_dict('records')
 
-            output = output + data
+        output = output + data
 
-        if len(output) == 0:
-            #print('len of output = 0')
-            continue
+    if len(output) == 0:
+        #print('len of output = 0')
+        return
 
-        output = pd.DataFrame(output)
+    output = pd.DataFrame(output)
 
-        folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'national_data')
-        if not os.path.exists(folder_out):
-            print('folder out did not exist')
-            os.mkdir(folder_out)
-        path_out = os.path.join(folder_out, scenario_name + '.csv')
-        output.to_csv(path_out, index=False)
+    folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'national_data')
+    if not os.path.exists(folder_out):
+        print('folder out did not exist')
+        os.mkdir(folder_out)
+    path_out = os.path.join(folder_out, scenario_name + '.csv')
+    output.to_csv(path_out, index=False)
 
     return
 
@@ -696,19 +698,22 @@ def collect_final_results(collection_type):
         output = []
 
         scenario_name = os.path.basename(scenario)[:-4]
-        
+
         if not 'rcp4p5' in scenario_name:
-            continue 
+            continue
 
         path_out = os.path.join(folder_out, scenario_name + '.csv')
         print('working on {}'.format(scenario_name))
         for idx, country in countries.iterrows():
 
-            if not collection_type == 'all': 
+            if not collection_type == 'all':
                 if not country['iso3'] == collection_type:
                     continue
 
             print('Collecting final results for {}'.format(country['iso3']))
+
+            print('Collect regional results')
+            collect_national_results(scenario)
 
             path = os.path.join(DATA_PROCESSED, country['iso3'], 'results', 'national_data', scenario_name + '.csv')
             #print(path)
@@ -779,11 +784,11 @@ if __name__ == "__main__":
 
     args = sys.argv
 
-    iso3 = args[1]
+    region = args[1]
 
-    if not iso3 == 'collect':
+    if not region == 'collect':
 
-        run_site_processing(iso3)
+        run_site_processing(region)
 
     else:
         if len(args[2]) > 0:
