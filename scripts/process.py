@@ -633,14 +633,107 @@ def query_fragility_curve(f_curve, depth):
     return 0
 
 
+def collect_final_results(collection_type):
+    """
+    Collect all results.
+
+    """
+    scenarios = get_scenarios()[::-1]
+    countries = get_countries()
+
+    folder_out = os.path.join(DATA_PROCESSED, 'results')
+    if not os.path.exists(folder_out):
+        os.mkdir(folder_out)
+
+    for scenario in scenarios:
+
+        output = []
+
+        scenario_name = os.path.basename(scenario)[:-4]
+
+        path_out = os.path.join(folder_out, scenario_name + '.csv')
+
+        for idx, country in countries.iterrows():
+
+            if not collection_type == 'all':
+                if not country['iso3'] == collection_type:
+                    continue
+
+            collect_national_results(country['iso3'], scenario)
+
+            path = os.path.join(DATA_PROCESSED, country['iso3'], 'results',
+                'national_data', scenario_name + '.csv')
+
+            if not os.path.exists(path):
+                output.append({
+                        'iso3': country['iso3'],
+                        'iso2': country['iso2'],
+                        'country': country['country'],
+                        'continent': country['continent'],
+                        'radio': 'NA',
+                        'network': 'NA',
+                        'cell_count': 0,
+                        'cost_usd': 0,
+                    })
+                continue
+
+            # print(path)
+            data = pd.read_csv(path, sep=',')
+            # print(data.columns)
+            if len(data) == 0:
+                continue
+
+            radios = list(data['radio'].unique())
+            networks = list(data['net'].unique())
+
+            for radio in radios:
+                print(radio)
+                #for network in networks:
+
+                cell_count = 0
+                cost_usd = 0
+
+                for idx, item in data.iterrows():
+
+                    if not item['radio'] == radio:
+                        continue
+
+                #        if not item['net'] == network:
+                #            continue
+
+                    if not item['failure'] == 1:
+                        continue
+                    # print(cell_count)
+                    cell_count += 1
+                    cost_usd += item['cost_usd']
+
+                output.append({
+                    'iso3': country['iso3'],
+                    'iso2': country['iso2'],
+                    'country': country['country'],
+                    'continent': country['continent'],
+                    'radio': radio,
+                    #'network': network,
+                    'cell_count': cell_count,
+                    'cost_usd': cost_usd,
+                    })
+
+        if len(output) == 0:
+            # print('output len = 0')
+            continue
+
+        output = pd.DataFrame(output)
+
+        output.to_csv(path_out, index=False)
+
+    return
+
+
 def collect_national_results(iso3, scenario):
     """
     Collect regional results and write to national results folder.
 
     """
-
-    # for scenario in scenarios: #tqdm
-
     output = []
 
     scenario_name = os.path.basename(scenario)[:-4]
@@ -664,22 +757,18 @@ def collect_national_results(iso3, scenario):
         if not os.path.exists(path_in):
             continue
         try:
-            data = pd.read_csv(path_in, delim_whitespace=True)
+            data = pd.read_csv(path_in)
             data = data.to_dict('records')
             output = output + data
         except:
             print('failed on {})'.format(path_in))
-
-        #data = data.to_dict('records')
-
-        #output = output + data
 
     if len(output) == 0:
         #print('2. len of output = 0')
         return
 
     output = pd.DataFrame(output)
-    print(output)
+
     folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'national_data')
     if not os.path.exists(folder_out):
         print('folder out did not exist')
@@ -690,110 +779,7 @@ def collect_national_results(iso3, scenario):
     return
 
 
-def collect_final_results(collection_type):
-    """
-    Collect all results.
-
-    """
-    scenarios = get_scenarios()[::-1]
-    countries = get_countries()
-
-    folder_out = os.path.join(DATA_PROCESSED, 'results')
-    if not os.path.exists(folder_out):
-        os.mkdir(folder_out)
-
-    for scenario in scenarios:
-
-        output = []
-
-        scenario_name = os.path.basename(scenario)[:-4]
-
-        #if not 'rcp4p5' in scenario_name:
-        #    continue
-
-        path_out = os.path.join(folder_out, scenario_name + '.csv')
-        #print('1. working on {}'.format(scenario_name))
-        for idx, country in countries.iterrows():
-
-            if not collection_type == 'all':
-                if not country['iso3'] == collection_type:
-                    continue
-
-            #print('2. Collecting final results for {}'.format(country['iso3']))
-
-            #print('3. Collect regional results')
-            collect_national_results(country['iso3'], scenario)
-
-            path = os.path.join(DATA_PROCESSED, country['iso3'], 'results', 'national_data', scenario_name + '.csv')
-            print(path)
-            if not os.path.exists(path):
-                #print('path does not exist: {}'.format(path))
-                output.append({
-                        'iso3': country['iso3'],
-                        'iso2': country['iso2'],
-                        'country': country['country'],
-                        'continent': country['continent'],
-                        'radio': 'NA',
-                        'network': 'NA',
-                        'cell_count': 0,
-                        'cost_usd': 0,
-                    })
-                continue
-            print(path)
-            data = pd.read_csv(path,sep=",")
-            print(data) 
-            if len(data) == 0:
-                continue
-            
-            radios = list(data['radio'].unique())
-            networks = list(data['net'].unique())
-
-            for radio in radios:
-                print(radio) 
-                #for network in networks:
-
-                cell_count = 0
-                cost_usd = 0
-
-                for idx, item in data.iterrows():
-
-                    if not item['radio'] == radio:
-                        continue
-
-                #        if not item['net'] == network:
-                #            continue
-
-                    if not item['failure'] == 1:
-                        continue
-                    print(cell_count)
-                    cell_count += 1
-                    cost_usd += item['cost_usd']
-
-                output.append({
-                    'iso3': country['iso3'],
-                    'iso2': country['iso2'],
-                    'country': country['country'],
-                    'continent': country['continent'],
-                    'radio': radio,
-                    #'network': network,
-                    'cell_count': cell_count,
-                    'cost_usd': cost_usd,
-                    })
-
-        if len(output) == 0:
-            print('output len = 0')
-            continue
-
-        output = pd.DataFrame(output)
-
-        output.to_csv(path_out, index=False)
-
-    return
-
-
 if __name__ == "__main__":
-
-    # import cProfile
 
     args = sys.argv
 
