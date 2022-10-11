@@ -509,7 +509,7 @@ def query_hazard_layers(country, region, scenarios, regional_level):
                     'area': site['area'],
                     'cell': site['cell'],
                     'gid_level': gid_level,
-                    'gid_id': region[gid_level],
+                    'gid_id': region,
                     'cellid4326': site['cellid4326'],
                     'cellid3857': site['cellid3857'],
                     'depth': depth,
@@ -587,7 +587,7 @@ def estimate_results(country, region, scenarios, regional_level):
                 'area': site['area'],
                 'cell': site['cell'],
                 'gid_level': gid_level,
-                'gid_id': region[gid_level],
+                'gid_id': region,
                 'cellid4326': site['cellid4326'],
                 'cellid3857': site['cellid3857'],
                 'depth': site['depth'],
@@ -633,7 +633,7 @@ def query_fragility_curve(f_curve, depth):
     return 0
 
 
-def collect_national_results(scenario):
+def collect_national_results(iso3, scenario):
     """
     Collect regional results and write to national results folder.
 
@@ -699,8 +699,8 @@ def collect_final_results(collection_type):
 
         scenario_name = os.path.basename(scenario)[:-4]
 
-        if not 'rcp4p5' in scenario_name:
-            continue
+        #if not 'rcp4p5' in scenario_name:
+        #    continue
 
         path_out = os.path.join(folder_out, scenario_name + '.csv')
         print('working on {}'.format(scenario_name))
@@ -713,7 +713,7 @@ def collect_final_results(collection_type):
             print('Collecting final results for {}'.format(country['iso3']))
 
             print('Collect regional results')
-            collect_national_results(scenario)
+            collect_national_results(country['iso3'], scenario)
 
             path = os.path.join(DATA_PROCESSED, country['iso3'], 'results', 'national_data', scenario_name + '.csv')
             #print(path)
