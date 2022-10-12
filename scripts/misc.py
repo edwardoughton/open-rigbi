@@ -123,11 +123,11 @@ def get_scenarios():
     return_periods = [
         #'rp0100',
         #'rp0250',
-        #'rp0500',
+        'rp0500',
         'rp1000',
         #'rp00100',
         #'rp00250',
-        #'rp00500',
+        'rp00500',
         'rp01000'
     ]
 

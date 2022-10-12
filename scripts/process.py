@@ -49,41 +49,41 @@ def run_site_processing(region):
     print('Getting scenarios')
     scenarios = get_scenarios()#[:5]
 
-    ## print('Getting regions')
-    ## regions = get_regions(country, regional_level)#[:1]
-    ## region = pd.DataFrame()
+    print('Getting regions')
+    regions = get_regions(country, regional_level)#[:1]
+    region = pd.DataFrame()
 
 
-    # print('Working on create_national_sites_csv')
-    # create_national_sites_csv(country)
+    print('Working on create_national_sites_csv')
+    create_national_sites_csv(country)
+    
+    print('Working on process_country_shapes')
+    process_country_shapes(iso3)
 
-    # print('Working on process_country_shapes')
-    # process_country_shapes(iso3)
+    print('Working on process_regions')
+    process_regions(iso3, regional_level)
 
-    # print('Working on process_regions')
-    # process_regions(iso3, regional_level)
+    print('Working on create_national_sites_shp')
+    create_national_sites_shp(iso3)
 
-    # print('Working on create_national_sites_shp')
-    # create_national_sites_shp(iso3)
+    if regional_level > 0:
 
-    # if regional_level > 0:
+        print('Working on segment_by_gid_1')
+        segment_by_gid_1(iso3, 1)
 
-    #     print('Working on segment_by_gid_1')
-    #     segment_by_gid_1(iso3, 1)
+        print('Working on create_regional_sites_layer')
+        create_regional_sites_layer(iso3, 1)
 
-    #     print('Working on create_regional_sites_layer')
-    #     create_regional_sites_layer(iso3, 1)
+    if regional_level > 1:
 
-    # if regional_level > 1:
+        print('Working on segment_by_gid_2')
+        segment_by_gid_2(iso3, 2)
 
-    #     #print('Working on segment_by_gid_2')
-    #     #segment_by_gid_2(iso3, 2)
+        print('Working on create_regional_sites_layer')
+        create_regional_sites_layer(iso3, 2)
 
-    #     print('Working on create_regional_sites_layer')
-    #     create_regional_sites_layer(iso3, 2)
-
-    # print('Working on process_flooding_layers')
-    # process_flooding_layers(country, scenarios)
+    print('Working on process_flooding_layers')
+    process_flooding_layers(country, scenarios)
 
     print('Working on query_hazard_layers')
     query_hazard_layers(country, region, scenarios, regional_level)
@@ -687,7 +687,7 @@ def collect_final_results(collection_type):
             networks = list(data['net'].unique())
 
             for radio in radios:
-                print(radio)
+                
                 #for network in networks:
 
                 cell_count = 0
