@@ -779,6 +779,108 @@ def collect_national_results(iso3, scenario):
     return
 
 
+def collect_regional_results(collection_type):
+    """
+    Collect all results.
+
+    """
+    scenarios = get_scenarios()[::-1]
+    countries = get_countries()
+
+    folder_out = os.path.join(DATA_PROCESSED, 'results', 'regional')
+    if not os.path.exists(folder_out):
+        os.mkdir(folder_out)
+
+    for scenario in scenarios:
+
+        output = []
+
+        scenario_name = os.path.basename(scenario)[:-4]
+
+        path_out = os.path.join(folder_out, scenario_name + '.csv')
+
+        for idx, country in countries.iterrows():
+
+            if not collection_type == 'all':
+                if not country['iso3'] == collection_type:
+                    continue
+
+            collect_national_results(country['iso3'], scenario)
+
+            path = os.path.join(DATA_PROCESSED, country['iso3'], 'results',
+                'national_data', scenario_name + '.csv')
+
+            if not os.path.exists(path):
+                output.append({
+                        'iso3': country['iso3'],
+                        'iso2': country['iso2'],
+                        'country': country['country'],
+                        'continent': country['continent'],
+                        'gid_level': 'NA',
+                        'gid_id': 'NA',
+                        'radio': 'NA',
+                        'network': 'NA',
+                        'cell_count': 0,
+                        'cost_usd': 0,
+                    })
+                continue
+
+            data = pd.read_csv(path, sep=',')
+
+            if len(data) == 0:
+                continue
+
+            gid_ids = list(data['gid_id'].unique())
+            # radios = list(data['radio'].unique())
+            # networks = list(data['net'].unique())
+
+            for gid_id in gid_ids:
+
+                #for network in networks:
+
+                cell_count = 0
+                cost_usd = 0
+
+                for idx, item in data.iterrows():
+
+                    if not item['gid_id'] == gid_id:
+                        continue
+
+                    # if not item['radio'] == radio:
+                    #     continue
+
+                #        if not item['net'] == network:
+                #            continue
+
+                    if not item['failure'] == 1:
+                        continue
+
+                    cell_count += 1
+                    cost_usd += item['cost_usd']
+
+                output.append({
+                    'iso3': country['iso3'],
+                    'iso2': country['iso2'],
+                    'country': country['country'],
+                    'continent': country['continent'],
+                    'gid_level': item['gid_level'],
+                    'gid_id': gid_id,
+                    # 'radio': radio,
+                    #'network': network,
+                    'cell_count': cell_count,
+                    'cost_usd': cost_usd,
+                    })
+
+        if len(output) == 0:
+            continue
+
+        output = pd.DataFrame(output)
+
+        output.to_csv(path_out, index=False)
+
+    return
+
+
 if __name__ == "__main__":
 
     args = sys.argv
@@ -790,10 +892,13 @@ if __name__ == "__main__":
         run_site_processing(region)
 
     else:
+
         if len(args[2]) > 0:
-            collect_final_results(args[2])
+            # collect_final_results(args[2])
+            collect_regional_results(args[2])
         else:
-            collect_final_results('all')
+            # collect_final_results('all')
+            collect_regional_results('all')
 
     # countries = get_countries()
 
