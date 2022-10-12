@@ -37,8 +37,8 @@ def get_regional_id_information(countries):
 
     for idx, country in countries.iterrows():
         
-        if not country['iso3'] == 'USA':
-            continue
+        #if not country['iso3'] == 'USA':
+        #    continue
 
         gid_level = 'GID_{}'.format(country['gid_region'])
 
