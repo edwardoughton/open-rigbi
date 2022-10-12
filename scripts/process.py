@@ -793,10 +793,13 @@ def collect_regional_results(collection_type):
 
     for scenario in scenarios:
 
-        output = []
+        if not 'rcp4p5' in scenario and '2030' in scenario:
+            continue
+
+        output = []        
 
         scenario_name = os.path.basename(scenario)[:-4]
-
+        print(scenario_name)
         path_out = os.path.join(folder_out, scenario_name + '.csv')
 
         for idx, country in countries.iterrows():
@@ -804,7 +807,7 @@ def collect_regional_results(collection_type):
             if not collection_type == 'all':
                 if not country['iso3'] == collection_type:
                     continue
-
+            print('Working on {}'.format(country['iso3']))
             collect_national_results(country['iso3'], scenario)
 
             path = os.path.join(DATA_PROCESSED, country['iso3'], 'results',
@@ -835,7 +838,7 @@ def collect_regional_results(collection_type):
             # networks = list(data['net'].unique())
 
             for gid_id in gid_ids:
-
+                print(gid_id)
                 #for network in networks:
 
                 cell_count = 0
@@ -875,7 +878,7 @@ def collect_regional_results(collection_type):
             continue
 
         output = pd.DataFrame(output)
-
+        print('writing to {}'.format(path_out))
         output.to_csv(path_out, index=False)
 
     return
