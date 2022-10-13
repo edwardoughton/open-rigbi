@@ -15,7 +15,7 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import contextily as cx
-import geopy as gp
+# import geopy as gp
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), '..', 'scripts', 'script_config.ini'))
@@ -568,7 +568,7 @@ if __name__ == '__main__':
         # if not os.path.exists(path):
         #     plot_regions_by_geotype(country, shapes, path)
 
-        path = os.path.join(folder_vis, '{}_cells_by_region.png'.format(iso3))
+        path = os.path.join(folder_vis, '{}_cells_by_region.tiff'.format(iso3))
         # if not os.path.exists(path):
         plot_cells_per_region(country, shapes, path)
 
