@@ -75,13 +75,14 @@ if __name__ == "__main__":
     #countries = countries[countries['Population'] > 5000000]
     #countries = countries.sort_values(by=['Population'], ascending=True)
     # countries = countries['iso3']
-
+    
+    #countries = countries[countries['iso3'] == 'GBR']
     regions = get_regional_id_information(countries)
-
+    #regions = regions + regions + regions + regions + regions + regions #+ regions + regions + regions + regions
     random.shuffle(regions)
     # print(regions)
     # countries.reindex(np.random.permutation(countries.index))
 
-    #countries = countries[countries['iso3'] == 'USA']
+    #countries = countries[countries['iso3'] == 'SEN']
     #print('USA')
     print(*regions, sep='\n')

@@ -18,7 +18,7 @@ import rasterio
 from rasterio.mask import mask
 import glob
 
-from misc import get_countries
+from misc import get_countries, get_scenarios
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))

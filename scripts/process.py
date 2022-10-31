@@ -49,11 +49,6 @@ def run_site_processing(region):
     print('Getting scenarios')
     scenarios = get_scenarios()#[:5]
 
-    print('Getting regions')
-    regions = get_regions(country, regional_level)#[:1]
-    region = pd.DataFrame()
-
-
     print('Working on create_national_sites_csv')
     create_national_sites_csv(country)
     
@@ -74,22 +69,22 @@ def run_site_processing(region):
         print('Working on create_regional_sites_layer')
         create_regional_sites_layer(iso3, 1)
 
-    if regional_level > 1:
+    #if regional_level > 1:
 
-        print('Working on segment_by_gid_2')
-        segment_by_gid_2(iso3, 2)
+        #print('Working on segment_by_gid_2')
+        #segment_by_gid_2(iso3, 2)
 
-        print('Working on create_regional_sites_layer')
-        create_regional_sites_layer(iso3, 2)
+        #print('Working on create_regional_sites_layer')
+        #create_regional_sites_layer(iso3, 2)
 
     print('Working on process_flooding_layers')
     process_flooding_layers(country, scenarios)
 
-    # print('Working on query_hazard_layers')
-    # query_hazard_layers(country, region, scenarios, regional_level)
+    print('Working on query_hazard_layers')
+    query_hazard_layers(country, region, scenarios, regional_level)
 
-    # print('Estimating results')
-    # estimate_results(country, region, scenarios, regional_level)
+    print('Estimating results')
+    estimate_results(country, region, scenarios, regional_level)
 
     print('Converting to regional results')
     convert_to_regional_results(country, region, scenarios)
@@ -461,34 +456,29 @@ def query_hazard_layers(country, region, scenarios, regional_level):
     for scenario in scenarios: #tqdm(scenarios):
 
         print('Working on {}'.format(scenario))
-        # if not scenario == 'data\processed\MWI\hazards\inunriver_rcp8p5_MIROC-ESM-CHEM_2080_rp01000.tif':
-        #     continue
-
-        # for idx, region in regions.iterrows():
+        #if not 'GFDL' in scenario:# == 'data\processed\MWI\hazards\inunriver_rcp8p5_MIROC-ESM-CHEM_2080_rp01000.tif':
+        #    continue
 
         output = []
-
+        print(region)
         gid_id = region #region[gid_level]
         scenario_name = os.path.basename(scenario)[:-4]
-
-        # if not gid_id == 'GBR.1.3_1':
-        #     continue
 
         filename = '{}_{}.csv'.format(gid_id, scenario_name)
         folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
         path_output = os.path.join(folder_out, filename)
+        
+        if os.path.exists(path_output):
+            continue
 
-        # if os.path.exists(path_output):
-        #     continue
-
-        filename = '{}.csv'.format(gid_id)
+        filename = '{}.csv'.format(region)
         folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
         path = os.path.join(folder, filename)
-
+        
         if not os.path.exists(path):
             continue
 
-        sites = pd.read_csv(path)#[:1] #, crs='epsg:4326'
+        sites = pd.read_csv(path)
 
         failures = 0
 
@@ -525,7 +515,7 @@ def query_hazard_layers(country, region, scenarios, regional_level):
             os.makedirs(folder_out)
 
         output = pd.DataFrame(output)
-
+        
         output.to_csv(path_output, index=False)
 
     return
