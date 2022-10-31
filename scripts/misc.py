@@ -121,12 +121,12 @@ def get_scenarios():
     scenarios = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:20]
 
     return_periods = [
-        #'rp0100',
-        #'rp0250',
+        'rp0100',
+        'rp0250',
         'rp0500',
         'rp1000',
-        #'rp00100',
-        #'rp00250',
+        'rp00100',
+        'rp00250',
         'rp00500',
         'rp01000'
     ]
@@ -140,8 +140,8 @@ def get_scenarios():
                 if '0_perc_50.tif' in scenario:
                     output.append(scenario)
             elif 'inunriver' in scenario: #and 'MIROC-ESM-CHEM'
-                if 'MIROC' in scenario:
-                    output.append(scenario)
+                #if 'GFDL' in scenario:
+                output.append(scenario)
             else:
                 continue
 

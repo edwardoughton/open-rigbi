@@ -5,7 +5,7 @@ full_code=$1
 
 iso3=${full_code:0:3}
 
-echo -----running on `hostname`: $iso3 #$1
+echo -----running on `hostname`: $1
 
 DIR=/projects/open-rigbi
 
