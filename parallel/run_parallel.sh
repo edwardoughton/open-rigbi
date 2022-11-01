@@ -2,15 +2,12 @@
 
 source activate rigbi-env
 
-countries=`python /projects/open-rigbi/parallel/input_generator.py`
+countries=`python /projects/open-rigbi/parallel/region_generator.py`
 
 echo $countries
 
 parallel --sshloginfile /projects/open-rigbi/parallel/nodelist -n1 --no-notice --progress /projects/open-rigbi/parallel/run_country.sh ::: $countries
 
-parallel --sshloginfile /projects/open-rigbi/parallel/nodelist -n1 --no-notice --progress /projects/open-rigbi/parallel/run_country.sh ::: $countries
+#parallel --sshloginfile /projects/open-rigbi/parallel/nodelist -n1 --no-notice --progress /projects/open-rigbi/parallel/run_country.sh ::: $countries
 
 echo $complete
-
-
-
