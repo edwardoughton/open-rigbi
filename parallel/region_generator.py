@@ -1,5 +1,5 @@
 """
-Generate country/regional codes to pass to each node.
+Generate country regional codes to pass to each node.
 
 Written by Ed Oughton.
 
@@ -29,16 +29,7 @@ def get_regional_id_information(countries):
     """
     output = []
 
-    # countries = pd.read_csv(path, encoding='latin-1')
-    # country = countries[countries.iso3 == iso3]
-    # country = country.to_dict('records')[0]
-
-    # regional_level = int(country['gid_region'])
-
     for idx, country in countries.iterrows():
-        
-        #if not country['iso3'] == 'USA':
-        #    continue
 
         gid_level = 'GID_{}'.format(country['gid_region'])
 
@@ -55,7 +46,6 @@ def get_regional_id_information(countries):
 
             regions = gpd.read_file(path)
             regions = regions[gid_level]
-            # regions = regions.to_dict('records')
             regions = regions.tolist()
 
             output = output + regions
@@ -66,23 +56,15 @@ def get_regional_id_information(countries):
 if __name__ == "__main__":
 
     filename = "countries.csv"
-    #filename = "failures.csv"
+
     path = os.path.join(DATA_RAW, filename)
 
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
 
-    #countries = countries[countries['Population'] > 5000000]
-    #countries = countries.sort_values(by=['Population'], ascending=True)
-    # countries = countries['iso3']
-    
     #countries = countries[countries['iso3'] == 'GBR']
     regions = get_regional_id_information(countries)
-    #regions = regions + regions + regions + regions + regions + regions #+ regions + regions + regions + regions
-    random.shuffle(regions)
-    # print(regions)
-    # countries.reindex(np.random.permutation(countries.index))
 
-    #countries = countries[countries['iso3'] == 'SEN']
-    #print('USA')
+    random.shuffle(regions)
+
     print(*regions, sep='\n')
