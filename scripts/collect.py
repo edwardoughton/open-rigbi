@@ -57,24 +57,24 @@ def collect_regional_results(scenario):
         collect_country_regional_results(country['iso3'], scenario)
 
         scenario_name = os.path.basename(scenario)[:-4]
-        #print('collecting national results for {}'.format(scenario_name))
+        print('collecting national results for {}'.format(country['iso3']))
         folder = os.path.join(DATA_PROCESSED, country['iso3'],
             'results', 'regional_aggregated', 'regions')
 
         if not os.path.exists(folder):
-            #print('collect_national_results: folder does not exist: {}'.format(folder))
-            return
+            print('collect_national_results: folder does not exist: {}'.format(folder))
+            continue
 
         all_regional_results = os.listdir(folder)
 
         if len(all_regional_results) == 0:
-            #print('len of all_regional_results = 0')
-            return
+            print('len of all_regional_results = 0')
+            continue
 
         for filename in all_regional_results:
 
             path_in = os.path.join(folder, filename)
-            # print(filename)
+            #print(filename)
             if not os.path.exists(path_in):
                 continue
             try:
@@ -89,7 +89,7 @@ def collect_regional_results(scenario):
         return
 
     output = pd.DataFrame(output)
-
+    print('writing: {}'.format(path_out))
     output.to_csv(path_out, index=False)
 
     return
