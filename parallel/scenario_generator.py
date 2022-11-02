@@ -28,7 +28,7 @@ DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 if __name__ == "__main__":
 
     scenarios = get_scenarios()
-
+    print(scenarios)
     # scenarios = [os.path.basename(i)[:-4] for i in scenarios]
 
     print(scenarios)
