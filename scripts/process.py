@@ -49,45 +49,48 @@ def run_site_processing(region):
     print('Getting scenarios')
     scenarios = get_scenarios()#[:5]
 
-    print('Working on create_national_sites_csv')
-    create_national_sites_csv(country)
+    # print('Working on create_national_sites_csv')
+    # create_national_sites_csv(country)
 
-    print('Working on process_country_shapes')
-    process_country_shapes(iso3)
+    # print('Working on process_country_shapes')
+    # process_country_shapes(iso3)
 
-    print('Working on process_regions')
-    process_regions(iso3, regional_level)
+    # print('Working on process_regions')
+    # process_regions(iso3, regional_level)
 
-    print('Working on create_national_sites_shp')
-    create_national_sites_shp(iso3)
+    # print('Working on create_national_sites_shp')
+    # create_national_sites_shp(iso3)
 
-    if regional_level > 0:
+    # if regional_level > 0:
 
-        print('Working on segment_by_gid_1')
-        segment_by_gid_1(iso3, 1)
+    #     print('Working on segment_by_gid_1')
+    #     segment_by_gid_1(iso3, 1)
 
-        print('Working on create_regional_sites_layer')
-        create_regional_sites_layer(iso3, 1)
+    #     print('Working on create_regional_sites_layer')
+    #     create_regional_sites_layer(iso3, 1)
 
-    if regional_level > 1:
+    # if regional_level > 1:
 
-        print('Working on segment_by_gid_2')
-        segment_by_gid_2(iso3, 2)
+    #     print('Working on segment_by_gid_2')
+    #     segment_by_gid_2(iso3, 2)
 
-        print('Working on create_regional_sites_layer')
-        create_regional_sites_layer(iso3, 2)
+    #     print('Working on create_regional_sites_layer')
+    #     create_regional_sites_layer(iso3, 2)
 
     #print('Working on process_flooding_layers')
     #process_flooding_layers(country, scenarios)
 
-    #print('Working on query_hazard_layers')
-    #query_hazard_layers(country, region, scenarios, regional_level)
+    print('Working on query_hazard_layers')
+    query_hazard_layers(country, region, scenarios, regional_level)
 
-    print('Estimating results')
-    estimate_results(country, region, scenarios, regional_level)
+    print('Estimate model-mean')
+    estimate_model_mean(country, region, scenarios, regional_level)
 
-    print('Converting to regional results')
-    convert_to_regional_results(country, region, scenarios)
+    # print('Estimating results')
+    # estimate_results(country, region, scenarios, regional_level)
+
+    # print('Converting to regional results')
+    # convert_to_regional_results(country, region, scenarios)
 
     return print('Completed processing')
 
@@ -455,14 +458,15 @@ def query_hazard_layers(country, region, scenarios, regional_level):
 
     for scenario in scenarios: #tqdm(scenarios):
 
+        if 'model-mean' in scenario:
+            continue
+
         print('Working on {}'.format(scenario))
-        #if not 'GFDL' in scenario:# == 'data\processed\MWI\hazards\inunriver_rcp8p5_MIROC-ESM-CHEM_2080_rp01000.tif':
-        #    continue
 
         output = []
-        print(region)
+
         gid_id = region #region[gid_level]
-        scenario_name = os.path.basename(scenario)[:-4]
+        scenario_name = os.path.basename(scenario).replace('.tif', '')
 
         filename = '{}_{}.csv'.format(gid_id, scenario_name)
         folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
@@ -478,7 +482,7 @@ def query_hazard_layers(country, region, scenarios, regional_level):
         if not os.path.exists(path):
             continue
 
-        sites = pd.read_csv(path)
+        sites = pd.read_csv(path)#[:10]
 
         failures = 0
 
@@ -516,6 +520,130 @@ def query_hazard_layers(country, region, scenarios, regional_level):
 
         output = pd.DataFrame(output)
 
+        output.to_csv(path_output, index=False)
+
+    return
+
+
+def estimate_model_mean(country, region, scenarios, regional_level):
+    """
+    Estimate the model mean values.
+
+    """
+    iso3 = country['iso3']
+    name = country['country']
+    gid_level = 'GID_{}'.format(regional_level) #regional_level
+
+    model_mean_scenarios = []
+    scenarios_for_averaging = []
+
+    #get the scenario names for averaging
+    for scenario in scenarios:
+        if 'inunriver' in scenario: #and 'MIROC-ESM-CHEM'
+            if not 'historical' in scenario:
+                if not 'model-mean' in scenario:
+                    scenarios_for_averaging.append(scenario)
+                else:
+                    model_mean_scenarios.append(scenario)
+            else:
+                continue
+
+    for scenario in model_mean_scenarios: #tqdm(scenarios):
+
+        print('Working on {}'.format(scenario))
+
+        output = []
+
+        gid_id = region #region[gid_level]
+        basename = os.path.basename(scenario).replace('.tif', '')
+
+        filename = '{}_{}.csv'.format(gid_id, basename)
+        folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
+        if not os.path.exists(folder_out):
+            os.makedirs(folder_out)
+        path_output = os.path.join(folder_out, filename)
+
+        if os.path.exists(path_output):
+            continue
+
+        climate_scenario = basename.split('_')[1]
+        year = basename.split('_')[3]
+        return_period = basename.split('_')[4]
+
+        scenario_data = {}
+
+        for scenario_for_averaging in scenarios_for_averaging:
+
+            basename_for_averaging = os.path.basename(scenario_for_averaging).replace('.tif', '')
+
+            if not climate_scenario in basename_for_averaging:
+                continue
+
+            if not year in basename_for_averaging:
+                continue
+
+            if not return_period in basename_for_averaging:
+                continue
+
+            filename = '{}_{}.csv'.format(gid_id, os.path.basename(basename_for_averaging))
+            folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
+            path = os.path.join(folder, filename)
+
+            if not os.path.exists(path):
+                continue
+
+            sites = pd.read_csv(path)
+
+            for idx, site in sites.iterrows():
+
+                key = site['cellid4326']
+                value = site['depth']
+
+                if not key in scenario_data.keys():
+
+                    depth_dict = {
+                        'radio': site['radio'],
+                        'mcc': site['mcc'],
+                        'net': site['net'],
+                        'area': site['area'],
+                        'cell': site['cell'],
+                        'gid_level': site['gid_level'],
+                        'gid_id': site['gid_id'],
+                        'cellid4326': site['cellid4326'],
+                        'cellid3857': site['cellid3857'],
+                        basename_for_averaging: value
+                    }
+                    scenario_data[key] = depth_dict
+
+                else:
+
+                    for k, v in scenario_data.items():
+                        if k == key:
+                            depth_dict = {}
+                            depth_dict[basename_for_averaging] = value
+                            v.update(depth_dict)
+                            scenario_data[key] = v
+
+        for key, my_dict in scenario_data.items():
+
+            depth_dict = {key: value for (key, value) in my_dict.items() if 'inunriver' in key}
+
+            output.append({
+                'radio': my_dict['radio'],
+                'mcc': my_dict['mcc'],
+                'net': my_dict['net'],
+                'area': my_dict['area'],
+                'cell': my_dict['cell'],
+                'gid_level': my_dict['gid_level'],
+                'gid_id': my_dict['gid_id'],
+                'cellid4326': my_dict['cellid4326'],
+                'cellid3857': my_dict['cellid3857'],
+                'depth': sum(depth_dict.values()) / len(depth_dict),
+            })
+
+        if len(output) == 0:
+            return
+        output = pd.DataFrame(output)
         output.to_csv(path_output, index=False)
 
     return
