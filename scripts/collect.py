@@ -14,8 +14,7 @@ import pandas as pd
 # import rasterio
 # import random
 
-from misc import (process_country_shapes, process_regions, params, technologies,
-    get_countries, get_regions, get_scenarios)
+from misc import get_countries
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -34,8 +33,8 @@ def collect_regional_results(scenario):
     countries = get_countries()
 
     folder_out = os.path.join(DATA_PROCESSED, 'results', 'regional')
-    if not os.path.exists(folder_out):
-        os.mkdir(folder_out)
+    #if not os.path.exists(folder_out):
+    #    os.mkdir(folder_out)
 
     # for scenario in scenarios:
 
@@ -44,19 +43,19 @@ def collect_regional_results(scenario):
 
     output = []
 
-    scenario_name = os.path.basename(scenario)[:-4]
-
+    scenario_name = os.path.basename(scenario)#[:-4]
+    print(scenario)
     path_out = os.path.join(folder_out, scenario_name + '.csv')
 
     for idx, country in countries.iterrows():
-
+        print(country['iso3'])
         # if not collection_type == 'all':
         #     if not country['iso3'] == collection_type:
         #         continue
 
         collect_country_regional_results(country['iso3'], scenario)
 
-        scenario_name = os.path.basename(scenario)[:-4]
+        scenario_name = os.path.basename(scenario)#[:-4]
         print('collecting national results for {}'.format(country['iso3']))
         folder = os.path.join(DATA_PROCESSED, country['iso3'],
             'results', 'regional_aggregated', 'regions')
@@ -65,8 +64,8 @@ def collect_regional_results(scenario):
             print('collect_national_results: folder does not exist: {}'.format(folder))
             continue
 
-        all_regional_results = os.listdir(folder)
-
+        all_regional_results = os.listdir(folder)#[:1]
+        print(all_regional_results)
         if len(all_regional_results) == 0:
             print('len of all_regional_results = 0')
             continue
@@ -110,7 +109,7 @@ def collect_country_regional_results(iso3, scenario):
         #print('collect_national_results: folder does not exist: {}'.format(folder))
         return
 
-    all_regional_results = os.listdir(folder)
+    all_regional_results = os.listdir(folder)#[:1]
 
     if len(all_regional_results) == 0:
         #print('len of all_regional_results = 0')
@@ -160,8 +159,8 @@ def collect_final_results(scenario):
 
     output = []
 
-    scenario_name = os.path.basename(scenario)[:-4]
-
+    scenario_name = os.path.basename(scenario)#[:-4]
+    print(scenario_name)
     path_out = os.path.join(folder_out, scenario_name + '.csv')
 
     for idx, country in countries.iterrows():
@@ -169,7 +168,7 @@ def collect_final_results(scenario):
         # if not collection_type == 'all':
         #     if not country['iso3'] == collection_type:
         #         continue
-
+        #print(country['iso3'])
         collect_national_results(country['iso3'], scenario)
 
         path = os.path.join(DATA_PROCESSED, country['iso3'], 'results',
@@ -247,7 +246,7 @@ def collect_national_results(iso3, scenario):
     """
     output = []
 
-    scenario_name = os.path.basename(scenario)[:-4]
+    scenario_name = os.path.basename(scenario)#[:-4]
     #print('collecting national results for {}'.format(scenario_name))
     folder = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario_name)
 
@@ -255,7 +254,7 @@ def collect_national_results(iso3, scenario):
         #print('collect_national_results: folder does not exist: {}'.format(folder))
         return
 
-    all_regional_results = os.listdir(folder)
+    all_regional_results = os.listdir(folder)#[:1]
 
     if len(all_regional_results) == 0:
         #print('len of all_regional_results = 0')
@@ -293,7 +292,9 @@ def collect_national_results(iso3, scenario):
 if __name__ == "__main__":
 
     args = sys.argv
+    
+    #print('collecting regional results')
+    #collect_regional_results(args[1])
 
-    collect_regional_results(args[1])
-
+    print('collecting final results')
     collect_final_results(args[1])

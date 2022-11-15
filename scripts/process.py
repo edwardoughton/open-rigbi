@@ -69,19 +69,19 @@ def run_site_processing(region):
         print('Working on create_regional_sites_layer')
         create_regional_sites_layer(iso3, 1)
 
-    #if regional_level > 1:
+    if regional_level > 1:
 
-        #print('Working on segment_by_gid_2')
-        #segment_by_gid_2(iso3, 2)
+        print('Working on segment_by_gid_2')
+        segment_by_gid_2(iso3, 2)
 
-        #print('Working on create_regional_sites_layer')
-        #create_regional_sites_layer(iso3, 2)
+        print('Working on create_regional_sites_layer')
+        create_regional_sites_layer(iso3, 2)
 
-    print('Working on process_flooding_layers')
-    process_flooding_layers(country, scenarios)
+    #print('Working on process_flooding_layers')
+    #process_flooding_layers(country, scenarios)
 
-    print('Working on query_hazard_layers')
-    query_hazard_layers(country, region, scenarios, regional_level)
+    #print('Working on query_hazard_layers')
+    #query_hazard_layers(country, region, scenarios, regional_level)
 
     print('Estimating results')
     estimate_results(country, region, scenarios, regional_level)
