@@ -12,7 +12,7 @@ import configparser
 # import pandas as pd
 # import numpy as np
 # import geopandas as gpd
-# import random
+import random
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -28,7 +28,12 @@ DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 if __name__ == "__main__":
 
     scenarios = get_scenarios()
-    print(scenarios)
-    # scenarios = [os.path.basename(i)[:-4] for i in scenarios]
+   
+    scenarios = [os.path.basename(i)[:-4] for i in scenarios]#[:12] 
+    #scenarios = [i for i in scenarios if 'GFDL' in i][:8]
+    #print(scenarios)
+    #random.shuffle(scenarios)
 
-    print(scenarios)
+    scenarios = [i.replace('.tif','') for i in scenarios]
+
+    print(*scenarios, sep='\n')
