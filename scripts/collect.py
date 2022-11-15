@@ -292,9 +292,9 @@ def collect_national_results(iso3, scenario):
 if __name__ == "__main__":
 
     args = sys.argv
-    
-    #print('collecting regional results')
-    #collect_regional_results(args[1])
+
+    print('collecting regional results')
+    collect_regional_results(args[1])
 
     print('collecting final results')
     collect_final_results(args[1])
