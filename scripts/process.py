@@ -51,7 +51,7 @@ def run_site_processing(region):
 
     print('Working on create_national_sites_csv')
     create_national_sites_csv(country)
-    
+
     print('Working on process_country_shapes')
     process_country_shapes(iso3)
 
@@ -467,14 +467,14 @@ def query_hazard_layers(country, region, scenarios, regional_level):
         filename = '{}_{}.csv'.format(gid_id, scenario_name)
         folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
         path_output = os.path.join(folder_out, filename)
-        
+
         if os.path.exists(path_output):
             continue
 
         filename = '{}.csv'.format(region)
         folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
         path = os.path.join(folder, filename)
-        
+
         if not os.path.exists(path):
             continue
 
@@ -515,7 +515,7 @@ def query_hazard_layers(country, region, scenarios, regional_level):
             os.makedirs(folder_out)
 
         output = pd.DataFrame(output)
-        
+
         output.to_csv(path_output, index=False)
 
     return
@@ -777,7 +777,7 @@ def collect_final_results(collection_type):
             networks = list(data['net'].unique())
 
             for radio in radios:
-                
+
                 #for network in networks:
 
                 cell_count = 0
@@ -886,7 +886,7 @@ def collect_regional_results(collection_type):
         if not 'rcp4p5' in scenario and '2030' in scenario:
             continue
 
-        output = []        
+        output = []
 
         scenario_name = os.path.basename(scenario)[:-4]
         print(scenario_name)
