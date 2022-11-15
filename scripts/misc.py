@@ -131,30 +131,79 @@ def get_scenarios():
         'rp01000'
     ]
 
+    mean_scenarios = generate_mean_scenarios(scenarios, return_periods)
+
+    scenarios = scenarios + mean_scenarios
+
     for scenario in scenarios:
 
         if any(x in scenario for x in return_periods): #specify return periods
-
 
             if 'inuncoast' and 'wtsub' in scenario:
                 if '0_perc_50.tif' in scenario:
                     output.append(scenario)
             elif 'inunriver' in scenario: #and 'MIROC-ESM-CHEM'
-                #if 'GFDL' in scenario:
-                output.append(scenario)
+                if not 'historical' in scenario:
+                    output.append(scenario)
             else:
                 continue
 
         if 'historical' in scenario:
+
             if any(x in scenario for x in return_periods): #specify return periods
                 if 'inuncoast_historical_wtsub_hist' in scenario:
                     output.append(scenario)
-                elif 'inunriver' in scenario:
+                elif 'inunriver_historical' in scenario:
                     output.append(scenario)
                 else:
                     continue
 
-    return output#[:1]
+    return output #[:1]
+
+
+def generate_mean_scenarios(scenarios, return_periods):
+    """
+    Generate mean scenario names.
+
+    """
+    output = []
+
+    climate_scenarios = set()
+    years = set()
+    return_periods = set()
+
+    for scenario in scenarios:
+
+        if not 'inunriver' in scenario:
+            continue
+
+        basename = os.path.basename(scenario).replace('.tif', '')
+
+        climate_scenario = basename.split('_')[1]
+        if not 'historical' in climate_scenario:
+            climate_scenarios.add(climate_scenario)
+
+        year = basename.split('_')[3]
+        if not any(x in year for x in ['1980', 'hist']):
+            years.add(year)
+
+        return_periods.add(basename.split('_')[4])
+
+    for climate_scenario in list(climate_scenarios):
+        for year in list(years):
+            for return_period in list(return_periods):
+
+                scenario = 'inunriver_{}_model-mean_{}_{}.tif'.format(
+                    climate_scenario,
+                    year,
+                    return_period
+                )
+
+                scenario_path = os.path.join('data', 'raw', 'flood_hazard', scenario)
+
+                output.append(scenario_path)
+
+    return output
 
 
 def process_country_shapes(iso3):
