@@ -124,92 +124,83 @@ def process_flood_layer(country, path_in, path_out):
     return
 
 
-def process_surface_water_layers():
+def process_surface_water(country):
     """
-    Loop to process all water mask layers.
-
-    """
-    folder = os.path.join(DATA_RAW, 'global_surface_water')
-    paths = glob.glob(os.path.join(folder, "*.tif"))#[:5]
-
-    for path_in in paths:
-
-        filename = os.path.basename(path_in)
-        folder = os.path.join(DATA_PROCESSED, iso3, 'surface_water')
-        path_out = os.path.join(folder, filename)
-
-        if not os.path.exists(path_out):
-
-            print('--{}: {}'.format(name, filename))
-
-            if not os.path.exists(folder):
-                os.makedirs(folder)
-
-            try:
-                process_water_layer(country, path_in, path_out)
-            except:
-                failures.append({
-                    'iso3': iso3,
-                    'filename': filename
-                })
-
-    return failures
-
-
-def process_water_layer(country, path_in, path_out):
-    """
-    Clip the water layer to the chosen country boundary
-    and place in desired country folder.
-
+    Load in intersecting raster layers, and export large
+    water bodies as .shp.
     Parameters
     ----------
-    country : dict
-        Contains all desired country information.
-    path_in : string
-        The path for the chosen global hazard file to be processed.
-    path_out : string
-        The path to write the clipped hazard file.
-
+    country : string
+        Country parameters.
     """
-    iso3 = country['iso3']
-    regional_level = country['gid_region']
+    output = []
 
-    hazard = rasterio.open(path_in, 'r+')
-    hazard.nodata = 255
-    hazard.crs.from_epsg(4326)
+    filename = 'surface_water.shp'
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water')
+    path_out = os.path.join(folder, filename)
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
-    iso3 = country['iso3']
-    path_country = os.path.join(DATA_PROCESSED, iso3,
-        'national_outline.shp')
+    path_national = os.path.join(DATA_PROCESSED, country['iso3'], 'national_outline.shp')
 
-    if os.path.exists(path_country):
-        country = gpd.read_file(path_country)
+    if os.path.exists(path_national):
+        polygon = gpd.read_file(path_national, crs='4326')
     else:
-        print('Must generate national_outline.shp first' )
+        print('Must Generate National Shapefile first')
 
-    if os.path.exists(path_out):
-        return
+    poly_bounds = polygon['geometry'].total_bounds
+    poly_bbox = box(*poly_bounds, ccw = False)
 
-    geo = gpd.GeoDataFrame()
+    path_lc = os.path.join(DATA_RAW, 'global_surface_water')
 
-    geo = gpd.GeoDataFrame({'geometry': country['geometry']}, index=[0])
+    surface_files = [
+        os.path.abspath(os.path.join(path_lc, f)
+        ) for f in os.listdir(path_lc) if f.endswith('.tif')
+    ]
 
-    coords = [json.loads(geo.to_json())['features'][0]['geometry']]
+    for surface_file in surface_files:
 
-    out_img, out_transform = mask(hazard, coords, crop=True)
+        path = os.path.join(path_lc, surface_file)
 
-    out_meta = hazard.meta.copy()
+        src = rasterio.open(path, 'r+')
 
-    out_meta.update({"driver": "GTiff",
-                    "height": out_img.shape[1],
-                    "width": out_img.shape[2],
-                    "transform": out_transform,
-                    "crs": 'epsg:4326'})
+        tiff_bounds = src.bounds
+        tiff_bbox = box(*tiff_bounds)
 
-    with rasterio.open(path_out, "w", **out_meta) as dest:
-            dest.write(out_img)
+        if tiff_bbox.intersects(poly_bbox):
 
-    return
+            print('-Working on {}'.format(surface_file))
+
+            data = src.read()
+            data[data < 10] = 0
+            data[data >= 10] = 1
+            polygons = rasterio.features.shapes(data, transform=src.transform)
+            for poly, value in polygons:
+                if value > 0:
+                    output.append({
+                        'geometry': poly,
+                        'properties': {
+                            'value': value
+                        }
+                    })
+
+
+    output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
+
+    mask = output.area > country['threshold']
+    output = output.loc[mask]
+
+    filename = 'national_outline.shp'
+    path = os.path.join(DATA_PROCESSED, country['iso3'], filename)
+    national_outline = gpd.read_file(path, crs='epsg:4326')
+
+    output = output.overlay(national_outline, how='intersection')
+
+    mask = output.area > country['threshold']
+    output = output.loc[mask]
+
+    output.to_file(path_out, crs='epsg:4326')
+
 
 
 if __name__ == "__main__":
@@ -228,8 +219,8 @@ if __name__ == "__main__":
 
         print('-Working on {}'.format(country['iso3']))
 
-        process_flooding_layers(country, scenarios)
+        # process_flooding_layers(country, scenarios)
 
-        # process_surface_water_layers(country)
+        process_surface_water(country)
 
     print(failures)

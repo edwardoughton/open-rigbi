@@ -20,7 +20,7 @@ import random
 
 from misc import (process_country_shapes, process_regions, params, technologies,
     get_countries, get_regions, get_scenarios)
-from flood_hazards import process_flooding_layers
+from flood_hazards import process_flooding_layers, process_surface_water
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -46,8 +46,8 @@ def run_site_processing(region):
 
     regional_level = int(country['gid_region'])
 
-    print('Getting scenarios')
-    scenarios = get_scenarios()#[:5]
+    # print('Getting scenarios')
+    # scenarios = get_scenarios()#[:5]
 
     # print('Working on create_national_sites_csv')
     # create_national_sites_csv(country)
@@ -80,11 +80,14 @@ def run_site_processing(region):
     #print('Working on process_flooding_layers')
     #process_flooding_layers(country, scenarios)
 
-    print('Working on query_hazard_layers')
-    query_hazard_layers(country, region, scenarios, regional_level)
+    print('Working on get sites on land')
+    process_surface_water(country)
 
-    print('Estimate model-mean')
-    estimate_model_mean(country, region, scenarios, regional_level)
+    # print('Working on query_hazard_layers')
+    # query_hazard_layers(country, region, scenarios, regional_level)
+
+    # print('Estimate model-mean')
+    # estimate_model_mean(country, region, scenarios, regional_level)
 
     # print('Estimating results')
     # estimate_results(country, region, scenarios, regional_level)
