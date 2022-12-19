@@ -20,7 +20,7 @@ import random
 
 from misc import (process_country_shapes, process_regions, params, technologies,
     get_countries, get_regions, get_scenarios)
-from flood_hazards import process_flooding_layers, process_surface_water
+from flood_hazards import process_flooding_layers, process_surface_water_layers
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -80,8 +80,8 @@ def run_site_processing(region):
     #print('Working on process_flooding_layers')
     #process_flooding_layers(country, scenarios)
 
-    print('Working on get sites on land')
-    process_surface_water(country)
+    print('Working on process_surface_water_layers')
+    process_surface_water_layers(country)
 
     # print('Working on query_hazard_layers')
     # query_hazard_layers(country, region, scenarios, regional_level)
