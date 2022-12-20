@@ -219,6 +219,9 @@ def stitch_layers(country):
     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water')
     path_out = os.path.join(folder, 'surface_water.tif')
 
+    if os.path.exists(path_out):
+        return
+
     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water')
     paths = glob.glob(os.path.join(folder, "*.tif"))#[:5]
 
