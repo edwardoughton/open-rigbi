@@ -44,7 +44,7 @@ def get_regional_id_information(countries):
 
         if os.path.exists(path):
 
-            regions = gpd.read_file(path)
+            regions = gpd.read_file(path)#[:1] 
             regions = regions[gid_level]
             regions = regions.tolist()
 
