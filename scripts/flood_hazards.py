@@ -16,10 +16,11 @@ import pandas as pd
 import geopandas as gpd
 import rasterio
 from rasterio.mask import mask
+import rasterio.merge
 import glob
 from shapely.geometry import box
 
-from misc import get_countries, get_scenarios
+from misc import get_countries, get_scenarios, remove_small_shapes
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -125,9 +126,22 @@ def process_flood_layer(country, path_in, path_out):
     return
 
 
-def process_surface_water_layers(country):
+def process_surface_water_layers(country, region):
     """
     Loop to process all water mask layers.
+    """
+
+    # process_country_level(country)
+
+    process_regional_level(country, region)
+
+    return
+
+
+def process_country_level(country):
+    """
+    Process at the country level.
+
     """
     folder = os.path.join(DATA_RAW, 'global_surface_water')
     paths = glob.glob(os.path.join(folder, "*.tif"))#[:5]
@@ -155,7 +169,7 @@ def process_surface_water_layers(country):
 
     stitch_layers(country)
 
-    return failures
+    return print('failures: {}'.format(failures))
 
 
 def process_water_layer(country, path_in, path_out):
@@ -214,6 +228,7 @@ def process_water_layer(country, path_in, path_out):
 
 def stitch_layers(country):
     """
+    Merge raster layers into single country layer.
 
     """
     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water')
@@ -226,36 +241,136 @@ def stitch_layers(country):
     paths = glob.glob(os.path.join(folder, "*.tif"))#[:5]
 
     data = []
-    import rasterio.merge
+
     for path in paths:
         interim = rasterio.open(path)
         data.append(interim)
 
-    bounds=None
-    res=None
-    nodata=None
-    precision=7
+    dest, output_transform = rasterio.merge.merge(
+        #data, bounds, res, nodata, precision
+        data, None, None, None, 7
+        )
 
-    def merge(input1, bounds, res, nodata, precision):
-        import warnings
-        warnings.warn("Deprecated; Use rasterio.merge instead", DeprecationWarning)
-        return rasterio.merge.merge(input1, bounds, res, nodata)
-# bounds=None, res=None, nodata=None, dtype=None, precision=None
-    # dataset1 = rasterio.open("raster1.tif")
-    # dataset2 = rasterio.open("raster2.tif")
-
-    dest, output_transform=merge(data, bounds, res, nodata, precision)
     with rasterio.open(path) as src:
             out_meta = src.meta.copy()
+
     out_meta.update({"driver": "GTiff",
                     "height": dest.shape[1],
                     "width": dest.shape[2],
                     "transform": output_transform})
+
     with rasterio.open(path_out, "w", **out_meta) as dest1:
             dest1.write(dest)
 
     return
 
+
+def process_regional_level(country, region):
+    """
+    Cut raster at regional level.
+
+    """
+    level = country['gid_region']
+    gid_id = 'GID_{}'.format(level)
+
+    filename = 'regions_{}_{}.shp'.format(level, country['iso3'])
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'regions')
+    path = os.path.join(folder, filename)
+    regions = gpd.read_file(path, crs='epsg:4326')[:1]
+
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water')
+    path_in = os.path.join(folder, 'surface_water.tif')
+
+    folder_out = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water', 'regions')
+    if not os.path.exists(folder_out):
+        os.mkdir(folder_out)
+
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water')
+    path_out = os.path.join(folder, 'surface_water.shp')
+
+    output = []
+
+    for idx, region in regions.iterrows():
+
+        region_id = region[gid_id]
+
+        # path_out = os.path.join(folder_out, '{}.tif'.format(region_id))
+
+        # if os.path.exists(path_out):
+        #     continue
+
+        geom = region['geometry']
+
+        # process_regional_water_layer(path_in, path_out, geom)
+        src = rasterio.open(path_in, 'r+')
+        data = src.read()
+        data[data < 10] = 0
+        data[data >= 10] = 1
+        polygons = rasterio.features.shapes(data, transform=src.transform)
+        for poly, value in polygons:
+            if value > 0:
+                output.append({
+                    'geometry': poly,
+                    'properties': {
+                        'value': value
+                    }
+                })
+
+    output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
+
+    mask = output.area > .0001 #country['threshold']
+    output = output.loc[mask]
+
+    filename = 'national_outline.shp'
+    path = os.path.join(DATA_PROCESSED, country['iso3'], filename)
+    national_outline = gpd.read_file(path, crs='epsg:4326')
+
+    output = gpd.overlay(output, national_outline, how='intersection')
+
+    output['geometry'] = output.apply(remove_small_shapes, axis=1)
+
+    mask = output.area > .0001 #country['threshold']
+    output = output.loc[mask]
+
+    output.to_file(path_out, crs='epsg:4326')
+
+    return
+
+
+def process_regional_water_layer(path_in, path_out, geometry):
+    """
+    Clip the water layer to the chosen regional boundary
+    and place in desired country folder.
+
+    """
+    hazard = rasterio.open(path_in, 'r+')
+    hazard.nodata = 255
+    hazard.crs.from_epsg(4326)
+
+    data = src.read()
+    data[data < 10] = 0
+    data[data >= 10] = 1
+
+    geo = gpd.GeoDataFrame()
+
+    geo = gpd.GeoDataFrame({'geometry': geometry}, index=[0])
+
+    coords = [json.loads(geo.to_json())['features'][0]['geometry']]
+
+    out_img, out_transform = mask(hazard, coords, crop=True)
+
+    out_meta = hazard.meta.copy()
+
+    out_meta.update({"driver": "GTiff",
+                    "height": out_img.shape[1],
+                    "width": out_img.shape[2],
+                    "transform": out_transform,
+                    "crs": 'epsg:4326'})
+
+    with rasterio.open(path_out, "w", **out_meta) as dest:
+            dest.write(out_img)
+
+    return
 
 
 if __name__ == "__main__":
@@ -269,13 +384,13 @@ if __name__ == "__main__":
 
     for idx, country in countries.iterrows():
 
-        # if not country['iso3'] == 'RWA': #'GHA'
-        #     continue
+        if not country['iso3'] == 'RWA': #'GHA'
+            continue
 
         print('-Working on {}'.format(country['iso3']))
 
         # process_flooding_layers(country, scenarios)
 
-        process_surface_water_layers(country)
+        process_surface_water_layers(country, 'RWA.1_1')
 
     print(failures)
