@@ -81,7 +81,7 @@ def run_site_processing(region):
     #process_flooding_layers(country, scenarios)
 
     print('Working on process_surface_water_layers')
-    process_surface_water_layers(country)
+    process_surface_water_layers(country, region)
 
     # print('Working on query_hazard_layers')
     # query_hazard_layers(country, region, scenarios, regional_level)
