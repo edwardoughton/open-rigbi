@@ -61,13 +61,16 @@ def run_site_processing(region):
     # print('Working on create_national_sites_shp')
     # create_national_sites_shp(iso3)
 
-    # if regional_level > 0:
+    # print('Working on process_surface_water_layers')
+    # process_surface_water(country, region)
 
-    #     print('Working on segment_by_gid_1')
-    #     segment_by_gid_1(iso3, 1)
+    if regional_level > 0:
 
-    #     print('Working on create_regional_sites_layer')
-    #     create_regional_sites_layer(iso3, 1)
+        print('Working on segment_by_gid_1')
+        segment_by_gid_1(iso3, 1, region)
+
+        print('Working on create_regional_sites_layer')
+        create_regional_sites_layer(iso3, 1, region)
 
     # if regional_level > 1:
 
@@ -79,9 +82,6 @@ def run_site_processing(region):
 
     #print('Working on process_flooding_layers')
     #process_flooding_layers(country, scenarios)
-
-    print('Working on process_surface_water_layers')
-    process_surface_water(country, region)
 
     # print('Working on query_hazard_layers')
     # query_hazard_layers(country, region, scenarios, regional_level)
@@ -154,12 +154,12 @@ def create_national_sites_csv(country):
     return
 
 
-def segment_by_gid_1(iso3, level):
+def segment_by_gid_1(iso3, level, region):
     """
     Segment sites by gid_1 bounding box.
 
     """
-    gid_id = 'GID_{}'.format(level)
+    gid_level = 'GID_{}'.format(level)
 
     filename = '{}.csv'.format(iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
@@ -168,73 +168,56 @@ def segment_by_gid_1(iso3, level):
 
     filename = 'regions_{}_{}.shp'.format(level, iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
-    path = os.path.join(folder, filename)
-    regions = gpd.read_file(path, crs='epsg:4326')#[:1]
+    path_regions = os.path.join(folder, filename)
+    regions = gpd.read_file(path_regions, crs='epsg:4326')#[:1]
 
-    region = regions.iloc[-1]
-    gid_id = region['GID_{}'.format(level)]
-    filename = '{}.shp'.format(gid_id)
+    region_df = regions[regions[gid_level] == region]['geometry'].values[0]
+
+    filename = '{}.csv'.format(region)
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_1', 'interim')
-    path = os.path.join(folder, filename)
-    if os.path.exists(path):
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    path_out = os.path.join(folder, filename)
+    if os.path.exists(path_out):
         return
 
-    for idx, region in regions.iterrows(): #tqdm(regions.iterrows(), total=regions.shape[0]):
+    xmin, ymin, xmax, ymax = region_df.bounds
 
-        gid_level = 'GID_{}'.format(level)
+    output = []
 
-        gid_id = region[gid_level]
+    for idx, site in sites.iterrows():
 
-        filename = '{}.csv'.format(gid_id)
-        folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_1', 'interim')
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-        path = os.path.join(folder, filename)
+        x, y = site['lon'], site['lat']
 
-        if os.path.exists(path):
+        if not xmin <= x <= xmax:
             continue
 
-        # if idx == 0:
-            # print('-Working on GID_{} regional site layer'.format(level))
-
-        xmin, ymin, xmax, ymax = region['geometry'].bounds
-
-        output = []
-
-        for idx, site in sites.iterrows():
-
-            x, y = site['lon'], site['lat']
-
-            if not xmin <= x <= xmax:
-                continue
-
-            if not ymin <= y <= ymax:
-                continue
-
-            output.append({
-                'radio': site['radio'],
-                'mcc': site['mcc'],
-                'net': site['net'],
-                'area': site['area'],
-                'cell': site['cell'],
-                'unit': site['unit'],
-                'lon': site['lon'],
-                'lat': site['lat'],
-                'range': site['range'],
-                'samples': site['samples'],
-                'changeable': site['changeable'],
-                'created': site['created'],
-                'updated': site['updated'],
-                'averageSignal': site['averageSignal']
-            })
-
-        if len(output) > 0:
-
-            output = pd.DataFrame(output)
-            output.to_csv(path, index=False)
-
-        else:
+        if not ymin <= y <= ymax:
             continue
+
+        output.append({
+            'radio': site['radio'],
+            'mcc': site['mcc'],
+            'net': site['net'],
+            'area': site['area'],
+            'cell': site['cell'],
+            'unit': site['unit'],
+            'lon': site['lon'],
+            'lat': site['lat'],
+            'range': site['range'],
+            'samples': site['samples'],
+            'changeable': site['changeable'],
+            'created': site['created'],
+            'updated': site['updated'],
+            'averageSignal': site['averageSignal']
+        })
+
+    if len(output) > 0:
+        output = pd.DataFrame(output)
+        output.to_csv(path_out, index=False)
+
+    else:
+        return
 
     return
 
@@ -244,88 +227,86 @@ def segment_by_gid_2(iso3, level):
     Segment sites by gid_2 bounding box.
 
     """
-    gid_id = 'GID_{}'.format(level)
+    gid_level = 'GID_{}'.format(level)
 
     filename = 'regions_{}_{}.shp'.format(level, iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
     path = os.path.join(folder, filename)
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
+    region_df = regions[regions[gid_level] == region]
+    gid_1_id = region_df['GID_1']
+    region_df = region_df['geometry'].values[0]
 
-    for idx, region in regions.iterrows(): #tqdm(regions.iterrows(), total=regions.shape[0]):
+    filename = '{}.shp'.format(region['GID_1'])
+    folder_out = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_2', 'interim')
+    if not os.path.exists(folder_out):
+        os.makedirs(folder_out)
+    path = os.path.join(folder_out, filename)
+    if os.path.exists(path):
+        return
 
-        gid_level = 'GID_{}'.format(level)
-        gid_id = region[gid_level]
+    filename = '{}.csv'.format(region['GID_1'])
+    folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_2', 'interim')
+    path_out = os.path.join(folder, filename)
 
-        filename = '{}.shp'.format(region['GID_1'])
-        folder_out = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_2', 'interim')
-        if not os.path.exists(folder_out):
-            os.makedirs(folder_out)
-        path = os.path.join(folder_out, filename)
-        if os.path.exists(path):
-            return
+    # if os.path.exists(path_out):
+    #     return
 
-        filename = '{}.csv'.format(region['GID_1'])
+    # if idx == 0:
+        # print('-Working on GID_{} regional site layer'.format(level))
+    #print(region, region['geometry'])
+    try:
+        xmin, ymin, xmax, ymax = region_df.bounds
+    except:
+        return
+
+    filename = '{}.csv'.format(gid_1_id)
+    folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_1', 'interim')
+    path = os.path.join(folder, filename)
+    if not os.path.exists(path):
+        return
+    sites = pd.read_csv(path)
+
+    output = []
+
+    for idx, site in sites.iterrows():
+
+        x, y = site['lon'], site['lat']
+
+        if not xmin < x < xmax:
+            continue
+
+        if not ymin < y < ymax:
+            continue
+
+        output.append({
+            'radio': site['radio'],
+            'mcc': site['mcc'],
+            'net': site['net'],
+            'area': site['area'],
+            'cell': site['cell'],
+            'unit': site['unit'],
+            'lon': site['lon'],
+            'lat': site['lat'],
+            'range': site['range'],
+            'samples': site['samples'],
+            'changeable': site['changeable'],
+            'created': site['created'],
+            'updated': site['updated'],
+            'averageSignal': site['averageSignal']
+        })
+
+    if len(output) > 0:
+
+        output = pd.DataFrame(output)
+
+        filename = '{}.csv'.format(gid_id)
         folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_2', 'interim')
         path_out = os.path.join(folder, filename)
+        output.to_csv(path_out, index=False)
 
-        if os.path.exists(path_out):
-            continue
-
-        # if idx == 0:
-            # print('-Working on GID_{} regional site layer'.format(level))
-        #print(region, region['geometry'])
-        try:
-            xmin, ymin, xmax, ymax = region['geometry'].bounds
-        except:
-            continue
-
-        filename = '{}.csv'.format(region['GID_1'])
-        folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_1', 'interim')
-        path = os.path.join(folder, filename)
-        if not os.path.exists(path):
-            continue
-        sites = pd.read_csv(path)
-
-        output = []
-
-        for idx, site in sites.iterrows():
-
-            x, y = site['lon'], site['lat']
-
-            if not xmin < x < xmax:
-                continue
-
-            if not ymin < y < ymax:
-                continue
-
-            output.append({
-                'radio': site['radio'],
-                'mcc': site['mcc'],
-                'net': site['net'],
-                'area': site['area'],
-                'cell': site['cell'],
-                'unit': site['unit'],
-                'lon': site['lon'],
-                'lat': site['lat'],
-                'range': site['range'],
-                'samples': site['samples'],
-                'changeable': site['changeable'],
-                'created': site['created'],
-                'updated': site['updated'],
-                'averageSignal': site['averageSignal']
-            })
-
-        if len(output) > 0:
-
-            output = pd.DataFrame(output)
-
-            filename = '{}.csv'.format(gid_id)
-            folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_2', 'interim')
-            path_out = os.path.join(folder, filename)
-            output.to_csv(path_out, index=False)
-
-        else:
-            continue
+    else:
+        return
 
     return
 
@@ -371,7 +352,7 @@ def create_national_sites_shp(iso3):
         output.to_file(path_shp)
 
 
-def create_regional_sites_layer(iso3, level):
+def create_regional_sites_layer(iso3, level, region):
     """
     Create regional site layers.
 
@@ -380,72 +361,74 @@ def create_regional_sites_layer(iso3, level):
         pyproj.Proj('epsg:4326'), # source coordinate system
         pyproj.Proj('epsg:3857')) # destination coordinate system
 
-    filename = 'regions_{}_{}.shp'.format(level, iso3)
-    folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
+    gid_level = 'GID_{}'.format(level)
+
+    filename = '{}.csv'.format(region)
+    folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+    path_out = os.path.join(folder, filename)
+
+    # if os.path.exists(path_out):
+    #     continue
+
+    filename = '{}.csv'.format(region)
+    folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower(), 'interim')
     path = os.path.join(folder, filename)
-    regions = gpd.read_file(path, crs='epsg:4326')#[:1]
+    if not os.path.exists(path):
+        return
+    sites = pd.read_csv(path)
 
-    for idx, region in regions.iterrows(): #tqdm(regions.iterrows(), total=regions.shape[0]):
+    filename = '{}.shp'.format(region)
+    folder = os.path.join(DATA_PROCESSED, iso3, 'surface_water', 'regions')
+    path_in = os.path.join(folder, filename)
+    on_water = 0
+    if os.path.exists(path_in):
+        surface_water = gpd.read_file(path_in, crs='epsg:4326')
+    else:
+        surface_water = []
 
-        gid_level = 'GID_{}'.format(level)
-        gid_id = region[gid_level]
+    output = []
 
-        filename = '{}.csv'.format(gid_id)
-        folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
-        if not os.path.exists(folder):
-            os.mkdir(folder)
-        path_out = os.path.join(folder, filename)
+    for idx, site in sites.iterrows():
 
-        if os.path.exists(path_out):
-            continue
+        geom = Point(site['lon'], site['lat'])
 
-        # if idx == 0:
-            # print('-Working on regional site layer')
+        if len(surface_water) > 0:
+            surface_water_results = surface_water.contains(geom)
+            if surface_water_results.any():
+                on_water = 1
 
-        filename = '{}.csv'.format(region[gid_level])
-        folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower(), 'interim')
-        path = os.path.join(folder, filename)
-        if not os.path.exists(path):
-            continue
-        sites = pd.read_csv(path)
+        geom_4326 = geom
 
-        output = []
+        geom_3857 = transform(project.transform, geom_4326)
 
-        for idx, site in sites.iterrows():
+        output.append({
+            'radio': site['radio'],
+            'mcc': site['mcc'],
+            'net': site['net'],
+            'area': site['area'],
+            'cell': site['cell'],
+            'gid_level': gid_level,
+            'gid_id': region,
+            'cellid4326': '{}_{}'.format(
+                round(geom_4326.coords.xy[0][0],6),
+                round(geom_4326.coords.xy[1][0],6)
+            ),
+            'cellid3857': '{}_{}'.format(
+                round(geom_3857.coords.xy[0][0],6),
+                round(geom_3857.coords.xy[1][0],6)
+            ),
+            'on_water': on_water
+        })
 
-            geom = Point(site['lon'], site['lat'])
-            print(geom)
-            if region['geometry'].intersects(geom):
-                print('3')
-                geom_4326 = geom
+    if len(output) > 0:
 
-                geom_3857 = transform(project.transform, geom_4326)
+        output = pd.DataFrame(output)
+        output.to_csv(path_out, index=False)
 
-                output.append({
-                    'radio': site['radio'],
-                    'mcc': site['mcc'],
-                    'net': site['net'],
-                    'area': site['area'],
-                    'cell': site['cell'],
-                    'gid_level': gid_level,
-                    'gid_id': region[gid_level],
-                    'cellid4326': '{}_{}'.format(
-                        round(geom_4326.coords.xy[0][0],6),
-                        round(geom_4326.coords.xy[1][0],6)
-                    ),
-                    'cellid3857': '{}_{}'.format(
-                        round(geom_3857.coords.xy[0][0],6),
-                        round(geom_3857.coords.xy[1][0],6)
-                    ),
-                })
-
-        if len(output) > 0:
-
-            output = pd.DataFrame(output)
-            output.to_csv(path_out, index=False)
-
-        else:
-            continue
+    else:
+        return
 
     return
 
@@ -1124,20 +1107,20 @@ if __name__ == "__main__":
 
     args = sys.argv
 
-    region = args[1]
+    # region = args[1]
 
-    if not region == 'collect':
+    # if not region == 'collect':
 
-        run_site_processing(region)
+    #     run_site_processing(region) #MWI.13.2_1
 
-    else:
+    # else:
 
-        if len(args[2]) > 0:
-            # collect_final_results(args[2])
-            collect_regional_results(args[2])
-        else:
-            # collect_final_results('all')
-            collect_regional_results('all')
+    #     if len(args[2]) > 0:
+    #         # collect_final_results(args[2])
+    #         collect_regional_results(args[2])
+    #     else:
+    #         # collect_final_results('all')
+    #         collect_regional_results('all')
 
     # countries = get_countries()
 
@@ -1153,3 +1136,16 @@ if __name__ == "__main__":
     #         failures.append(country['iso3'])
 
     # print(failures)
+
+    countries = get_countries()
+
+    for idx, country in countries.iterrows():
+
+        if not country['iso3'] == 'MWI':
+            continue
+
+        regions = get_regions(country, 1)
+
+        for idx, region in regions.iterrows():
+            # print(region['GID_1'])
+            run_site_processing(region['GID_1'])
