@@ -199,8 +199,8 @@ def process_surface_water(country, region):
 
     output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
 
-    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water', 'regions')
-    output.to_file(os.path.join(folder, 'test.shp'), crs='epsg:4326')
+    #folder = os.path.join(DATA_PROCESSED, country['iso3'], 'surface_water', 'regions')
+    #output.to_file(os.path.join(folder, 'test.shp'), crs='epsg:4326')
 
     mask = output.area > .0001 #country['threshold']
     output = output.loc[mask]
