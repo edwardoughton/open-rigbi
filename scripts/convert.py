@@ -4,6 +4,7 @@
 import os
 import configparser
 import glob
+from tqdm import tqdm
 
 from misc import remove_small_shapes
 
@@ -24,7 +25,7 @@ def convert_surface_water_to_shapes():
     input_folder = os.path.join(DATA_RAW, 'global_surface_water')
     paths = glob.glob(os.path.join(input_folder, "*.tif"))#[100:102]
 
-    for path_in in paths:
+    for path_in in tqdm(paths):
 
         input_filename = os.path.basename(path_in)
 
@@ -38,8 +39,8 @@ def convert_surface_water_to_shapes():
         if not os.path.exists(output_folder):
             os.mkdir(output_folder)
 
-        tile_size_x = 25000
-        tile_size_y = 25000
+        tile_size_x = 10000
+        tile_size_y = 10000
 
         try:
             path_in = os.path.join(input_folder, input_filename)
