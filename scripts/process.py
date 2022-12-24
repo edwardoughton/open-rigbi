@@ -64,7 +64,7 @@ def run_site_processing(region):
     # print('Working on process_surface_water_layers')
     # process_surface_water(country, region)
 
-    if regional_level > 0:
+    if regional_level == 1:
 
         print('Working on segment_by_gid_1')
         segment_by_gid_1(iso3, 1, region)
@@ -72,13 +72,21 @@ def run_site_processing(region):
         print('Working on create_regional_sites_layer')
         create_regional_sites_layer(iso3, 1, region)
 
-    # if regional_level > 1:
+    if regional_level == 2:
 
-    #     print('Working on segment_by_gid_2')
-    #     segment_by_gid_2(iso3, 2)
+        gid_1 = get_gid_1(region)
 
-    #     print('Working on create_regional_sites_layer')
-    #     create_regional_sites_layer(iso3, 2)
+        print('Working on segment_by_gid_1')
+        segment_by_gid_1(iso3, 1, gid_1)
+
+        print('Working on create_regional_sites_layer')
+        create_regional_sites_layer(iso3, 1, gid_1)
+
+        print('Working on segment_by_gid_2')
+        segment_by_gid_2(iso3, 2, region, gid_1)
+
+        print('Working on create_regional_sites_layer')
+        create_regional_sites_layer(iso3, 2, region)
 
     #print('Working on process_flooding_layers')
     #process_flooding_layers(country, scenarios)
@@ -153,24 +161,42 @@ def create_national_sites_csv(country):
 
     return
 
+def get_gid_1(region):
+    """
+    Get gid_1 handle from gid_2
+    """
+    split = region.split('.')
+    iso3 = split[0]
+    item1 = split[1]
+    item2 = split[2]
+    item3 = split[2].split('_')[1]
+
+    gid_2 = "{}.{}_{}".format(iso3, item1, item3)
+
+    return gid_2
+
 
 def segment_by_gid_1(iso3, level, region):
     """
     Segment sites by gid_1 bounding box.
 
     """
-    gid_level = 'GID_{}'.format(level)
+    gid_level = 'GID_1'#.format(level)
+    # if level == 2:
+    #     gid_1 = get_gid_1(region)
+    # else:
+    #     gid_1 = region
 
     filename = '{}.csv'.format(iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
     path = os.path.join(folder, filename)
     sites = pd.read_csv(path)#[:100]
 
-    filename = 'regions_{}_{}.shp'.format(level, iso3)
+    filename = 'regions_{}_{}.shp'.format(1, iso3)
+
     folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
     path_regions = os.path.join(folder, filename)
     regions = gpd.read_file(path_regions, crs='epsg:4326')#[:1]
-
     region_df = regions[regions[gid_level] == region]['geometry'].values[0]
 
     filename = '{}.csv'.format(region)
@@ -178,8 +204,8 @@ def segment_by_gid_1(iso3, level, region):
     if not os.path.exists(folder):
         os.makedirs(folder)
     path_out = os.path.join(folder, filename)
-    if os.path.exists(path_out):
-        return
+    # if os.path.exists(path_out):
+    #     return
 
     xmin, ymin, xmax, ymax = region_df.bounds
 
@@ -215,14 +241,13 @@ def segment_by_gid_1(iso3, level, region):
     if len(output) > 0:
         output = pd.DataFrame(output)
         output.to_csv(path_out, index=False)
-
     else:
         return
 
     return
 
 
-def segment_by_gid_2(iso3, level):
+def segment_by_gid_2(iso3, level, region, gid_1):
     """
     Segment sites by gid_2 bounding box.
 
@@ -233,36 +258,33 @@ def segment_by_gid_2(iso3, level):
     folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
     path = os.path.join(folder, filename)
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
+
     region_df = regions[regions[gid_level] == region]
-    gid_1_id = region_df['GID_1']
     region_df = region_df['geometry'].values[0]
 
-    filename = '{}.shp'.format(region['GID_1'])
+    # filename = '{}.shp'.format(region['GID_1'])
     folder_out = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_2', 'interim')
     if not os.path.exists(folder_out):
         os.makedirs(folder_out)
-    path = os.path.join(folder_out, filename)
-    if os.path.exists(path):
-        return
+    # path = os.path.join(folder_out, filename)
+    # if os.path.exists(path):
+    #     return
 
-    filename = '{}.csv'.format(region['GID_1'])
-    folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_2', 'interim')
-    path_out = os.path.join(folder, filename)
+    filename = '{}.csv'.format(region)
+    path_out = os.path.join(folder_out, filename)
 
     # if os.path.exists(path_out):
     #     return
 
-    # if idx == 0:
-        # print('-Working on GID_{} regional site layer'.format(level))
-    #print(region, region['geometry'])
     try:
         xmin, ymin, xmax, ymax = region_df.bounds
     except:
         return
 
-    filename = '{}.csv'.format(gid_1_id)
+    filename = '{}.csv'.format(gid_1)
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_1', 'interim')
     path = os.path.join(folder, filename)
+
     if not os.path.exists(path):
         return
     sites = pd.read_csv(path)
@@ -300,7 +322,7 @@ def segment_by_gid_2(iso3, level):
 
         output = pd.DataFrame(output)
 
-        filename = '{}.csv'.format(gid_id)
+        filename = '{}.csv'.format(region)
         folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_2', 'interim')
         path_out = os.path.join(folder, filename)
         output.to_csv(path_out, index=False)
@@ -375,6 +397,7 @@ def create_regional_sites_layer(iso3, level, region):
     filename = '{}.csv'.format(region)
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower(), 'interim')
     path = os.path.join(folder, filename)
+
     if not os.path.exists(path):
         return
     sites = pd.read_csv(path)
@@ -1141,11 +1164,16 @@ if __name__ == "__main__":
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'MWI':
+        if not country['iso3'] == 'USA':
             continue
 
-        regions = get_regions(country, 1)
+        regions = get_regions(country, country['gid_region'])#[:2]
 
         for idx, region in regions.iterrows():
-            # print(region['GID_1'])
-            run_site_processing(region['GID_1'])
+
+            # if not region['GID_2'] == 'USA.7.5_1':
+            #     continue
+
+            gid_level = 'GID_{}'.format(country['gid_region'])
+
+            run_site_processing(region[gid_level])
