@@ -36,7 +36,7 @@ def run_site_processing(region):
 
     """
     iso3 = region[:3]
-
+    
     filename = "countries.csv"
     path = os.path.join(DATA_RAW, filename)
 
@@ -49,17 +49,17 @@ def run_site_processing(region):
     # print('Getting scenarios')
     # scenarios = get_scenarios()#[:5]
 
-    # print('Working on create_national_sites_csv')
-    # create_national_sites_csv(country)
+    print('Working on create_national_sites_csv')
+    create_national_sites_csv(country)
 
-    # print('Working on process_country_shapes')
-    # process_country_shapes(iso3)
+    print('Working on process_country_shapes')
+    process_country_shapes(iso3)
 
-    # print('Working on process_regions')
-    # process_regions(iso3, regional_level)
+    print('Working on process_regions')
+    process_regions(iso3, regional_level)
 
-    # print('Working on create_national_sites_shp')
-    # create_national_sites_shp(iso3)
+    print('Working on create_national_sites_shp')
+    create_national_sites_shp(iso3)
 
     # print('Working on process_surface_water_layers')
     # process_surface_water(country, region)
@@ -134,13 +134,13 @@ def create_national_sites_csv(country):
         ### Produce national sites data layers
         if not os.path.exists(path_csv):
 
-            # print('-site.csv data does not exist')
-            # print('-Subsetting site data for {}: {}'.format(iso3, mcc))
+            print('-site.csv data does not exist')
+            print('-Subsetting site data for {}: {}'.format(iso3, mcc))
 
             if not os.path.exists(folder):
                 os.makedirs(folder)
 
-            filename = "cell_towers.csv"
+            filename = "cell_towers_2022-12-24.csv"
             path = os.path.join(DATA_RAW, filename)
 
             chunksize = 10 ** 6
@@ -160,6 +160,7 @@ def create_national_sites_csv(country):
     output.to_csv(path_csv, index=False)
 
     return
+
 
 def get_gid_1(region):
     """
@@ -416,9 +417,12 @@ def create_regional_sites_layer(iso3, level, region):
     for idx, site in sites.iterrows():
 
         geom = Point(site['lon'], site['lat'])
-
+        
         if len(surface_water) > 0:
-            surface_water_results = surface_water.contains(geom)
+            try:
+                surface_water_results = surface_water.contains(geom)
+            except:
+                on_water = 0
             if surface_water_results.any():
                 on_water = 1
 
@@ -1130,11 +1134,11 @@ if __name__ == "__main__":
 
     args = sys.argv
 
-    # region = args[1]
+    region = args[1]
 
-    # if not region == 'collect':
+    if not region == 'collect':
 
-    #     run_site_processing(region) #MWI.13.2_1
+        run_site_processing(region) #MWI.13.2_1
 
     # else:
 
@@ -1160,20 +1164,21 @@ if __name__ == "__main__":
 
     # print(failures)
 
-    countries = get_countries()
+    #countries = get_countries()
 
-    for idx, country in countries.iterrows():
+    #for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'USA':
-            continue
+    #    if not country['iso3'] == 'ARE':
+    #        continue
+        
+    #    regions = get_regions(country, country['gid_region'])#[:2]
+    #    print(regions)
 
-        regions = get_regions(country, country['gid_region'])#[:2]
+    #    for idx, region in regions.iterrows():
+            
+            #if not region['GID_1'] == 'MWI.12_1':
+            #    continue
+            #print(region)
+    #        gid_level = 'GID_{}'.format(country['gid_region'])
 
-        for idx, region in regions.iterrows():
-
-            # if not region['GID_2'] == 'USA.7.5_1':
-            #     continue
-
-            gid_level = 'GID_{}'.format(country['gid_region'])
-
-            run_site_processing(region[gid_level])
+    #        run_site_processing(region[gid_level])

@@ -103,9 +103,9 @@ def get_regions(country, region_type):
     if not os.path.exists(path):
         print('Created this path as it did not exist: {}'.format(path))
         return []
-
+    print(path)
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
-
+    print(len(regions))
     return regions
 
 
