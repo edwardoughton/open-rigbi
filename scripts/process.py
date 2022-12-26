@@ -91,14 +91,14 @@ def run_site_processing(region):
     #print('Working on process_flooding_layers')
     #process_flooding_layers(country, scenarios)
 
-    # print('Working on query_hazard_layers')
-    # query_hazard_layers(country, region, scenarios, regional_level)
+    #print('Working on query_hazard_layers')
+    #query_hazard_layers(country, region, scenarios, regional_level)
 
-    # print('Estimate model-mean')
-    # estimate_model_mean(country, region, scenarios, regional_level)
+    #print('Estimate model-mean')
+    #estimate_model_mean(country, region, scenarios, regional_level)
 
-    # print('Estimating results')
-    # estimate_results(country, region, scenarios, regional_level)
+    #print('Estimating results')
+    #estimate_results(country, region, scenarios, regional_level)
 
     # print('Converting to regional results')
     # convert_to_regional_results(country, region, scenarios)
@@ -205,8 +205,8 @@ def segment_by_gid_1(iso3, level, region):
     if not os.path.exists(folder):
         os.makedirs(folder)
     path_out = os.path.join(folder, filename)
-    # if os.path.exists(path_out):
-    #     return
+    if os.path.exists(path_out):
+        return
 
     xmin, ymin, xmax, ymax = region_df.bounds
 
@@ -268,14 +268,14 @@ def segment_by_gid_2(iso3, level, region, gid_1):
     if not os.path.exists(folder_out):
         os.makedirs(folder_out)
     # path = os.path.join(folder_out, filename)
-    # if os.path.exists(path):
-    #     return
+    #if os.path.exists(path):
+    #    return
 
     filename = '{}.csv'.format(region)
     path_out = os.path.join(folder_out, filename)
 
-    # if os.path.exists(path_out):
-    #     return
+    if os.path.exists(path_out):
+        return
 
     try:
         xmin, ymin, xmax, ymax = region_df.bounds
@@ -392,8 +392,8 @@ def create_regional_sites_layer(iso3, level, region):
         os.mkdir(folder)
     path_out = os.path.join(folder, filename)
 
-    # if os.path.exists(path_out):
-    #     continue
+    if os.path.exists(path_out):
+        return
 
     filename = '{}.csv'.format(region)
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower(), 'interim')
@@ -485,8 +485,8 @@ def query_hazard_layers(country, region, scenarios, regional_level):
         folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
         path_output = os.path.join(folder_out, filename)
 
-        if os.path.exists(path_output):
-            continue
+        #if os.path.exists(path_output):
+        #    continue
 
         filename = '{}.csv'.format(region)
         folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
@@ -576,8 +576,8 @@ def estimate_model_mean(country, region, scenarios, regional_level):
             os.makedirs(folder_out)
         path_output = os.path.join(folder_out, filename)
 
-        if os.path.exists(path_output):
-            continue
+        #if os.path.exists(path_output):
+        #    continue
 
         climate_scenario = basename.split('_')[1]
         year = basename.split('_')[3]
@@ -691,9 +691,9 @@ def estimate_results(country, region, scenarios, regional_level):
         folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario_name)
         path_output = os.path.join(folder_out, filename)
 
-        if os.path.exists(path_output):
+        #if os.path.exists(path_output):
             #print('path_output exists {}'.format(path_output))
-            continue
+        #    continue
 
         filename = '{}_{}.csv'.format(gid_id, scenario_name)
         folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
