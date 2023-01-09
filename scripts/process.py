@@ -46,8 +46,8 @@ def run_site_processing(region):
 
     regional_level = int(country['gid_region'])
 
-    # print('Getting scenarios')
-    # scenarios = get_scenarios()#[:5]
+    print('Getting scenarios')
+    scenarios = get_scenarios()#[:5]
 
     print('Working on create_national_sites_csv')
     create_national_sites_csv(country)
@@ -91,11 +91,11 @@ def run_site_processing(region):
     #print('Working on process_flooding_layers')
     #process_flooding_layers(country, scenarios)
 
-    #print('Working on query_hazard_layers')
-    #query_hazard_layers(country, region, scenarios, regional_level)
+    print('Working on query_hazard_layers')
+    query_hazard_layers(country, region, scenarios, regional_level)
 
-    #print('Estimate model-mean')
-    #estimate_model_mean(country, region, scenarios, regional_level)
+    print('Estimate model-mean')
+    estimate_model_mean(country, region, scenarios, regional_level)
 
     #print('Estimating results')
     #estimate_results(country, region, scenarios, regional_level)
@@ -407,10 +407,10 @@ def create_regional_sites_layer(iso3, level, region):
     folder = os.path.join(DATA_PROCESSED, iso3, 'surface_water', 'regions')
     path_in = os.path.join(folder, filename)
     on_water = 0
+    surface_water = []
     if os.path.exists(path_in):
         surface_water = gpd.read_file(path_in, crs='epsg:4326')
-    else:
-        surface_water = []
+        surface_water = surface_water.unary_union
 
     output = []
 
@@ -421,10 +421,10 @@ def create_regional_sites_layer(iso3, level, region):
         if len(surface_water) > 0:
             try:
                 surface_water_results = surface_water.contains(geom)
+                if surface_water_results.any():
+                    on_water = 1
             except:
                 on_water = 0
-            if surface_water_results.any():
-                on_water = 1
 
         geom_4326 = geom
 
