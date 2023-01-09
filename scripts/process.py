@@ -36,7 +36,7 @@ def run_site_processing(region):
 
     """
     iso3 = region[:3]
-    
+
     filename = "countries.csv"
     path = os.path.join(DATA_RAW, filename)
 
@@ -49,59 +49,59 @@ def run_site_processing(region):
     print('Getting scenarios')
     scenarios = get_scenarios()#[:5]
 
-    print('Working on create_national_sites_csv')
-    create_national_sites_csv(country)
+    # print('Working on create_national_sites_csv')
+    # create_national_sites_csv(country)
 
-    print('Working on process_country_shapes')
-    process_country_shapes(iso3)
+    # print('Working on process_country_shapes')
+    # process_country_shapes(iso3)
 
-    print('Working on process_regions')
-    process_regions(iso3, regional_level)
+    # print('Working on process_regions')
+    # process_regions(iso3, regional_level)
 
-    print('Working on create_national_sites_shp')
-    create_national_sites_shp(iso3)
+    # print('Working on create_national_sites_shp')
+    # create_national_sites_shp(iso3)
 
-    # print('Working on process_surface_water_layers')
-    # process_surface_water(country, region)
+    # # print('Working on process_surface_water_layers')
+    # # process_surface_water(country, region)
 
-    if regional_level == 1:
+    # if regional_level == 1:
 
-        print('Working on segment_by_gid_1')
-        segment_by_gid_1(iso3, 1, region)
+    #     print('Working on segment_by_gid_1')
+    #     segment_by_gid_1(iso3, 1, region)
 
-        print('Working on create_regional_sites_layer')
-        create_regional_sites_layer(iso3, 1, region)
+    #     print('Working on create_regional_sites_layer')
+    #     create_regional_sites_layer(iso3, 1, region)
 
-    if regional_level == 2:
+    # if regional_level == 2:
 
-        gid_1 = get_gid_1(region)
+    #     gid_1 = get_gid_1(region)
 
-        print('Working on segment_by_gid_1')
-        segment_by_gid_1(iso3, 1, gid_1)
+    #     print('Working on segment_by_gid_1')
+    #     segment_by_gid_1(iso3, 1, gid_1)
 
-        print('Working on create_regional_sites_layer')
-        create_regional_sites_layer(iso3, 1, gid_1)
+    #     print('Working on create_regional_sites_layer')
+    #     create_regional_sites_layer(iso3, 1, gid_1)
 
-        print('Working on segment_by_gid_2')
-        segment_by_gid_2(iso3, 2, region, gid_1)
+    #     print('Working on segment_by_gid_2')
+    #     segment_by_gid_2(iso3, 2, region, gid_1)
 
-        print('Working on create_regional_sites_layer')
-        create_regional_sites_layer(iso3, 2, region)
+    #     print('Working on create_regional_sites_layer')
+    #     create_regional_sites_layer(iso3, 2, region)
 
-    #print('Working on process_flooding_layers')
-    #process_flooding_layers(country, scenarios)
+    # #print('Working on process_flooding_layers')
+    # #process_flooding_layers(country, scenarios)
 
-    print('Working on query_hazard_layers')
-    query_hazard_layers(country, region, scenarios, regional_level)
+    # print('Working on query_hazard_layers')
+    # query_hazard_layers(country, region, scenarios, regional_level)
 
-    print('Estimate model-mean')
-    estimate_model_mean(country, region, scenarios, regional_level)
+    # print('Estimate model-mean')
+    # estimate_model_mean(country, region, scenarios, regional_level)
 
-    #print('Estimating results')
-    #estimate_results(country, region, scenarios, regional_level)
+    print('Estimating results')
+    estimate_results(country, region, scenarios, regional_level)
 
-    # print('Converting to regional results')
-    # convert_to_regional_results(country, region, scenarios)
+    print('Converting to regional results')
+    convert_to_regional_results(country, region, scenarios)
 
     return print('Completed processing')
 
@@ -417,7 +417,7 @@ def create_regional_sites_layer(iso3, level, region):
     for idx, site in sites.iterrows():
 
         geom = Point(site['lon'], site['lat'])
-        
+
         if len(surface_water) > 0:
             try:
                 surface_water_results = surface_water.contains(geom)
@@ -672,12 +672,9 @@ def estimate_results(country, region, scenarios, regional_level):
 
     filename = 'fragility_curve.csv'
     path_fragility = os.path.join(DATA_RAW, filename)
-    f_curve = pd.read_csv(path_fragility)
-    f_curve = f_curve.to_dict('records')
+    low, baseline, high = load_f_curves(path_fragility)
 
     for scenario in scenarios: #tqdm
-
-        # for idx, region in regions.iterrows():
 
         output = []
 
@@ -699,7 +696,7 @@ def estimate_results(country, region, scenarios, regional_level):
         folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', gid_id, 'flood_scenarios')
         path_in = os.path.join(folder, filename)
         if not os.path.exists(path_in):
-            #print('path_in does not exist {}'.format(path_in))
+            # print('path_in does not exist {}'.format(path_in))
             continue
         sites = pd.read_csv(path_in)
 
@@ -708,11 +705,9 @@ def estimate_results(country, region, scenarios, regional_level):
             if not site['depth'] > 0:
                 continue
 
-            fragility = query_fragility_curve(f_curve, site['depth'])
-
-            failure_prob = random.uniform(0, 1)
-
-            failed = (1 if failure_prob < fragility else 0)
+            damage_low = query_fragility_curve(low, site['depth'])
+            damage_baseline = query_fragility_curve(baseline, site['depth'])
+            damage_high = query_fragility_curve(high, site['depth'])
 
             output.append({
                 'radio': site['radio'],
@@ -725,13 +720,12 @@ def estimate_results(country, region, scenarios, regional_level):
                 'cellid4326': site['cellid4326'],
                 'cellid3857': site['cellid3857'],
                 'depth': site['depth'],
-                # 'scenario': scenario_name,
-                'fragility': fragility,
-                'fail_prob': failure_prob,
-                'failure': failed,
-                'cost_usd': round(100000 * fragility),
-                # 'cell_id': site['cell_id'],
-                # },
+                'damage_low': damage_low,
+                'damage_baseline': damage_baseline,
+                'damage_high': damage_high,
+                'cost_usd_low': round(40000 * damage_low),
+                'cost_usd_baseline': round(40000 * damage_baseline),
+                'cost_usd_high': round(40000 * damage_high),
             })
 
         if len(output) == 0:
@@ -742,10 +736,38 @@ def estimate_results(country, region, scenarios, regional_level):
             os.makedirs(folder_out)
 
         output = pd.DataFrame(output)
-        #print('writing {}'.format(path_output))
         output.to_csv(path_output, index=False)
 
     return
+
+
+def load_f_curves(path_fragility):
+    """
+    Load depth-damage curves.
+
+    """
+    low = []
+    baseline = []
+    high = []
+
+    f_curves = pd.read_csv(path_fragility)
+
+    for idx, item in f_curves.iterrows():
+
+        my_dict = {
+            'depth_lower_m': item['depth_lower_m'],
+            'depth_upper_m': item['depth_upper_m'],
+            'damage': item['damage'],
+        }
+
+        if item['scenario'] == 'low':
+            low.append(my_dict)
+        elif item['scenario'] == 'baseline':
+            baseline.append(my_dict)
+        elif item['scenario'] == 'high':
+            high.append(my_dict)
+
+    return low, baseline, high
 
 
 def query_fragility_curve(f_curve, depth):
@@ -1170,12 +1192,12 @@ if __name__ == "__main__":
 
     #    if not country['iso3'] == 'ARE':
     #        continue
-        
+
     #    regions = get_regions(country, country['gid_region'])#[:2]
     #    print(regions)
 
     #    for idx, region in regions.iterrows():
-            
+
             #if not region['GID_1'] == 'MWI.12_1':
             #    continue
             #print(region)
