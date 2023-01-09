@@ -113,7 +113,7 @@ def get_scenarios():
     """
 
     """
-    output = []
+    output = set()
 
     # hazard_dir = os.path.join(DATA_PROCESSED, country['iso3'], 'hazards', 'flooding')
     hazard_dir = os.path.join(DATA_RAW,  'flood_hazard')
@@ -140,11 +140,11 @@ def get_scenarios():
         if any(x in scenario for x in return_periods): #specify return periods
 
             if 'inuncoast' and 'wtsub' in scenario:
-                if '0_perc_50.tif' in scenario:
-                    output.append(scenario)
+                #if 'wtsub_hist' in scenario:
+                output.add(scenario)
             elif 'inunriver' in scenario: #and 'MIROC-ESM-CHEM'
                 if not 'historical' in scenario:
-                    output.append(scenario)
+                    output.add(scenario)
             else:
                 continue
 
@@ -152,13 +152,15 @@ def get_scenarios():
 
             if any(x in scenario for x in return_periods): #specify return periods
                 if 'inuncoast_historical_wtsub_hist' in scenario:
-                    output.append(scenario)
+                    output.add(scenario)
                 elif 'inunriver_historical' in scenario:
-                    output.append(scenario)
+                    output.add(scenario)
                 else:
                     continue
 
-    return output #[:1]
+    output = list(output)
+    output.sort() 
+    return output#[:1]
 
 
 def generate_mean_scenarios(scenarios, return_periods):
