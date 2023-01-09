@@ -57,20 +57,6 @@ def get_countries():
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
     countries = countries.sort_values(by=['iso3'], ascending=True)
-    # print(len(countries[countries.Exclude == 0]))
-    # print(len(countries[countries.Exclude == 1]))
-    # # if mmc == 'with_mmc':
-    # filename = "mobile_codes.csv"
-    # path = os.path.join(DATA_RAW, filename)
-    # mobile_codes = pd.read_csv(path)
-    # mobile_codes = mobile_codes[['iso2', 'mcc']].drop_duplicates()
-    # mobile_codes['iso2'] = mobile_codes['iso2'].str.upper()
-    # countries = pd.merge(countries, mobile_codes, left_on = 'iso2', right_on = 'iso2')
-
-    # countries.to_csv('test.csv')
-    # countries = countries[countries['Population'] > 5000000]
-    # countries = countries.sort_values(by=['Population'], ascending=True)
-    # countries = countries.to_dict('records')
 
     return countries#[:10]
 
@@ -103,9 +89,9 @@ def get_regions(country, region_type):
     if not os.path.exists(path):
         print('Created this path as it did not exist: {}'.format(path))
         return []
-    print(path)
+
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
-    print(len(regions))
+
     return regions
 
 
