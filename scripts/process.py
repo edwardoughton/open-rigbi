@@ -97,8 +97,8 @@ def run_site_processing(region):
     # print('Estimate model-mean')
     # estimate_model_mean(country, region, scenarios, regional_level)
 
-    print('Estimating results')
-    estimate_results(country, region, scenarios, regional_level)
+    #print('Estimating results')
+    #estimate_results(country, region, scenarios, regional_level)
 
     print('Converting to regional results')
     convert_to_regional_results(country, region, scenarios)
@@ -708,7 +708,7 @@ def estimate_results(country, region, scenarios, regional_level):
             damage_low = query_fragility_curve(low, site['depth'])
             damage_baseline = query_fragility_curve(baseline, site['depth'])
             damage_high = query_fragility_curve(high, site['depth'])
-
+            print(idx, damage_baseline)
             output.append({
                 'radio': site['radio'],
                 'mcc': site['mcc'],
@@ -780,7 +780,7 @@ def query_fragility_curve(f_curve, depth):
 
     for item in f_curve:
         if item['depth_lower_m'] <= depth < item['depth_upper_m']:
-            return item['fragility']
+            return item['damage']
         else:
             continue
 
@@ -825,8 +825,12 @@ def convert_to_regional_results(country, region, scenarios):
                     'gid_id': 'NA',
                     'radio': 'NA',
                     'network': 'NA',
-                    'cell_count': 0,
-                    'cost_usd': 0,
+                    'cell_count_low': 0,
+                    'cell_count_baseline': 0,
+                    'cell_count_high': 0,
+                    'cost_usd_low': 0,
+                    'cost_usd_baseline': 0,
+                    'cost_usd_high': 0,
                 })
             continue
 
@@ -843,25 +847,29 @@ def convert_to_regional_results(country, region, scenarios):
 
             #for network in networks:
 
-            cell_count = 0
-            cost_usd = 0
+            cell_count_low = 0
+            cell_count_baseline = 0
+            cell_count_high = 0
+            cost_usd_low = 0
+            cost_usd_baseline = 0
+            cost_usd_high = 0
 
             for idx, item in data.iterrows():
 
                 if not item['gid_id'] == gid_id:
                     continue
 
-                # if not item['radio'] == radio:
-                #     continue
+                if item['cost_usd_low'] > 0:
+                    cell_count_low += 1
+                    cost_usd_low += item['cost_usd_low']
+ 
+                if item['cost_usd_baseline'] > 0:
+                    cell_count_baseline += 1
+                    cost_usd_baseline += item['cost_usd_baseline']
 
-            #        if not item['net'] == network:
-            #            continue
-
-                if not item['failure'] == 1:
-                    continue
-
-                cell_count += 1
-                cost_usd += item['cost_usd']
+                if item['cost_usd_high'] > 0:
+                    cell_count_high += 1
+                    cost_usd_high += item['cost_usd_high']
 
             output.append({
                 'iso3': country['iso3'],
@@ -870,10 +878,12 @@ def convert_to_regional_results(country, region, scenarios):
                 'continent': country['continent'],
                 'gid_level': item['gid_level'],
                 'gid_id': gid_id,
-                # 'radio': radio,
-                #'network': network,
-                'cell_count': cell_count,
-                'cost_usd': cost_usd,
+                'cell_count_low': cell_count_low,
+                'cost_usd_low': cost_usd_low,
+                'cell_count_baseline': cell_count_baseline,
+                'cost_usd_baseline': cost_usd_baseline,
+                'cell_count_high': cell_count_high,
+                'cost_usd_high': cost_usd_high,
                 })
 
         if len(output) == 0:
