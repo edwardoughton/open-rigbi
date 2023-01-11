@@ -160,15 +160,11 @@ def collect_final_results(scenario):
     output = []
 
     scenario_name = os.path.basename(scenario)#[:-4]
-    print(scenario_name)
+
     path_out = os.path.join(folder_out, scenario_name + '.csv')
 
     for idx, country in countries.iterrows():
 
-        # if not collection_type == 'all':
-        #     if not country['iso3'] == collection_type:
-        #         continue
-        #print(country['iso3'])
         collect_national_results(country['iso3'], scenario)
 
         path = os.path.join(DATA_PROCESSED, country['iso3'], 'results',
@@ -182,40 +178,46 @@ def collect_final_results(scenario):
                     'continent': country['continent'],
                     'radio': 'NA',
                     'network': 'NA',
-                    'cell_count': 0,
-                    'cost_usd': 0,
+                    'cell_count_low': 0,
+                    'cell_count_baseline': 0,
+                    'cell_count_high': 0,
+                    'cost_usd_low': 0,
+                    'cost_usd_baseline': 0,
+                    'cost_usd_high': 0,
                 })
             continue
 
-        # print(path)
         data = pd.read_csv(path, sep=',')
-        # print(data.columns)
+
         if len(data) == 0:
             continue
 
         radios = list(data['radio'].unique())
-        networks = list(data['net'].unique())
+        # networks = list(data['net'].unique())
 
         for radio in radios:
 
-            #for network in networks:
-
-            cell_count = 0
-            cost_usd = 0
+            cell_count_low = 0
+            cell_count_baseline = 0
+            cell_count_high = 0
+            cost_usd_low = 0
+            cost_usd_baseline = 0
+            cost_usd_high = 0
 
             for idx, item in data.iterrows():
 
                 if not item['radio'] == radio:
                     continue
 
-            #        if not item['net'] == network:
-            #            continue
-
                 if not item['failure'] == 1:
                     continue
-                # print(cell_count)
-                cell_count += 1
-                cost_usd += item['cost_usd']
+
+                cell_count_low += 1
+                cell_count_baseline += 1
+                cell_count_high += 1
+                cost_usd_low += item['cost_usd_low']
+                cost_usd_baseline += item['cost_usd_baseline']
+                cost_usd_high += item['cost_usd_high']
 
             output.append({
                 'iso3': country['iso3'],
@@ -226,6 +228,12 @@ def collect_final_results(scenario):
                 #'network': network,
                 'cell_count': cell_count,
                 'cost_usd': cost_usd,
+                 'cell_count_low': 0,
+                    'cell_count_baseline': 0,
+                    'cell_count_high': 0,
+                    'cost_usd_low': 0,
+                    'cost_usd_baseline': 0,
+                    'cost_usd_high': 0,
                 })
 
     if len(output) == 0:
