@@ -30,11 +30,13 @@ def collect_regional_results(scenario):
 
     scenario_name = os.path.basename(scenario)#[:-4]
     path_out = os.path.join(folder_out, scenario_name + '.csv')
-
+    #print('writing to {}'.format(path_out))
     for idx, country in countries.iterrows():
 
-        collect_country_regional_results(country['iso3'], scenario)
+        print('Working on {}'.format(country['iso3']))
 
+        collect_country_regional_results(country['iso3'], scenario)
+        
         scenario_name = os.path.basename(scenario)#[:-4]
 
         folder = os.path.join(DATA_PROCESSED, country['iso3'],
@@ -50,6 +52,9 @@ def collect_regional_results(scenario):
             continue
 
         for filename in all_regional_results:
+            #print(filename, scenario_name)
+            if not scenario_name in filename:
+                continue
 
             path_in = os.path.join(folder, filename)
             if not os.path.exists(path_in):
@@ -60,12 +65,12 @@ def collect_regional_results(scenario):
                 output = output + data
             except:
                 print('failed on {})'.format(path_in))
-
+            #print(len(output))
     if len(output) == 0:
         return
 
     output = pd.DataFrame(output)
-    print('writing: {}'.format(path_out))
+    #print('writing: {}'.format(path_out))
     output.to_csv(path_out, index=False)
 
     return
@@ -78,21 +83,24 @@ def collect_country_regional_results(iso3, scenario):
     """
     output = []
 
-    scenario_name = os.path.basename(scenario)[:-4]
+    scenario_name = os.path.basename(scenario)#[:-4]
     folder = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_aggregated', 'regions')
 
     if not os.path.exists(folder):
         return
 
     all_regional_results = os.listdir(folder)#[:1]
-
+    
     if len(all_regional_results) == 0:
         return
 
     for filename in all_regional_results:
-
+        
+        if not scenario_name in filename:
+            continue
+        
         path_in = os.path.join(folder, filename)
-
+        
         if not os.path.exists(path_in):
             continue
         try:
@@ -101,7 +109,7 @@ def collect_country_regional_results(iso3, scenario):
             output = output + data
         except:
             print('failed on {})'.format(path_in))
-
+        
     if len(output) == 0:
         return
 
@@ -111,7 +119,7 @@ def collect_country_regional_results(iso3, scenario):
     if not os.path.exists(folder_out):
         print('folder out did not exist')
         os.mkdir(folder_out)
-
+    
     path_out = os.path.join(folder_out, scenario_name + '.csv')
     output.to_csv(path_out, index=False)
 
@@ -133,18 +141,20 @@ def collect_final_results(scenario):
     output = []
 
     scenario_name = os.path.basename(scenario)#[:-4]
-
+    
     path_out = os.path.join(folder_out, scenario_name + '.csv')
-
+    print('writing to {}'.format(path_out))    
     for idx, country in countries.iterrows():
 
+        print('Working on {}'.format(country['iso3']))
         collect_national_results(country['iso3'], scenario)
-
+        #print('collect_national_results complete')
         path = os.path.join(DATA_PROCESSED, country['iso3'], 'results',
             'national_data', scenario_name + '.csv')
-
+        print(path)
         if not os.path.exists(path):
-            output.append({
+           print('path did not exist {}'.format(path)) 
+           output.append({
                     'iso3': country['iso3'],
                     'iso2': country['iso2'],
                     'country': country['country'],
@@ -161,7 +171,7 @@ def collect_final_results(scenario):
             continue
 
         data = pd.read_csv(path, sep=',')
-
+        print(len(data))
         if len(data) == 0:
             continue
 
@@ -177,8 +187,11 @@ def collect_final_results(scenario):
             cost_usd_high = 0
 
             for idx, item in data.iterrows():
-
+                
                 if not item['radio'] == radio:
+                    continue
+
+                if not 'cost_usd_low' in item:
                     continue
 
                 if item['cost_usd_low'] > 0:
@@ -199,8 +212,8 @@ def collect_final_results(scenario):
                 'country': country['country'],
                 'continent': country['continent'],
                 'radio': radio,
-                'cell_count': cell_count,
-                'cost_usd': cost_usd,
+                #'cell_count': cell_count,
+                #'cost_usd': cost_usd,
                 'cell_count_low': cell_count_low,
                 'cost_usd_low': cost_usd_low,
                 'cell_count_baseline': cell_count_baseline,
@@ -208,7 +221,7 @@ def collect_final_results(scenario):
                 'cell_count_high': cell_count_high,
                 'cost_usd_high': cost_usd_high,
                 })
-
+    #print(len(output))
     if len(output) == 0:
         return
 
@@ -238,7 +251,7 @@ def collect_national_results(iso3, scenario):
         return
 
     for filename in all_regional_results:
-
+        
         path_in = os.path.join(folder, filename)
 
         if not os.path.exists(path_in):
@@ -269,8 +282,8 @@ if __name__ == "__main__":
 
     args = sys.argv
 
-    print('collecting regional results')
-    collect_regional_results(args[1])
+    #print('collecting regional results')
+    #collect_regional_results(args[1])
 
     print('collecting final results')
     collect_final_results(args[1])
