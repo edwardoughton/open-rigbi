@@ -20,7 +20,8 @@ import random
 
 from misc import (process_country_shapes, process_regions, params, technologies,
     get_countries, get_regions, get_scenarios)
-from flood_hazards import process_flooding_layers, process_surface_water
+from flood_hazards import (process_flooding_layers, process_surface_water,
+    process_flooding_extent_stats)
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -44,10 +45,10 @@ def run_site_processing(region):
     country = countries[countries.iso3 == iso3]
     country = country.to_dict('records')[0]
 
-    regional_level = int(country['gid_region'])
+    # regional_level = int(country['gid_region'])
 
-    print('Getting scenarios')
-    scenarios = get_scenarios()#[:5]
+    # print('Getting scenarios')
+    # scenarios = get_scenarios()#[:5]
 
     # print('Working on create_national_sites_csv')
     # create_national_sites_csv(country)
@@ -91,17 +92,20 @@ def run_site_processing(region):
     # #print('Working on process_flooding_layers')
     # #process_flooding_layers(country, scenarios)
 
+    print('Working on process_flooding_extent_stats')
+    process_flooding_extent_stats(country, region)
+
     # print('Working on query_hazard_layers')
     # query_hazard_layers(country, region, scenarios, regional_level)
 
     # print('Estimate model-mean')
     # estimate_model_mean(country, region, scenarios, regional_level)
 
-    print('Estimating results')
-    estimate_results(country, region, scenarios, regional_level)
+    # print('Estimating results')
+    # estimate_results(country, region, scenarios, regional_level)
 
-    print('Converting to regional results')
-    convert_to_regional_results(country, region, scenarios)
+    # print('Converting to regional results')
+    # convert_to_regional_results(country, region, scenarios)
 
     return print('Completed processing')
 
@@ -708,7 +712,7 @@ def estimate_results(country, region, scenarios, regional_level):
             damage_low = query_fragility_curve(low, site['depth'])
             damage_baseline = query_fragility_curve(baseline, site['depth'])
             damage_high = query_fragility_curve(high, site['depth'])
-            
+
             output.append({
                 'radio': site['radio'],
                 'mcc': site['mcc'],

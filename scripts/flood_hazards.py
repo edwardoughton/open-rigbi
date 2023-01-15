@@ -129,6 +129,84 @@ def process_flood_layer(country, path_in, path_out):
     return
 
 
+def process_flooding_extent_stats(country, region):
+    """
+    Get aggregate statistics on flooding extent by region.
+
+    """
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'hazards', 'flooding')
+    folder_out = os.path.join(folder, 'scenario_stats')
+
+    if not os.path.exists(folder_out):
+        os.mkdir(folder_out)
+
+    filenames = os.listdir(folder)#[:20]
+
+    metrics = []
+
+    for filename in filenames:
+
+        print('Working on {}'.format(filename))
+
+        raster = rasterio.open(os.path.join(folder, filename))
+
+        try:
+            data = raster.read(1)
+        except:
+            continue
+
+        output = []
+        depths = []
+
+        for idx, row in enumerate(data):
+            for idx2, i in enumerate(row):
+                if i > 0 and i < 10:
+                    coords = raster.transform * (idx2, idx)
+                    depths.append(i)
+
+        depths.sort()
+
+        if 'river' in filename:
+            hazard = filename.split('_')[0]
+            climate_scenario = filename.split('_')[1]
+            model = filename.split('_')[2]
+            year = filename.split('_')[3]
+            return_period = filename.split('_')[4][:-4]
+            percentile = '-'
+
+        if 'coast' in filename:
+            hazard = filename.split('_')[0]
+            climate_scenario = filename.split('_')[1]
+            model = filename.split('_')[2]
+            year = filename.split('_')[3]
+            return_period = filename.split('_')[4]
+            remaining_portion = filename.split('_')[5]
+            if remaining_portion == '0.tif':
+                percentile = 0
+            else:
+                percentile = filename.split('_')[7][:-4]
+
+        metrics.append({
+            'hazard': hazard,
+            'climate_scenario': climate_scenario,
+            'model': model,
+            'year': year,
+            'return_period': return_period,
+            'percentile': percentile,
+            'min_depth': round(min(depths),2),
+            'mean_depth': sum(depths) / len(depths),
+            'median_depth': depths[len(depths)//2],
+            'max_depth': max(depths),
+            'flooded_area_km2': len(depths),
+        })
+
+    metrics = pd.DataFrame(metrics)
+    filename = "{}_scenario_stats.csv".format(country['iso3'])
+    metrics.to_csv(os.path.join(folder_out, filename), index=False)
+
+    return
+
+
 def process_surface_water(country, region):
     """
     Load in intersecting raster layers, and export large
