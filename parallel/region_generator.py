@@ -41,9 +41,9 @@ def get_regional_id_information(countries):
         )
 
         path = os.path.join(folder, filename)
-
+        
         if os.path.exists(path):
-
+            
             regions = gpd.read_file(path)#[:1] 
             regions = regions[gid_level]
             regions = regions.tolist()
@@ -61,10 +61,11 @@ if __name__ == "__main__":
 
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
-
-    #countries = countries[countries['iso3'] == 'GBR']
+    
+    countries = countries[countries['iso3'] == 'USA']
+    
     regions = get_regional_id_information(countries)
-
+    
     random.shuffle(regions)
 
     print(*regions, sep='\n')

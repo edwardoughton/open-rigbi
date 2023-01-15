@@ -55,8 +55,8 @@ def run_site_processing(region):
     # print('Working on process_country_shapes')
     # process_country_shapes(iso3)
 
-    # print('Working on process_regions')
-    # process_regions(iso3, regional_level)
+    #print('Working on process_regions')
+    #process_regions(iso3, regional_level)
 
     # print('Working on create_national_sites_shp')
     # create_national_sites_shp(iso3)
@@ -97,8 +97,8 @@ def run_site_processing(region):
     # print('Estimate model-mean')
     # estimate_model_mean(country, region, scenarios, regional_level)
 
-    #print('Estimating results')
-    #estimate_results(country, region, scenarios, regional_level)
+    print('Estimating results')
+    estimate_results(country, region, scenarios, regional_level)
 
     print('Converting to regional results')
     convert_to_regional_results(country, region, scenarios)
@@ -680,7 +680,7 @@ def estimate_results(country, region, scenarios, regional_level):
 
         gid_id = region#[gid_level]
         scenario_name = os.path.basename(scenario)[:-4]
-
+        print(scenario_name)
         # if not gid_id == 'EGY.1_1':
         #     continue
 
@@ -708,7 +708,7 @@ def estimate_results(country, region, scenarios, regional_level):
             damage_low = query_fragility_curve(low, site['depth'])
             damage_baseline = query_fragility_curve(baseline, site['depth'])
             damage_high = query_fragility_curve(high, site['depth'])
-            print(idx, damage_baseline)
+            
             output.append({
                 'radio': site['radio'],
                 'mcc': site['mcc'],
@@ -783,6 +783,9 @@ def query_fragility_curve(f_curve, depth):
             return item['damage']
         else:
             continue
+
+    if depth >= max([d['depth_upper_m'] for d in f_curve]):
+        return 1
 
     print('fragility curve failure: {}'.format(depth))
 
@@ -1062,7 +1065,7 @@ def collect_regional_results(collection_type):
         output = []
 
         scenario_name = os.path.basename(scenario)[:-4]
-        print(scenario_name)
+        #print(scenario_name)
         path_out = os.path.join(folder_out, scenario_name + '.csv')
 
         for idx, country in countries.iterrows():
