@@ -1151,7 +1151,7 @@ def collect_country_regional_results(iso3, scenario):
             data = data.to_dict('records')
             output = output + data
         except:
-            print('failed on {})'.format(path_in))
+            print('failed on {}=)'.format(path_in))
 
     if len(output) == 0:
         #print('2. len of output = 0')
@@ -1176,5 +1176,8 @@ if __name__ == "__main__":
     region = args[1]
 
     if not region == 'collect':
-
+        
+        #try: 
         run_site_processing(region)
+        #except:
+        #    print('failed on {}'.format(region))

@@ -140,11 +140,14 @@ def process_flooding_extent_stats(country, region):
     if not os.path.exists(folder_out):
         os.mkdir(folder_out)
 
-    filenames = os.listdir(folder)#[:20]
+    filenames = os.listdir(folder)#[:1]
 
     metrics = []
 
     for filename in filenames:
+
+        if not '.tif' in filename:
+            continue
 
         print('Working on {}'.format(filename))
 
@@ -185,6 +188,10 @@ def process_flooding_extent_stats(country, region):
                 percentile = 0
             else:
                 percentile = filename.split('_')[7][:-4]
+
+        if len(depths) == 0:
+            continue
+
 
         metrics.append({
             'hazard': hazard,
