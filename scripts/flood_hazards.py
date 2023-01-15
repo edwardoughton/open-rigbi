@@ -43,6 +43,9 @@ def process_flooding_layers(country, scenarios):
 
     for scenario in scenarios:
 
+        if not 'river' in scenario:
+            continue
+
         filename = os.path.basename(scenario)
         path_in = os.path.join(hazard_dir, filename)
 
@@ -58,13 +61,14 @@ def process_flooding_layers(country, scenarios):
             if not os.path.exists(folder):
                 os.makedirs(folder)
 
-            # try:
-            process_flood_layer(country, path_in, path_out)
-            # except:
-            #     failures.append({
-            #         'iso3': iso3,
-            #         'filename': filename
-            #     })
+            try:
+                process_flood_layer(country, path_in, path_out)
+            except:
+                print('failed: {}'.format(scenario))
+                # failures.append({
+                #     'iso3': iso3,
+                #     'filename': filename
+                # })
 
     return
 
@@ -224,24 +228,27 @@ if __name__ == "__main__":
     countries = get_countries()
     scenarios = get_scenarios()
 
-    failures = []
+    # failures = []
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'RWA': #'GHA'
+        if not country['iso3'] == 'GBR': #'GHA'
             continue
 
         print('-Working on {}'.format(country['iso3']))
 
-        regions = [
-            'RWA.1_1',
-            'RWA.2_1',
-            'RWA.3_1',
-            'RWA.4_1',
-            'RWA.5_1',
-        ]
+        process_flooding_layers(country, scenarios)
 
-        for region in regions:
-            process_surface_water(country, region)  #'RWA.1_1'
 
-    print(failures)
+        # regions = [
+        #     'RWA.1_1',
+        #     'RWA.2_1',
+        #     'RWA.3_1',
+        #     'RWA.4_1',
+        #     'RWA.5_1',
+        # ]
+
+        # for region in regions:
+        #     process_surface_water(country, region)  #'RWA.1_1'
+
+    # print(failures)

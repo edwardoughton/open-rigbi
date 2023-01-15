@@ -862,7 +862,7 @@ def convert_to_regional_results(country, region, scenarios):
                 if item['cost_usd_low'] > 0:
                     cell_count_low += 1
                     cost_usd_low += item['cost_usd_low']
- 
+
                 if item['cost_usd_baseline'] > 0:
                     cell_count_baseline += 1
                     cost_usd_baseline += item['cost_usd_baseline']
@@ -1170,47 +1170,4 @@ if __name__ == "__main__":
 
     if not region == 'collect':
 
-        run_site_processing(region) #MWI.13.2_1
-
-    # else:
-
-    #     if len(args[2]) > 0:
-    #         # collect_final_results(args[2])
-    #         collect_regional_results(args[2])
-    #     else:
-    #         # collect_final_results('all')
-    #         collect_regional_results('all')
-
-    # countries = get_countries()
-
-    # failures = []
-
-    # for idx, country in countries.iterrows():
-
-    #     try:
-    #         print('Trying {}'.format(country['iso3']))
-    #         run_site_processing(country['iso3'])
-    #     except:
-    #         print('--Failed on {}'.format(country['iso3']))
-    #         failures.append(country['iso3'])
-
-    # print(failures)
-
-    #countries = get_countries()
-
-    #for idx, country in countries.iterrows():
-
-    #    if not country['iso3'] == 'ARE':
-    #        continue
-
-    #    regions = get_regions(country, country['gid_region'])#[:2]
-    #    print(regions)
-
-    #    for idx, region in regions.iterrows():
-
-            #if not region['GID_1'] == 'MWI.12_1':
-            #    continue
-            #print(region)
-    #        gid_level = 'GID_{}'.format(country['gid_region'])
-
-    #        run_site_processing(region[gid_level])
+        run_site_processing(region)

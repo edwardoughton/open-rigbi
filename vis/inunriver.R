@@ -10,10 +10,10 @@ library(stringr)
 ###################
 #####Aggregate cells
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, 'results')
+data_directory = file.path(folder, 'results_v2')
 setwd(data_directory)
 
-metric_files <- list.files(data_directory, pattern="*.csv")
+metric_files <- list.files(data_directory, pattern="inunriver")
 
 empty_df <- data.frame(iso3=character(),
                        iso2=character(), 
@@ -21,8 +21,13 @@ empty_df <- data.frame(iso3=character(),
                        continent=character(),
                        radio=character(),
                        # network=character(),
-                       cell_count=numeric(),
-                       cost_usd=numeric()) 
+                       cell_count_low=numeric(),
+                       cell_count_baseline=numeric(),
+                       cell_count_high=numeric(),
+                       cost_usd_low=numeric(),
+                       cost_usd_baseline=numeric(),
+                       cost_usd_high=numeric()
+) 
 
 import_function = lapply(metric_files, function(x) {
   df <- read.csv(x, header = T, sep = ",")
@@ -157,7 +162,7 @@ inunriver = data[data$hazard_type == 'inunriver',]
 inunriver  = inunriver %>% 
   group_by(climatescenario, subsidence_model, year, 
            probability, returnperiod) %>% 
-  summarise(cell_count = round(sum(cell_count)/1e6,2))
+  summarise(cell_count = round(sum(cell_count_baseline)/1e6,2))
 
 historical = inunriver[inunriver$year == '1980',]
 
