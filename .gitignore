@@ -135,6 +135,8 @@ data/raw/hazard_scenarios/*
 data/test/
 
 results/*
+vis/results_v1/*
+vis/results_v2/*
 vis/figures/*
 vis/results/*
 data/raw/*
