@@ -10,18 +10,29 @@ setwd(data_directory)
 
 data = read_csv('scenario_stats.csv')
 
+data$mean_depth = gsub("-", 'NA', data$mean_depth)
+data$max_depth = gsub("-", 'NA', data$max_depth)
+data$flooded_area_km2 = gsub("-", 'NA', data$flooded_area_km2)
+
+data$mean_depth = as.numeric(as.character(data$mean_depth))
+data$max_depth = as.numeric(as.character(data$max_depth))
+data$flooded_area_km2 = as.numeric(as.character(data$flooded_area_km2))
+
 data = data %>%
-  group_by(hazard, income_group, climate_scenario, model, year, 
+  group_by(hazard, #income_group, 
+           climate_scenario, model, year, 
            return_period, percentile) %>%
   summarize(
-    mean_depth = mean(mean_depth),
-    max_depth = max(max_depth),
-    flooded_area_km2 = sum(flooded_area_km2)
+    # mean_depth = mean(mean_depth, na.rm = TRUE),
+    # max_depth = max(max_depth, na.rm = TRUE),
+    flooded_area_km2 = sum(flooded_area_km2, na.rm = TRUE)
   )
+
+write_csv(data, 'global_scenario_stats.csv')
 
 data = data[data$percentile != 5,]
 
-write_csv(data, 'global_scenario_stats.csv')
+
 
 data = data[data$hazard == 'inuncoast',]
 
