@@ -39,13 +39,12 @@ def process_flooding_layers(country, scenarios):
     name = country['country']
 
     hazard_dir = os.path.join(DATA_RAW, 'flood_hazard')
-    # paths = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:5]
 
     for scenario in scenarios:
 
         #if not 'river' in scenario:
         #    continue
-        #print(scenario)
+
         #if not os.path.basename(scenario) == 'inuncoast_historical_wtsub_2050_rp0100_0.tif':
         #    continue
 
@@ -57,20 +56,19 @@ def process_flooding_layers(country, scenarios):
             os.makedirs(folder)
         path_out = os.path.join(folder, filename)
 
-        #if not os.path.exists(path_out):
+        if not os.path.exists(path_out):
 
-        print('--{}: {}'.format(name, filename))
+            print('--{}: {}'.format(name, filename))
 
-        if not os.path.exists(folder):
-            os.makedirs(folder)
+            if not os.path.exists(folder):
+                os.makedirs(folder)
 
-        try:
-            process_flood_layer(country, path_in, path_out)
-        except:
-            
-            print('{} failed: {}'.format(country['iso3'], scenario))
-            continue
-        
+            try:
+                process_flood_layer(country, path_in, path_out)
+            except:
+                print('{} failed: {}'.format(country['iso3'], scenario))
+                continue
+
 
 	    #failures.append({
             #     'iso3': iso3,
@@ -136,56 +134,158 @@ def process_flood_layer(country, path_in, path_out):
     return
 
 
+def process_regional_flooding_layers(country, region, scenarios):
+    """
+    Process each flooding layer at the regional level.
+
+    """
+    iso3 = country['iso3']
+    name = country['country']
+
+    hazard_dir = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding')
+
+    for scenario in scenarios:
+
+        #if not 'river' in scenario:
+        #    continue
+
+        #if not os.path.basename(scenario) == 'inuncoast_historical_wtsub_2050_rp0100_0.tif':
+        #    continue
+
+        filename = os.path.basename(scenario)
+        path_in = os.path.join(hazard_dir, filename)
+
+        folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional')
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        path_out = os.path.join(folder, region + '_' + filename)
+
+        if not os.path.exists(path_out):
+
+            print('--{}: {}'.format(name, filename))
+
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+
+            try:
+                process_regional_flood_layer(country, region, path_in, path_out)
+            except:
+                print('{} failed: {}'.format(country['iso3'], scenario))
+                continue
+
+	    #failures.append({
+            #     'iso3': iso3,
+            #     'filename': filename
+            # })
+
+    return
+
+
+def process_regional_flood_layer(country, region, path_in, path_out):
+    """
+    Clip the hazard layer to the chosen country boundary
+    and place in desired country folder.
+
+    Parameters
+    ----------
+    country : dict
+        Contains all desired country information.
+    path_in : string
+        The path for the chosen global hazard file to be processed.
+    path_out : string
+        The path to write the clipped hazard file.
+
+    """
+    iso3 = country['iso3']
+    regional_level = country['gid_region']
+    gid_level = 'GID_{}'.format(regional_level)
+
+    hazard = rasterio.open(path_in, 'r+', BIGTIFF='YES')
+    hazard.nodata = 255
+    hazard.crs.from_epsg(4326)
+
+    iso3 = country['iso3']
+    filename = 'regions_{}_{}.shp'.format(regional_level, iso3)
+    path_country = os.path.join(DATA_PROCESSED, iso3, 'regions', filename)
+
+    if os.path.exists(path_country):
+        regions = gpd.read_file(path_country)
+        region = regions[regions[gid_level] == region]
+    else:
+        print('Must generate national_outline.shp first' )
+        return
+
+    geo = gpd.GeoDataFrame()
+
+    geo = gpd.GeoDataFrame({'geometry': region['geometry']})
+
+    coords = [json.loads(geo.to_json())['features'][0]['geometry']]
+
+    out_img, out_transform = mask(hazard, coords, crop=True)
+
+    out_meta = hazard.meta.copy()
+
+    out_meta.update({"driver": "GTiff",
+                    "height": out_img.shape[1],
+                    "width": out_img.shape[2],
+                    "transform": out_transform,
+                    "crs": 'epsg:4326'})
+
+    with rasterio.open(path_out, "w", **out_meta) as dest:
+            dest.write(out_img)
+
+    return
+
+
 def process_flooding_extent_stats(country, region, scenarios):
     """
     Get aggregate statistics on flooding extent by region.
 
     """
     print('Working on {}'.format(country['iso3']))
-    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'hazards', 'flooding')
-    folder_out = os.path.join(DATA_PROCESSED,'results','validation','country_data',country['iso3'])
-    #folder_out = os.path.join(folder, 'scenario_stats')
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'hazards', 'flooding', 'regional')
 
-    if not os.path.exists(folder_out):
-        os.makedirs(folder_out)
+    for scenario_path in scenarios:#[:1]:
 
-    #filenames = os.listdir(folder)#[:1]
+        # if not 'river' in scenario_path:
+        #     continue
+        # print(scenario_path)
+        filename = os.path.basename(scenario_path).replace('.tif','')
+        # print(filename)
+        folder_out = os.path.join(DATA_PROCESSED,'results','validation','country_data',
+            country['iso3'], 'regional', filename)
 
-    #metrics = []
+        if not os.path.exists(folder_out):
+            os.makedirs(folder_out)
 
-    for scenario_path in scenarios:
-
-        filename = os.path.basename(scenario_path)
-        
-        path_out = os.path.join(folder_out, filename[:-4] + '.csv')
+        path_out = os.path.join(folder_out, region + '_' + filename + '.csv')
 
         if os.path.exists(path_out):
             continue
 
         print('Working on {}'.format(filename))
-        
+
         metrics = []
 
-        path = os.path.join(folder, filename)
-        
-        try:        
-            raster = rasterio.open(path)
-            data = raster.read(1)
-            #print('loaded data')
-        except:
-            print('reading failed {}'.format(filename))
-            continue
-        
+        path = os.path.join(folder,  region + '_' + filename + '.tif')
+
+        # try:
+        raster = rasterio.open(path)
+        data = raster.read(1)
+        # except:
+        #     print('reading failed {}'.format(filename))
+        #     continue
+
         output = []
         depths = []
 
         #print('working on raster loops')
         for idx, row in enumerate(data):
             for idx2, i in enumerate(row):
-                if i > 0 and i < 100:
+                if i > 0 and i < 150:
                     coords = raster.transform * (idx2, idx)
                     depths.append(i)
-        #print(len(depths))            
+
         depths.sort()
 
         if 'river' in filename:
@@ -193,7 +293,7 @@ def process_flooding_extent_stats(country, region, scenarios):
             climate_scenario = filename.split('_')[1]
             model = filename.split('_')[2]
             year = filename.split('_')[3]
-            return_period = filename.split('_')[4][:-4]
+            return_period = filename.split('_')[4]#[:-4]
             percentile = '-'
 
         if 'coast' in filename:
@@ -203,10 +303,10 @@ def process_flooding_extent_stats(country, region, scenarios):
             year = filename.split('_')[3]
             return_period = filename.split('_')[4]
             remaining_portion = filename.split('_')[5]
-            if remaining_portion == '0.tif':
+            if remaining_portion == '0':
                 percentile = 0
             else:
-                percentile = filename.split('_')[7][:-4]
+                percentile = filename.split('_')[7]#[:-4]
 
         if len(depths) == 0:
             continue
