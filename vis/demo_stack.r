@@ -185,7 +185,6 @@ data_aggregated = data_aggregated[data_aggregated$interaction != 'Historical his
 data_aggregated = data_aggregated[data_aggregated$interaction != 'Historical 2030',] 
 data_aggregated = data_aggregated[data_aggregated$interaction != 'Historical 2050',] 
 data_aggregated = data_aggregated[data_aggregated$interaction != 'Historical 2080',] 
-# hist = hist[hist$year == 'hist', ]
 hist$interaction = "Historical 1980"
 data_aggregated = rbind(data_aggregated, hist)
 
@@ -207,7 +206,7 @@ df_errorbar <-
     high = sum(high)
   )
 
-max_y_value = max(df_errorbar$mean, na.rm = T)
+max_y_value = max(df_errorbar$high, na.rm = T)
 
 plot1 = 
   ggplot(data_aggregated, 
@@ -218,7 +217,7 @@ plot1 =
                 lwd = 0.2,
                 show.legend = FALSE, width=0.4,  color="#FF0000FF") +
   geom_text(data = df_errorbar, aes(label = paste(round(mean,2),"Mn")), size = 1.8,
-            position = position_dodge(1), vjust =.5, hjust =-.7, angle = 90) +
+            position = position_dodge(1), vjust =.5, hjust =-.8, angle = 90) +
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
@@ -227,7 +226,7 @@ plot1 =
        x = "Annual Probability", y = "Cells (Millions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
-  guides(fill=guide_legend(ncol=3, title='Scenario')) +
+  guides(fill=guide_legend(ncol=5, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
   scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+(max_y_value/3))) +
@@ -262,7 +261,7 @@ df_errorbar <-
     mean = sum(mean),
     high = sum(high)
   )
-max_y_value = max(df_errorbar$mean, na.rm = T)
+max_y_value = max(df_errorbar$high, na.rm = T)
 
 plot2 = 
   ggplot(data_aggregated, 
@@ -272,7 +271,7 @@ plot2 =
                 position = position_dodge(1),
                 lwd = 0.2,
                 show.legend = FALSE, width=0.4,  color="#FF0000FF") +
-  geom_text(data = df_errorbar, aes(label = paste(round(mean,2),"Mn")), size = 1.8,
+  geom_text(data = df_errorbar, aes(label = paste(round(mean,1),"Bn")), size = 1.8,
             position = position_dodge(1), vjust =.5, hjust =-.7, angle = 90) +
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
@@ -282,10 +281,10 @@ plot2 =
        x = "Annual Probability", y = "Damage Cost (USD Billions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
-  guides(fill=guide_legend(ncol=3, title='Scenario')) +
+  guides(fill=guide_legend(ncol=5, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+(max_y_value/3))) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+(max_y_value/2.5))) +
   facet_wrap(~probability, ncol=4, nrow=1)
 
 ggarrange(
@@ -509,7 +508,7 @@ ggplot(data_aggregated,
        x = "Annual Probability", y = "Cells (Millions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
-  guides(fill=guide_legend(ncol=3, title='Scenario')) +
+  guides(fill=guide_legend(ncol=5, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
   scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+(max_y_value/3))) +
@@ -567,8 +566,8 @@ ggplot(data_aggregated,
                 position = position_dodge(1),
                 lwd = 0.2,
                 show.legend = FALSE, width=0.4,  color="#FF0000FF") +
-  geom_text(data = df_errorbar, aes(label = paste(round(mean,2),"Mn")), size = 1.8,
-            position = position_dodge(1), vjust =.5, hjust =-.7, angle = 90) +
+  geom_text(data = df_errorbar, aes(label = paste(round(mean,1),"Bn")), size = 1.8,
+            position = position_dodge(1), vjust =.5, hjust =-.8, angle = 90) +
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
@@ -577,10 +576,10 @@ ggplot(data_aggregated,
        x = "Annual Probability", y = "Damage Cost (USD Billions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
-  guides(fill=guide_legend(ncol=3, title='Scenario')) +
+  guides(fill=guide_legend(ncol=5, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+(max_y_value/3))) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+(max_y_value/2.5))) +
   facet_wrap(~probability, ncol=4, nrow=1)
 
 
