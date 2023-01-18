@@ -35,6 +35,9 @@ def get_regional_id_information(countries):
         #    'BFA','UBZ','BMU','BTN','CYM','DJI','FRO','ISR','KNA','LCA','MLI','MNG','MUS','PRY','TCA','WSM']: #'GHA'
         #    continue
 
+        if not country['iso3'] in ['USA','ROU','COL']:
+            continue
+
         gid_level = 'GID_{}'.format(country['gid_region'])
 
         folder = os.path.join(DATA_PROCESSED, country['iso3'], 'regions')
@@ -48,7 +51,7 @@ def get_regional_id_information(countries):
         
         if os.path.exists(path):
             
-            regions = gpd.read_file(path)[:1] 
+            regions = gpd.read_file(path)#[:1] 
             regions = regions[gid_level]
             regions = regions.tolist()
 
