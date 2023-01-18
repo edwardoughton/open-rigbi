@@ -47,8 +47,8 @@ def run_site_processing(region):
 
     # regional_level = int(country['gid_region'])
 
-    # print('Getting scenarios')
-    # scenarios = get_scenarios()#[:5]
+    print('Getting scenarios')
+    scenarios = get_scenarios()#[:5]
 
     # print('Working on create_national_sites_csv')
     # create_national_sites_csv(country)
@@ -89,11 +89,11 @@ def run_site_processing(region):
     #     print('Working on create_regional_sites_layer')
     #     create_regional_sites_layer(iso3, 2, region)
 
-    # #print('Working on process_flooding_layers')
-    # #process_flooding_layers(country, scenarios)
+    #print('Working on process_flooding_layers')
+    #process_flooding_layers(country, scenarios)
 
     print('Working on process_flooding_extent_stats')
-    process_flooding_extent_stats(country, region)
+    process_flooding_extent_stats(country, region, scenarios)
 
     # print('Working on query_hazard_layers')
     # query_hazard_layers(country, region, scenarios, regional_level)
@@ -1181,3 +1181,39 @@ if __name__ == "__main__":
         run_site_processing(region)
         #except:
         #    print('failed on {}'.format(region))
+    #countries = get_countries()
+
+#    for idx, country in countries.iterrows():
+#
+   #     if not country['iso3'] in [
+   #         'BHS',
+   #         'DNK',
+   #         'DZA',
+   #         'FIN',
+   #         'GAB',
+   #         'GNB',
+   #         'IDN',
+   #         'ITA',
+   #         'JPN',
+   #         'KEN',
+   #         'LBY',
+   #         'MDG',
+   #         'MEX',
+   #         'MNE',
+   #         'MOZ',
+   #         'PAN',
+   #         'PER',
+   #         'PNG',
+   #         'POL',
+   #         'PYF',
+   #         'SDN',
+   #         'VNM',
+   #         'YEM'
+   #         ]:
+   #         continue            
+   #     run_site_processing(country['iso3'])
+
+
+
+
+    

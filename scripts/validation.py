@@ -23,7 +23,7 @@ def collect_scenario_statistics():
     """
     countries = get_countries()
 
-    folder_out = os.path.join(BASE_PATH, '..', 'results', 'validation')
+    folder_out = os.path.join(BASE_PATH, '..', 'data', 'processed', 'results', 'validation')
     if not os.path.exists(folder_out):
         os.mkdir(folder_out)
 
@@ -38,12 +38,21 @@ def collect_scenario_statistics():
         if not os.path.exists(path):
             continue
 
-        data = pd.read_csv(path)
-        data = data.to_dict('records')
-        output = output + data
+        #print('Working on {}'.format(country['iso3']))
 
+        try:
+            data = pd.read_csv(path)
+            data['iso3'] = country['iso3']
+            data['country'] = country['country']
+            data['continent'] = country['continent']
+            data['income_group'] = country['income_group']
+            data = data.to_dict('records')
+            output = output + data
+        except:
+            print('Failed on {}'.format(country['iso3']))
+        
     output = pd.DataFrame(output)
-    output.to_csv(os.path.join(folder_out, 'scenario_stats.csv'))
+    output.to_csv(os.path.join(folder_out, 'scenario_stats.csv'), index=False)
 
     return
 
