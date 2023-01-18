@@ -21,7 +21,7 @@ import random
 from misc import (process_country_shapes, process_regions, params, technologies,
     get_countries, get_regions, get_scenarios)
 from flood_hazards import (process_flooding_layers, process_surface_water,
-    process_flooding_extent_stats)
+    process_regional_flooding_layers, process_flooding_extent_stats)
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -89,8 +89,11 @@ def run_site_processing(region):
     #     print('Working on create_regional_sites_layer')
     #     create_regional_sites_layer(iso3, 2, region)
 
-    #print('Working on process_flooding_layers')
-    #process_flooding_layers(country, scenarios)
+    # print('Working on process_flooding_layers')
+    # process_flooding_layers(country, scenarios)
+
+    print('Working on process_regional_flooding_layers')
+    process_regional_flooding_layers(country, region, scenarios)
 
     print('Working on process_flooding_extent_stats')
     process_flooding_extent_stats(country, region, scenarios)
@@ -1176,8 +1179,8 @@ if __name__ == "__main__":
     region = args[1]
 
     #if not region == 'collect':
-        
-        #try: 
+
+        #try:
     run_site_processing(region)
         #except:
         #    print('failed on {}'.format(region))
@@ -1210,10 +1213,5 @@ if __name__ == "__main__":
    #         'VNM',
    #         'YEM'
    #         ]:
-   #         continue            
+   #         continue
    #     run_site_processing(country['iso3'])
-
-
-
-
-    
