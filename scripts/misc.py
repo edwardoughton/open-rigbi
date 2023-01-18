@@ -117,16 +117,21 @@ def get_scenarios():
         'rp01000'
     ]
 
-    mean_scenarios = generate_mean_scenarios(scenarios, return_periods)
+    #mean_scenarios = generate_mean_scenarios(scenarios, return_periods)
 
-    scenarios = scenarios + mean_scenarios
+    scenarios = scenarios #+ mean_scenarios
 
     for scenario in scenarios:
 
         if any(x in scenario for x in return_periods): #specify return periods
 
             if 'inuncoast' and 'wtsub' in scenario:
-                #if 'wtsub_hist' in scenario:
+                if 'historical' and '2050' in scenario:
+                    continue
+                if 'historical' and '2030' in scenario:
+                    continue
+                if 'historical' and '2080' in scenario:
+                    continue
                 output.add(scenario)
             elif 'inunriver' in scenario: #and 'MIROC-ESM-CHEM'
                 if not 'historical' in scenario:
