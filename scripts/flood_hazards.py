@@ -336,11 +336,11 @@ if __name__ == "__main__":
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] in ['ARG',
+        #if not country['iso3'] in ['ARG',
             #'BEL','BIH','BRB','EST','GUM','KHM','LSO','TWN','VGB', 'AND',
             #'BFA','UBZ','BMU','BTN','CYM','DJI','FRO','ISR','KNA','LCA','MLI','MNG','MUS','PRY','TCA','WSM'
-            ]: #'GHA'
-            continue
+        #    ]: #'GHA'
+        #    continue
 
         print('-Working on {}'.format(country['iso3']))
 

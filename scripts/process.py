@@ -1175,10 +1175,10 @@ if __name__ == "__main__":
 
     region = args[1]
 
-    if not region == 'collect':
+    #if not region == 'collect':
         
         #try: 
-        run_site_processing(region)
+    run_site_processing(region)
         #except:
         #    print('failed on {}'.format(region))
     #countries = get_countries()
