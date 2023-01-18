@@ -31,6 +31,10 @@ def get_regional_id_information(countries):
 
     for idx, country in countries.iterrows():
 
+        #if not country['iso3'] in ['BEL','BIH','BRB','EST','GUM','KHM','LSO','TWN','VGB', 'AND',
+        #    'BFA','UBZ','BMU','BTN','CYM','DJI','FRO','ISR','KNA','LCA','MLI','MNG','MUS','PRY','TCA','WSM']: #'GHA'
+        #    continue
+
         gid_level = 'GID_{}'.format(country['gid_region'])
 
         folder = os.path.join(DATA_PROCESSED, country['iso3'], 'regions')
@@ -66,6 +70,6 @@ if __name__ == "__main__":
     
     regions = get_regional_id_information(countries)#[:1]
     
-    random.shuffle(regions)
+    #random.shuffle(regions)
 
     print(*regions, sep='\n')
