@@ -164,8 +164,8 @@ def process_regional_flooding_layers(country, region, scenarios):
 
             print('--{}: {}'.format(name, filename))
 
-            if not os.path.exists(folder):
-                os.makedirs(folder)
+            #if not os.path.exists(folder):
+            #    os.makedirs(folder)
 
             try:
                 process_regional_flood_layer(country, region, path_in, path_out)

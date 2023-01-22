@@ -35,8 +35,8 @@ def get_regional_id_information(countries):
         #    'BFA','UBZ','BMU','BTN','CYM','DJI','FRO','ISR','KNA','LCA','MLI','MNG','MUS','PRY','TCA','WSM']: #'GHA'
         #    continue
 
-        if not country['iso3'] in ['USA','ROU','COL']:
-            continue
+        #if not country['iso3'] in ['USA','ROU','COL']:
+        #    continue
 
         gid_level = 'GID_{}'.format(country['gid_region'])
 
@@ -73,6 +73,6 @@ if __name__ == "__main__":
     
     regions = get_regional_id_information(countries)#[:1]
     
-    #random.shuffle(regions)
+    random.shuffle(regions)
 
     print(*regions, sep='\n')
