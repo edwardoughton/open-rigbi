@@ -21,21 +21,19 @@ def collect(countries, scenarios):
     Collect validation results.
 
     """
-    output = []
-
     # gid_level = 'GID_{}'.format(country['gid_region'])
 
     folder_in = os.path.join(DATA_PROCESSED, 'results', 'validation', 'country_data')
     folder_out = os.path.join(DATA_PROCESSED, 'results', 'validation')
 
-    output = []
-
     for idx, country in countries.iterrows():
 
-        # if not country['iso3'] == 'AUS':
-        #     continue
+        if not country['iso3'] == 'USA':
+            continue
 
         print("Working on {}".format(country['iso3']))
+
+        output = []
 
         for scenario_path in scenarios:#[:1]:
 
@@ -116,8 +114,39 @@ def collect(countries, scenarios):
                 'flooded_area_km2': flooded_area_km2,
             })
 
+        output = pd.DataFrame(output)
+        final_folder = os.path.join(folder_in, country['iso3'])
+        if not os.path.exists(final_folder):
+            continue 
+        output.to_csv(os.path.join(final_folder, 'scenario_stats.csv'), index=False)
+
+    return
+
+
+def collect_all(countries):
+    """
+    Collect all results. 
+
+    """
+    folder_in = os.path.join(DATA_PROCESSED,'results','validation','country_data')
+
+    output = []
+
+    for idx, country in countries.iterrows():
+        
+        path = os.path.join(folder_in,country['iso3'],'scenario_stats.csv')
+
+        if not os.path.exists(path):
+            continue
+
+        data = pd.read_csv(path)
+
+        data = data.to_dict('records')
+
+        output = output + data
+
     output = pd.DataFrame(output)
-    output.to_csv(os.path.join(folder_out, 'scenario_stats.csv'), index=False)
+    output.to_csv(os.path.join(folder_in,'..','scenario_stats.csv'),index=False)
 
     return
 
@@ -128,3 +157,5 @@ if __name__ == "__main__":
     scenarios = get_scenarios()
 
     collect(countries, scenarios)
+
+    collect_all(countries)

@@ -35,8 +35,8 @@ def get_regional_id_information(countries):
         #    'BFA','UBZ','BMU','BTN','CYM','DJI','FRO','ISR','KNA','LCA','MLI','MNG','MUS','PRY','TCA','WSM']: #'GHA'
         #    continue
 
-        #if not country['iso3'] in ['USA','ROU','COL']:
-        #    continue
+        if not country['iso3'] in ['USA','IND','ARG','AFG']:
+            continue
 
         gid_level = 'GID_{}'.format(country['gid_region'])
 
@@ -54,7 +54,7 @@ def get_regional_id_information(countries):
             regions = gpd.read_file(path)#[:1] 
             regions = regions[gid_level]
             regions = regions.tolist()
-
+            regions = regions + regions + regions + regions
             output = output + regions
 
     return output

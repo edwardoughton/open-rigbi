@@ -107,13 +107,13 @@ def get_scenarios():
     scenarios = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:20]
 
     return_periods = [
-        'rp0100',
-        'rp0250',
-        'rp0500',
+        #'rp0100',
+        #'rp0250',
+        #'rp0500',
         'rp1000',
-        'rp00100',
-        'rp00250',
-        'rp00500',
+        #'rp00100',
+        #'rp00250',
+        #'rp00500',
         'rp01000'
     ]
 
@@ -125,6 +125,9 @@ def get_scenarios():
 
         if any(x in scenario for x in return_periods): #specify return periods
 
+            if 'inuncoast' in scenario:
+                continue
+
             if 'inuncoast' and 'wtsub' in scenario:
                 #if 'historical' in scenario:
                 #    if '2030' or '2050' or '2080' in scenario:
@@ -132,13 +135,16 @@ def get_scenarios():
                 if not 'hist' in scenario:
                     output.add(scenario)
                 
-            elif 'inunriver' in scenario: #and 'MIROC-ESM-CHEM'
+            if 'inunriver' and 'MIROC-ESM-CHEM' in scenario:
                 if not 'historical' in scenario:
                     output.add(scenario)
             else:
                 continue
 
         if 'historical' in scenario:
+
+            if 'inuncoast' in scenario:
+                continue
 
             if any(x in scenario for x in return_periods): #specify return periods
                 if 'inuncoast_historical_wtsub_hist' in scenario:

@@ -89,8 +89,8 @@ def run_site_processing(region):
     #     print('Working on create_regional_sites_layer')
     #     create_regional_sites_layer(iso3, 2, region)
 
-    # print('Working on process_flooding_layers')
-    # process_flooding_layers(country, scenarios)
+    #print('Working on process_flooding_layers')
+    #process_flooding_layers(country, scenarios)
 
     print('Working on process_regional_flooding_layers')
     process_regional_flooding_layers(country, region, scenarios)
@@ -1174,21 +1174,27 @@ def collect_country_regional_results(iso3, scenario):
 
 if __name__ == "__main__":
 
-    args = sys.argv
+    #args = sys.argv
 
-    region = args[1]
+    #region = args[1]
 
     #if not region == 'collect':
 
         #try:
-    run_site_processing(region)
+    #run_site_processing(region)
         #except:
         #    print('failed on {}'.format(region))
     #countries = get_countries()
 
-#    for idx, country in countries.iterrows():
-#
-   #     if not country['iso3'] in [
+    #for idx, country in countries.iterrows():
+
+    #    if not country['iso3'] in [
+    #         'AFG',
+    #         'ARG',
+    #         'AUS',
+    #         'GBR',
+    #         'IND',
+    #         'LAO',
    #         'BHS',
    #         'DNK',
    #         'DZA',
@@ -1212,6 +1218,26 @@ if __name__ == "__main__":
    #         'SDN',
    #         'VNM',
    #         'YEM'
-   #         ]:
-   #         continue
-   #     run_site_processing(country['iso3'])
+     #       ]:
+     #       continue
+     #   run_site_processing(country['iso3'])
+    countries = get_countries()
+    for idx, country in countries.iterrows():
+        #if country['Exclude'] == '1':
+        #    continue
+        #run_site_processing(country)
+        if not country['iso3'] in ['USA']:#'IND','AFG','ARG','AUT']:
+            continue
+        
+        regions = get_regions(country,country['gid_region'])[:1]
+       
+        if len(regions) == 0:
+            continue
+        
+        for idx, region in regions.iterrows():
+            #print(region)  
+            gid_level = 'GID_{}'.format(country['gid_region'])
+            #try:
+            run_site_processing(region[gid_level])
+            #except:
+            #    continue
