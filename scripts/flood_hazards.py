@@ -40,12 +40,14 @@ def process_flooding_layers(country, scenarios):
 
     hazard_dir = os.path.join(DATA_RAW, 'flood_hazard')
 
-    for scenario in scenarios:
+    failures = [] 
 
-        #if not 'river' in scenario:
+    for scenario in scenarios[::-1]:
+
+        #if 'river' in scenario:
         #    continue
 
-        #if not os.path.basename(scenario) == 'inuncoast_historical_wtsub_2050_rp0100_0.tif':
+        #if not os.path.basename(scenario) == 'inuncoast_rcp4p5_wtsub_2080_rp0250_0.tif':
         #    continue
 
         filename = os.path.basename(scenario)
@@ -56,25 +58,23 @@ def process_flooding_layers(country, scenarios):
             os.makedirs(folder)
         path_out = os.path.join(folder, filename)
 
-        if not os.path.exists(path_out):
+        #if not os.path.exists(path_out):
 
-            print('--{}: {}'.format(name, filename))
+        print('--{}: {}'.format(name, filename))
 
-            if not os.path.exists(folder):
-                os.makedirs(folder)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
 
-            try:
-                process_flood_layer(country, path_in, path_out)
-            except:
-                print('{} failed: {}'.format(country['iso3'], scenario))
-                continue
-
-
-	    #failures.append({
-            #     'iso3': iso3,
-            #     'filename': filename
-            # })
-
+        try:
+            process_flood_layer(country, path_in, path_out)
+        except:
+            print('{} failed: {}'.format(country['iso3'], scenario))         
+            failures.append({
+                'iso3': country['iso3'],
+                'filename': filename
+                })
+            continue
+        print(failures)
     return
 
 
@@ -166,12 +166,12 @@ def process_regional_flooding_layers(country, region, scenarios):
 
             #if not os.path.exists(folder):
             #    os.makedirs(folder)
-
-            try:
-                process_regional_flood_layer(country, region, path_in, path_out)
-            except:
-                print('{} failed: {}'.format(country['iso3'], scenario))
-                continue
+            print(path_in)
+            #try:
+            process_regional_flood_layer(country, region, path_in, path_out)
+            #except:
+            #print('{} failed: {}'.format(country['iso3'], scenario))
+            #    continue
 
 	    #failures.append({
             #     'iso3': iso3,
@@ -214,7 +214,7 @@ def process_regional_flood_layer(country, region, path_in, path_out):
     else:
         print('Must generate national_outline.shp first' )
         return
-
+    print(regions)
     geo = gpd.GeoDataFrame()
 
     geo = gpd.GeoDataFrame({'geometry': region['geometry']})
@@ -249,9 +249,9 @@ def process_flooding_extent_stats(country, region, scenarios):
 
         # if not 'river' in scenario_path:
         #     continue
-        # print(scenario_path)
+        print(scenario_path)
         filename = os.path.basename(scenario_path).replace('.tif','')
-        # print(filename)
+        print(filename)
         folder_out = os.path.join(DATA_PROCESSED,'results','validation','country_data',
             country['iso3'], 'regional', filename)
 
@@ -279,7 +279,7 @@ def process_flooding_extent_stats(country, region, scenarios):
         output = []
         depths = []
 
-        #print('working on raster loops')
+        print('working on raster loops')
         for idx, row in enumerate(data):
             for idx2, i in enumerate(row):
                 if i > 0 and i < 150:
@@ -310,7 +310,7 @@ def process_flooding_extent_stats(country, region, scenarios):
 
         if len(depths) == 0:
             continue
-        #print('writing metrics')
+        print('writing metrics')
         metrics.append({
             'hazard': hazard,
             'climate_scenario': climate_scenario,
@@ -324,10 +324,10 @@ def process_flooding_extent_stats(country, region, scenarios):
             'max_depth': max(depths),
             'flooded_area_km2': len(depths),
         })
-        #print('converting to df')
+        print('converting to df')
         metrics = pd.DataFrame(metrics)
         #filename = "{}.csv".format(filename[:-4])
-        #print('writing to csv: {}'.format(path_out))
+        print('writing to csv: {}'.format(path_out))
         metrics.to_csv(path_out, index=False)
 
     return
@@ -436,13 +436,13 @@ if __name__ == "__main__":
 
     for idx, country in countries.iterrows():
 
-        #if not country['iso3'] in ['ARG',
+        if not country['iso3'] in ['USA',#'ARG',
             #'BEL','BIH','BRB','EST','GUM','KHM','LSO','TWN','VGB', 'AND',
             #'BFA','UBZ','BMU','BTN','CYM','DJI','FRO','ISR','KNA','LCA','MLI','MNG','MUS','PRY','TCA','WSM'
-        #    ]: #'GHA'
-        #    continue
+            ]: #'GHA'
+            continue
 
-        print('-Working on {}'.format(country['iso3']))
+    #    print('-Working on {}'.format(country['iso3']))
 
         process_flooding_layers(country, scenarios)
 
