@@ -134,7 +134,7 @@ def get_scenarios():
                 #    continue
                 if not 'hist' in scenario:
                     output.add(scenario)
-                
+
             if 'inunriver' and 'MIROC-ESM-CHEM' in scenario:
                 if not 'historical' in scenario:
                     output.add(scenario)
@@ -155,7 +155,38 @@ def get_scenarios():
                     continue
 
     output = list(output)
-    output.sort() 
+    output.sort()
+    return output#[:1]
+
+
+def get_tropical_storm_scenarios():
+    """
+
+    """
+    output = set()
+
+    hazard_dir = os.path.join(DATA_RAW,  'storm_data')
+
+    scenarios = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:20]
+
+    return_periods = [
+        "10_YR_RP",
+        "50_YR_RP",
+        "100_YR_RP",
+        "200_YR_RP",
+        "500_YR_RP",
+        "1000_YR_RP",
+        "10000_YR_RP",
+    ]
+
+    for scenario in scenarios:
+
+        if any(x in scenario for x in return_periods): #specify return periods
+
+            output.add(scenario)
+
+    output = list(output)
+    output.sort()
     return output#[:1]
 
 
@@ -312,8 +343,8 @@ def process_regions(iso3, level):
         folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
         path_processed = os.path.join(folder, filename)
 
-        if os.path.exists(path_processed):
-            continue
+        # if os.path.exists(path_processed):
+        #     continue
 
         print('Processing GID_{} region shapes'.format(regional_level))
 
@@ -328,7 +359,7 @@ def process_regions(iso3, level):
 
         regions = regions.copy()
         regions["geometry"] = regions.geometry.simplify(
-            tolerance=0.01, preserve_topology=True)
+            tolerance=0.005, preserve_topology=True)
 
         regions['geometry'] = regions.apply(remove_small_shapes, axis=1)
 
@@ -348,7 +379,12 @@ if __name__ == '__main__':
     # for country in countries:
     #     print(country)
 
-    scenarios = get_scenarios()
+    # scenarios = get_scenarios()
 
-    for scenario in scenarios:
+    # for scenario in scenarios:
+    #     print(scenario)
+
+    tropical_storm_scenarios = get_tropical_storm_scenarios()
+
+    for scenario in tropical_storm_scenarios:
         print(scenario)
