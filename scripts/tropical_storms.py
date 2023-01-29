@@ -2,6 +2,7 @@
 Process tropical storm data.
 
 """
+import sys
 import os
 import json
 import configparser
@@ -253,13 +254,112 @@ def process_regional_storm_layer(country, region, path_in, path_out):
     return
 
 
+def query_tropical_storm_layers(countries, scenario):
+    """
+    Query tropical storm hazard layers and estimate damage.
+
+    """
+    for idx, country in countries.iterrows():
+
+        # if not country['iso3'] == 'GBR':
+        #     continue
+
+        iso3 = country['iso3']
+        name = country['country']
+        regional_level = int(country['gid_region'])
+        gid_level = 'GID_{}'.format(regional_level) #regional_level
+
+        print('Working on {}'.format(iso3))
+
+        regions = get_regions(country, regional_level)
+
+        for idx, region_series in regions.iterrows():
+
+            region = region_series['GID_{}'.format(regional_level)]
+
+            # if not region == 'GBR.1.20_1':
+            #     continue
+
+            output = []
+
+            filename = '{}_{}.csv'.format(region, os.path.basename(scenario).replace('.tif',''))
+            folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'tropical_storm_scenarios')
+            if not os.path.exists(folder_out):
+                os.makedirs(folder_out)
+            path_output = os.path.join(folder_out, filename)
+
+            # if os.path.exists(path_output):
+            #     continue
+
+            filename = '{}.csv'.format(region)
+            folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
+            path = os.path.join(folder, filename)
+
+            if not os.path.exists(path):
+                continue
+
+            sites = pd.read_csv(path)#[:10]
+
+            failures = 0
+
+            for idx, site in sites.iterrows():
+
+                x = float(site['cellid4326'].split('_')[0])
+                y = float(site['cellid4326'].split('_')[1])
+
+                with rasterio.open(scenario) as src:
+
+                    src.kwargs = {'nodata':255}
+
+                    coords = [(x, y)]
+
+                    wind_speed = [sample[0] for sample in src.sample(coords)][0]
+
+                    output.append({
+                        'radio': site['radio'],
+                        'mcc': site['mcc'],
+                        'net': site['net'],
+                        'area': site['area'],
+                        'cell': site['cell'],
+                        'gid_level': gid_level,
+                        'gid_id': region,
+                        'cellid4326': site['cellid4326'],
+                        'cellid3857': site['cellid3857'],
+                        'wind_speed': wind_speed,
+                    })
+
+            if len(output) == 0:
+                return
+
+            if not os.path.exists(folder_out):
+                os.makedirs(folder_out)
+
+            output = pd.DataFrame(output)
+
+            output.to_csv(path_output, index=False)
+
+    return
+
+
 if __name__ == "__main__":
 
-    scenarios = get_tropical_storm_scenarios()#[:1]
+    args = sys.argv
+
+    scenario = args[1]
+
     countries = get_countries()
 
-    for scenario in scenarios:
+    query_tropical_storm_layers(countries, scenario)
 
-        process_tropical_storm_layers(countries, scenario)
 
-        process_regional_storm_layers(countries, scenario)
+
+    # countries = get_countries()
+    # scenarios = get_tropical_storm_scenarios()#[:1]
+
+    # for scenario in scenarios:
+
+    #     # process_tropical_storm_layers(countries, scenario)
+
+    #     # process_regional_storm_layers(countries, scenario)
+
+    #     query_tropical_storm_layers(countries, scenario)

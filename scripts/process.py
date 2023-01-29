@@ -44,59 +44,58 @@ def run_site_processing(region):
     countries = pd.read_csv(path, encoding='latin-1')
     country = countries[countries.iso3 == iso3]
     country = country.to_dict('records')[0]
+    regional_level = int(country['gid_region'])
 
-    # regional_level = int(country['gid_region'])
+    # print('Getting scenarios')
+    # scenarios = get_scenarios()#[:5]
 
-    print('Getting scenarios')
-    scenarios = get_scenarios()#[:5]
+    print('Working on create_national_sites_csv')
+    create_national_sites_csv(country)
 
-    # print('Working on create_national_sites_csv')
-    # create_national_sites_csv(country)
+    print('Working on process_country_shapes')
+    process_country_shapes(iso3)
 
-    # print('Working on process_country_shapes')
-    # process_country_shapes(iso3)
+    print('Working on process_regions')
+    process_regions(iso3, regional_level)
 
-    #print('Working on process_regions')
-    #process_regions(iso3, regional_level)
-
-    # print('Working on create_national_sites_shp')
-    # create_national_sites_shp(iso3)
+    print('Working on create_national_sites_shp')
+    create_national_sites_shp(iso3)
 
     # # print('Working on process_surface_water_layers')
     # # process_surface_water(country, region)
 
-    # if regional_level == 1:
+    if regional_level == 1:
 
-    #     print('Working on segment_by_gid_1')
-    #     segment_by_gid_1(iso3, 1, region)
+        print('Working on segment_by_gid_1')
+        segment_by_gid_1(iso3, 1, region)
 
-    #     print('Working on create_regional_sites_layer')
-    #     create_regional_sites_layer(iso3, 1, region)
+        print('Working on create_regional_sites_layer')
+        create_regional_sites_layer(iso3, 1, region)
 
-    # if regional_level == 2:
+    if regional_level == 2:
 
-    #     gid_1 = get_gid_1(region)
+        gid_1 = get_gid_1(region)
 
-    #     print('Working on segment_by_gid_1')
-    #     segment_by_gid_1(iso3, 1, gid_1)
+        print('Working on segment_by_gid_1')
+        segment_by_gid_1(iso3, 1, gid_1)
 
-    #     print('Working on create_regional_sites_layer')
-    #     create_regional_sites_layer(iso3, 1, gid_1)
+        print('Working on create_regional_sites_layer')
+        create_regional_sites_layer(iso3, 1, gid_1)
 
-    #     print('Working on segment_by_gid_2')
-    #     segment_by_gid_2(iso3, 2, region, gid_1)
+        print('Working on segment_by_gid_2')
+        segment_by_gid_2(iso3, 2, region, gid_1)
 
-    #     print('Working on create_regional_sites_layer')
-    #     create_regional_sites_layer(iso3, 2, region)
+        print('Working on create_regional_sites_layer')
+        create_regional_sites_layer(iso3, 2, region)
 
     #print('Working on process_flooding_layers')
     #process_flooding_layers(country, scenarios)
 
-    print('Working on process_regional_flooding_layers')
-    process_regional_flooding_layers(country, region, scenarios)
+    # print('Working on process_regional_flooding_layers')
+    # process_regional_flooding_layers(country, region, scenarios)
 
-    print('Working on process_flooding_extent_stats')
-    process_flooding_extent_stats(country, region, scenarios)
+    # print('Working on process_flooding_extent_stats')
+    # process_flooding_extent_stats(country, region, scenarios)
 
     # print('Working on query_hazard_layers')
     # query_hazard_layers(country, region, scenarios, regional_level)
@@ -122,34 +121,36 @@ def create_national_sites_csv(country):
 
     filename = "mobile_codes.csv"
     path = os.path.join(DATA_RAW, filename)
-
     mobile_codes = pd.read_csv(path)
-    mobile_codes = mobile_codes[['iso3', 'mcc']].drop_duplicates()
+    mobile_codes = mobile_codes[['iso3', 'mcc', 'mnc']].drop_duplicates()
     all_mobile_codes = mobile_codes[mobile_codes['iso3'] == iso3]
     all_mobile_codes = all_mobile_codes.to_dict('records')
 
     output = []
 
-    for row in all_mobile_codes:
+    filename = '{}.csv'.format(iso3)
+    folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
+    path_csv = os.path.join(folder, filename)
 
-        mcc = row['mcc']
+    ### Produce national sites data layers
+    if not os.path.exists(path_csv):
 
-        filename = '{}.csv'.format(iso3)
-        folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
-        path_csv = os.path.join(folder, filename)
+        print('-site.csv data does not exist')
+        print('-Subsetting site data for {}'.format(iso3))
 
-        ### Produce national sites data layers
-        if not os.path.exists(path_csv):
+        if not os.path.exists(folder):
+            os.makedirs(folder)
 
-            print('-site.csv data does not exist')
-            print('-Subsetting site data for {}: {}'.format(iso3, mcc))
+        filename = "cell_towers_2022-12-24.csv"
+        path = os.path.join(DATA_RAW, filename)
 
-            if not os.path.exists(folder):
-                os.makedirs(folder)
+        for row in all_mobile_codes:
 
-            filename = "cell_towers_2022-12-24.csv"
-            path = os.path.join(DATA_RAW, filename)
+            # if not row['mnc'] in [10,2,11,33,34,20,94,30,31,32,27,15,91,89]:
+            #     continue
 
+            mcc = row['mcc']
+            seen = set()
             chunksize = 10 ** 6
             for idx, chunk in enumerate(pd.read_csv(path, chunksize=chunksize)):
 
@@ -157,14 +158,42 @@ def create_national_sites_csv(country):
 
                 country_data = country_data.to_dict('records')
 
-                output = output + country_data
+                for site in country_data:
 
-    if len(output) == 0:
-        # print('-{} had no data'.format(iso3))
-        return
+                    if not -4 > site['lon'] > -6:
+                        continue
 
-    output = pd.DataFrame(output)
-    output.to_csv(path_csv, index=False)
+                    if not 49.8 < site['lat'] < 52:
+                        continue
+
+                    if site['cell'] in seen:
+                        continue
+
+                    seen.add(site['cell'])
+
+                    output.append({
+                        'radio': site['radio'],
+                        'mcc': site['mcc'],
+                        'net': site['net'],
+                        'area': site['area'],
+                        'cell': site['cell'],
+                        'unit': site['unit'],
+                        'lon': site['lon'],
+                        'lat': site['lat'],
+                        # 'range': site['range'],
+                        # 'samples': site['samples'],
+                        # 'changeable': site['changeable'],
+                        # 'created': site['created'],
+                        # 'updated': site['updated'],
+                        # 'averageSignal': site['averageSignal']
+                    })
+                if idx == 2:
+                    break
+        if len(output) == 0:
+            return
+
+        output = pd.DataFrame(output)
+        output.to_csv(path_csv, index=False)
 
     return
 
@@ -238,12 +267,12 @@ def segment_by_gid_1(iso3, level, region):
             'unit': site['unit'],
             'lon': site['lon'],
             'lat': site['lat'],
-            'range': site['range'],
-            'samples': site['samples'],
-            'changeable': site['changeable'],
-            'created': site['created'],
-            'updated': site['updated'],
-            'averageSignal': site['averageSignal']
+            # 'range': site['range'],
+            # 'samples': site['samples'],
+            # 'changeable': site['changeable'],
+            # 'created': site['created'],
+            # 'updated': site['updated'],
+            # 'averageSignal': site['averageSignal']
         })
 
     if len(output) > 0:
@@ -318,12 +347,12 @@ def segment_by_gid_2(iso3, level, region, gid_1):
             'unit': site['unit'],
             'lon': site['lon'],
             'lat': site['lat'],
-            'range': site['range'],
-            'samples': site['samples'],
-            'changeable': site['changeable'],
-            'created': site['created'],
-            'updated': site['updated'],
-            'averageSignal': site['averageSignal']
+            # 'range': site['range'],
+            # 'samples': site['samples'],
+            # 'changeable': site['changeable'],
+            # 'created': site['created'],
+            # 'updated': site['updated'],
+            # 'averageSignal': site['averageSignal']
         })
 
     if len(output) > 0:
@@ -1174,14 +1203,14 @@ def collect_country_regional_results(iso3, scenario):
 
 if __name__ == "__main__":
 
-    #args = sys.argv
+    args = sys.argv
 
-    #region = args[1]
+    region = args[1]
 
     #if not region == 'collect':
 
         #try:
-    #run_site_processing(region)
+    run_site_processing(region)
         #except:
         #    print('failed on {}'.format(region))
     #countries = get_countries()
@@ -1221,23 +1250,23 @@ if __name__ == "__main__":
      #       ]:
      #       continue
      #   run_site_processing(country['iso3'])
-    countries = get_countries()
-    for idx, country in countries.iterrows():
-        #if country['Exclude'] == '1':
-        #    continue
-        #run_site_processing(country)
-        if not country['iso3'] in ['USA']:#'IND','AFG','ARG','AUT']:
-            continue
-        
-        regions = get_regions(country,country['gid_region'])[:1]
-       
-        if len(regions) == 0:
-            continue
-        
-        for idx, region in regions.iterrows():
-            #print(region)  
-            gid_level = 'GID_{}'.format(country['gid_region'])
-            #try:
-            run_site_processing(region[gid_level])
-            #except:
-            #    continue
+    # countries = get_countries()
+    # for idx, country in countries.iterrows():
+    #     #if country['Exclude'] == '1':
+    #     #    continue
+    #     #run_site_processing(country)
+    #     if not country['iso3'] in ['USA']:#'IND','AFG','ARG','AUT']:
+    #         continue
+
+    #     regions = get_regions(country,country['gid_region'])[:1]
+
+    #     if len(regions) == 0:
+    #         continue
+
+    #     for idx, region in regions.iterrows():
+    #         #print(region)
+    #         gid_level = 'GID_{}'.format(country['gid_region'])
+    #         #try:
+    #         run_site_processing(region[gid_level])
+    #         #except:
+    #         #    continue

@@ -63,7 +63,7 @@ def get_countries():
 
 def get_regions(country, region_type):
     """
-
+    Get region information.
 
     """
     if region_type == 'use_csv':
@@ -87,7 +87,7 @@ def get_regions(country, region_type):
     path = os.path.join(folder, filename)
 
     if not os.path.exists(path):
-        print('Created this path as it did not exist: {}'.format(path))
+        print('This path did not exist/load: {}'.format(path))
         return []
 
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
@@ -343,8 +343,8 @@ def process_regions(iso3, level):
         folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
         path_processed = os.path.join(folder, filename)
 
-        # if os.path.exists(path_processed):
-        #     continue
+        if os.path.exists(path_processed):
+            continue
 
         print('Processing GID_{} region shapes'.format(regional_level))
 
