@@ -36,8 +36,8 @@ def process_tropical_storm_layers(countries, scenario):
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'ARG':
-            continue
+        #if not country['iso3'] == 'ARG':
+        #    continue
 
         iso3 = country['iso3']
         name = country['country']
@@ -57,15 +57,15 @@ def process_tropical_storm_layers(countries, scenario):
             if not os.path.exists(folder):
                 os.makedirs(folder)
 
-            # try:
-            process_storm_layer(country, path_in, path_out)
-            # except:
-            #     print('{} failed: {}'.format(country['iso3'], scenario))
+            try:
+                process_storm_layer(country, path_in, path_out)
+            except:
+                print('{} failed: {}'.format(country['iso3'], scenario))
             #     failures.append({
             #         'iso3': country['iso3'],
             #         'filename': filename
             #         })
-            #     continue
+                continue
             # print(failures)
 
     return
@@ -101,9 +101,10 @@ def process_storm_layer(country, path_in, path_out):
         country = gpd.read_file(path_country)
     else:
         print('Must generate national_outline.shp first' )
+        return
 
-    #if os.path.exists(path_out):
-    #    return
+    if os.path.exists(path_out):
+        return
 
     geo = gpd.GeoDataFrame()
 
@@ -161,6 +162,9 @@ def process_regional_storm_layers(countries, scenario):
 
         regions = get_regions(country, regional_level)
 
+        if len(regions) == 0:
+            continue
+
         for idx, region_series in regions.iterrows():
 
             region = region_series['GID_{}'.format(regional_level)]
@@ -175,11 +179,11 @@ def process_regional_storm_layers(countries, scenario):
 
                 #if not os.path.exists(folder):
                 #    os.makedirs(folder)
-                #try:
-                process_regional_storm_layer(country, region, path_in, path_out)
-                #except:
-                #print('{} failed: {}'.format(country['iso3'], scenario))
-                #    continue
+                try:
+                    process_regional_storm_layer(country, region, path_in, path_out)
+                except:
+                    print('{} failed: {}'.format(country['iso3'], scenario))
+                    continue
 
             # #failures.append({
             #     #     'iso3': iso3,
@@ -221,6 +225,9 @@ def process_regional_storm_layer(country, region, path_in, path_out):
         region = regions[regions[gid_level] == region]
     else:
         print('Must generate national_outline.shp first' )
+        return
+
+    if os.path.exists(path_out):
         return
 
     geo = gpd.GeoDataFrame()
@@ -363,3 +370,4 @@ if __name__ == "__main__":
     #     # process_regional_storm_layers(countries, scenario)
 
     #     query_tropical_storm_layers(countries, scenario)
+
