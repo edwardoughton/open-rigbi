@@ -36,8 +36,8 @@ def process_tropical_storm_layers(countries, scenario):
 
     for idx, country in countries.iterrows():
 
-        #if not country['iso3'] == 'ARG':
-        #    continue
+        if not country['iso3'] == 'USA':
+            continue
 
         iso3 = country['iso3']
         name = country['country']
@@ -145,8 +145,8 @@ def process_regional_storm_layers(countries, scenario):
 
     for idx, country in countries.iterrows():
 
-        # if not country['iso3'] == 'GBR':
-        #     continue
+        if not country['iso3'] == 'USA':
+            continue
 
         iso3 = country['iso3']
         name = country['country']
@@ -268,8 +268,8 @@ def query_tropical_storm_layers(countries, scenario):
     """
     for idx, country in countries.iterrows():
 
-        # if not country['iso3'] == 'GBR':
-        #     continue
+        if not country['iso3'] == 'USA':
+            continue
 
         iso3 = country['iso3']
         name = country['country']
@@ -280,12 +280,16 @@ def query_tropical_storm_layers(countries, scenario):
 
         regions = get_regions(country, regional_level)
 
+        if len(regions) == 0:
+            print('get_regions returned no data')
+            continue
+
         for idx, region_series in regions.iterrows():
 
             region = region_series['GID_{}'.format(regional_level)]
 
-            # if not region == 'GBR.1.20_1':
-            #     continue
+            #if not region == 'GBR.1.20_1':
+            #    continue
 
             output = []
 
@@ -295,14 +299,23 @@ def query_tropical_storm_layers(countries, scenario):
                 os.makedirs(folder_out)
             path_output = os.path.join(folder_out, filename)
 
-            # if os.path.exists(path_output):
-            #     continue
+            if os.path.exists(path_output):
+                print('output file already exists: {}'.format(path_output))
+                continue
 
             filename = '{}.csv'.format(region)
             folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
             path = os.path.join(folder, filename)
 
             if not os.path.exists(path):
+                print('sites file does not exist: {}'.format(path))
+                continue
+
+            filename = os.path.join(region + '_' + scenario.replace('.tif','') + '.tif')
+            scenario_path = os.path.join(DATA_PROCESSED,iso3,'hazards','tropical_storm','regional',filename)
+            
+            if not os.path.exists(scenario_path):
+                print('scenario_path does not exist: {}'.format(scenario_path))
                 continue
 
             sites = pd.read_csv(path)#[:10]
@@ -314,13 +327,16 @@ def query_tropical_storm_layers(countries, scenario):
                 x = float(site['cellid4326'].split('_')[0])
                 y = float(site['cellid4326'].split('_')[1])
 
-                with rasterio.open(scenario) as src:
+                with rasterio.open(scenario_path) as src:
 
                     src.kwargs = {'nodata':255}
 
                     coords = [(x, y)]
 
                     wind_speed = [sample[0] for sample in src.sample(coords)][0]
+
+                    if wind_speed == 255:
+                        wind_speed = 0
 
                     output.append({
                         'radio': site['radio'],
@@ -356,6 +372,8 @@ if __name__ == "__main__":
 
     countries = get_countries()
 
+    process_tropical_storm_layers(countries, scenario)
+    process_regional_storm_layers(countries, scenario)
     query_tropical_storm_layers(countries, scenario)
 
 

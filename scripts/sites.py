@@ -105,7 +105,7 @@ def create_national_sites_csv(country):
             if not os.path.exists(folder):
                 os.makedirs(folder)
 
-            filename = "cell_towers.csv"
+            filename = "cell_towers_2022-12-24.csv"
             path = os.path.join(DATA_RAW, filename)
 
             chunksize = 10 ** 6
