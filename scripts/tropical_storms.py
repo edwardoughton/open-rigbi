@@ -170,8 +170,8 @@ def process_regional_storm_layers(countries, scenario):
             region = region_series['GID_{}'.format(regional_level)]
             path_out = os.path.join(folder, region + '_' + filename)
 
-            # if not region == 'GBR.1.69_1':
-            #     continue
+            if not region == 'USA.10.42_1':
+                continue
 
             if not os.path.exists(path_out):
 
@@ -288,8 +288,8 @@ def query_tropical_storm_layers(countries, scenario):
 
             region = region_series['GID_{}'.format(regional_level)]
 
-            #if not region == 'GBR.1.20_1':
-            #    continue
+            if not region == 'USA.10.43_1':
+                continue
 
             output = []
 
@@ -376,8 +376,8 @@ def estimate_results(countries, scenario):
 
     for idx, country in countries.iterrows():
 
-        # if not country['iso3'] == 'GBR':
-        #     continue
+        if not country['iso3'] == 'USA':
+            continue
 
         iso3 = country['iso3']
         name = country['country']
@@ -396,8 +396,8 @@ def estimate_results(countries, scenario):
 
             region = region_series['GID_{}'.format(regional_level)]
 
-            # if not region == 'GBR.1.20_1':
-            #     continue
+            if not region == 'USA.10.43_1':
+                continue
 
             output = []
 
@@ -518,8 +518,8 @@ def convert_to_regional_results(countries, scenario):
 
     for idx, country in countries.iterrows():
 
-        # if not country['iso3'] == 'GBR':
-        #     continue
+        if not country['iso3'] == 'USA':
+            continue
 
         iso3 = country['iso3']
         name = country['country']
@@ -538,8 +538,8 @@ def convert_to_regional_results(countries, scenario):
 
             region = region_series['GID_{}'.format(regional_level)]
 
-            # if not region == 'GBR.1.20_1':
-            #     continue
+            if not region == 'USA.10.43_1':
+                continue
 
             output = []
 
@@ -644,12 +644,15 @@ if __name__ == "__main__":
 
     countries = get_countries()
 
-    # process_tropical_storm_layers(countries, scenario)
-    # process_regional_storm_layers(countries, scenario)
-    # query_tropical_storm_layers(countries, scenario)
-    # estimate_results(countries, scenario)
-
+    #process_tropical_storm_layers(countries, scenario)
+    process_regional_storm_layers(countries, scenario)
+    query_tropical_storm_layers(countries, scenario)
+    estimate_results(countries, scenario)
     convert_to_regional_results(countries, scenario)
+
+
+
+
 
     # countries = get_countries()
     # scenarios = get_tropical_storm_scenarios()#[:1]

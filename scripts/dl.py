@@ -29,6 +29,9 @@ def dl_flood_layers():
         if not in_path.endswith('.tif'):
             continue
 
+        #if not 'inuncoast' in in_path:
+        #    continue
+
         filename = os.path.basename(in_path)
 
         folder = os.path.join(DATA_RAW, 'flood_hazard')
@@ -39,9 +42,9 @@ def dl_flood_layers():
         filename = "{}".format(filename)
         out_path = os.path.join(folder, filename)
 
-        if not os.path.exists(out_path):
+        #if not os.path.exists(out_path):
 
-            urllib.request.urlretrieve(in_path, out_path)
+        urllib.request.urlretrieve(in_path, out_path)
 
     return
 

@@ -39,7 +39,7 @@ def collect(countries, scenarios):
 
             scenario = os.path.basename(scenario_path).replace('.tif','')
 
-            # print('Working on {}'.format(scenario))
+            print('Working on {}'.format(scenario))
 
             country_folder = os.path.join(folder_in, country['iso3'], 'regional', scenario)
 
@@ -56,7 +56,10 @@ def collect(countries, scenarios):
                     if not os.path.exists(path):
                         continue
                     else:
-                        data = pd.read_csv(path)
+                        try:
+                            data = pd.read_csv(path)
+                        except:
+                            continue
                         data = data.to_dict('records')
                         min_depth.append(data[0]['min_depth'])
                         mean_depth.append(data[0]['mean_depth'])

@@ -46,11 +46,11 @@ def run_site_processing(region):
     country = country.to_dict('records')[0]
     regional_level = int(country['gid_region'])
 
-    # print('Getting scenarios')
-    # scenarios = get_scenarios()#[:5]
+    print('Getting scenarios')
+    scenarios = get_scenarios()#[:5]
 
-    print('Working on create_national_sites_csv')
-    create_national_sites_csv(country)
+    #print('Working on create_national_sites_csv')
+    #create_national_sites_csv(country)
 
     #print('Working on process_country_shapes')
     #process_country_shapes(iso3)
@@ -64,29 +64,29 @@ def run_site_processing(region):
     # # print('Working on process_surface_water_layers')
     # # process_surface_water(country, region)
 
-    if regional_level == 1:
+    #if regional_level == 1:
 
-        print('Working on segment_by_gid_1')
-        segment_by_gid_1(iso3, 1, region)
+        #print('Working on segment_by_gid_1')
+        #segment_by_gid_1(iso3, 1, region)
 
-        print('Working on create_regional_sites_layer')
-        create_regional_sites_layer(iso3, 1, region)
+        #print('Working on create_regional_sites_layer')
+        #create_regional_sites_layer(iso3, 1, region)
 
-    if regional_level == 2:
+    #if regional_level == 2:
 
-        gid_1 = get_gid_1(region)
+        #gid_1 = get_gid_1(region)
 
-        print('Working on segment_by_gid_1')
-        segment_by_gid_1(iso3, 1, gid_1)
+        #print('Working on segment_by_gid_1')
+        #segment_by_gid_1(iso3, 1, gid_1)
 
-        print('Working on create_regional_sites_layer')
-        create_regional_sites_layer(iso3, 1, gid_1)
+        #print('Working on create_regional_sites_layer')
+        #create_regional_sites_layer(iso3, 1, gid_1)
 
-        print('Working on segment_by_gid_2')
-        segment_by_gid_2(iso3, 2, region, gid_1)
+        #print('Working on segment_by_gid_2')
+        #segment_by_gid_2(iso3, 2, region, gid_1)
 
-        print('Working on create_regional_sites_layer')
-        create_regional_sites_layer(iso3, 2, region)
+        #print('Working on create_regional_sites_layer')
+        #create_regional_sites_layer(iso3, 2, region)
 
     #print('Working on process_flooding_layers')
     #process_flooding_layers(country, scenarios)
@@ -94,8 +94,8 @@ def run_site_processing(region):
     # print('Working on process_regional_flooding_layers')
     # process_regional_flooding_layers(country, region, scenarios)
 
-    # print('Working on process_flooding_extent_stats')
-    # process_flooding_extent_stats(country, region, scenarios)
+    print('Working on process_flooding_extent_stats')
+    process_flooding_extent_stats(country, region, scenarios)
 
     # print('Working on query_hazard_layers')
     # query_hazard_layers(country, region, scenarios, regional_level)
@@ -451,7 +451,7 @@ def create_regional_sites_layer(iso3, level, region):
     output = []
 
     for idx, site in sites.iterrows():
-
+        
         geom = Point(site['lon'], site['lat'])
 
         if len(surface_water) > 0:
