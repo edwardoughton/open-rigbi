@@ -36,19 +36,20 @@ def process_tropical_storm_layers(countries, scenario):
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'USA':
-            continue
+        #if not country['iso3'] == 'USA':
+        #    continue
 
         iso3 = country['iso3']
         name = country['country']
 
-        filename = os.path.basename(scenario)
-        path_in = os.path.join(hazard_dir, filename)
+        filename = os.path.basename(scenario).replace('.tif','')
+        print(filename)
+        path_in = os.path.join(hazard_dir, filename + '.tif')
 
         folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'tropical_storm')
         if not os.path.exists(folder):
             os.makedirs(folder)
-        path_out = os.path.join(folder, filename)
+        path_out = os.path.join(folder, filename + '.tif')
 
         if not os.path.exists(path_out):
 
@@ -145,16 +146,16 @@ def process_regional_storm_layers(countries, scenario):
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'USA':
-            continue
+        #if not country['iso3'] == 'USA':
+        #    continue
 
         iso3 = country['iso3']
         name = country['country']
         regional_level = country['gid_region']
 
         hazard_dir = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'tropical_storm')
-        filename = os.path.basename(scenario)
-        path_in = os.path.join(hazard_dir, filename)
+        filename = os.path.basename(scenario).replace('.tif','')
+        path_in = os.path.join(hazard_dir, filename + '.tif')
 
         folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'tropical_storm', 'regional')
         if not os.path.exists(folder):
@@ -168,21 +169,22 @@ def process_regional_storm_layers(countries, scenario):
         for idx, region_series in regions.iterrows():
 
             region = region_series['GID_{}'.format(regional_level)]
-            path_out = os.path.join(folder, region + '_' + filename)
+            path_out = os.path.join(folder, region + '_' + filename + '.tif')
 
-            if not region == 'USA.10.42_1':
-                continue
+            #if not region == 'USA.10.42_1':
+            #    continue
 
             if not os.path.exists(path_out):
 
-                print('--{}: {}'.format(name, filename))
+                print('--{}: {}'.format(region, filename))
 
                 #if not os.path.exists(folder):
                 #    os.makedirs(folder)
+
                 try:
                     process_regional_storm_layer(country, region, path_in, path_out)
                 except:
-                    print('{} failed: {}'.format(country['iso3'], scenario))
+                    print('{} failed: {}'.format(region, scenario))
                     continue
 
             # #failures.append({
@@ -219,13 +221,13 @@ def process_regional_storm_layer(country, region, path_in, path_out):
     iso3 = country['iso3']
     filename = 'regions_{}_{}.shp'.format(regional_level, iso3)
     path_country = os.path.join(DATA_PROCESSED, iso3, 'regions', filename)
-
+    #print(path_country, path_in)   
     if os.path.exists(path_country):
         regions = gpd.read_file(path_country)
         region = regions[regions[gid_level] == region]
     else:
         print('Must generate national_outline.shp first' )
-        return
+        return    
 
     if os.path.exists(path_out):
         return
@@ -245,6 +247,9 @@ def process_regional_storm_layer(country, region, path_in, path_out):
                 if not value == 0:
                     values.add(value)
     if len(values) == 0:
+        return
+
+    if sum(values) == 0:
         return
 
     out_meta = hazard.meta.copy()
@@ -268,8 +273,8 @@ def query_tropical_storm_layers(countries, scenario):
     """
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'USA':
-            continue
+        #if not country['iso3'] == 'USA':
+        #    continue
 
         iso3 = country['iso3']
         name = country['country']
@@ -288,8 +293,8 @@ def query_tropical_storm_layers(countries, scenario):
 
             region = region_series['GID_{}'.format(regional_level)]
 
-            if not region == 'USA.10.43_1':
-                continue
+            #if not region == 'USA.10.43_1':
+            #    continue
 
             output = []
 
@@ -300,7 +305,7 @@ def query_tropical_storm_layers(countries, scenario):
             path_output = os.path.join(folder_out, filename)
 
             if os.path.exists(path_output):
-                print('output file already exists: {}'.format(path_output))
+                print('storm layer output file already exists: {}'.format(path_output))
                 continue
 
             filename = '{}.csv'.format(region)
@@ -376,8 +381,8 @@ def estimate_results(countries, scenario):
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'USA':
-            continue
+        #if not country['iso3'] == 'USA':
+        #    continue
 
         iso3 = country['iso3']
         name = country['country']
@@ -396,8 +401,8 @@ def estimate_results(countries, scenario):
 
             region = region_series['GID_{}'.format(regional_level)]
 
-            if not region == 'USA.10.43_1':
-                continue
+            #if not region == 'USA.10.43_1':
+            #    continue
 
             output = []
 
@@ -405,9 +410,9 @@ def estimate_results(countries, scenario):
             folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario)
             path_output = os.path.join(folder_out, filename)
 
-            #if os.path.exists(path_output):
-                #print('path_output exists {}'.format(path_output))
-            #    continue
+            if os.path.exists(path_output):
+                print('results file already exists {}'.format(path_output))
+                continue
 
             filename = '{}_{}.csv'.format(region, scenario)
             folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'tropical_storm_scenarios')
@@ -518,8 +523,8 @@ def convert_to_regional_results(countries, scenario):
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'USA':
-            continue
+        #if not country['iso3'] == 'USA':
+        #    continue
 
         iso3 = country['iso3']
         name = country['country']
@@ -538,8 +543,8 @@ def convert_to_regional_results(countries, scenario):
 
             region = region_series['GID_{}'.format(regional_level)]
 
-            if not region == 'USA.10.43_1':
-                continue
+            #if not region == 'USA.10.43_1':
+            #    continue
 
             output = []
 
@@ -644,7 +649,7 @@ if __name__ == "__main__":
 
     countries = get_countries()
 
-    #process_tropical_storm_layers(countries, scenario)
+    process_tropical_storm_layers(countries, scenario)
     process_regional_storm_layers(countries, scenario)
     query_tropical_storm_layers(countries, scenario)
     estimate_results(countries, scenario)

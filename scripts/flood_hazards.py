@@ -64,7 +64,7 @@ def process_flooding_layers(country, scenarios):
 
         if not os.path.exists(folder):
             os.makedirs(folder)
-
+        print(path_in)
         try:
             process_flood_layer(country, path_in, path_out)
         except:
@@ -97,7 +97,7 @@ def process_flood_layer(country, path_in, path_out):
     regional_level = country['gid_region']
 
     hazard = rasterio.open(path_in, 'r+', BIGTIFF='YES')
-    print(hazard)
+    #print(hazard)
     hazard.nodata = 255
     hazard.crs.from_epsg(4326)
 
@@ -110,8 +110,8 @@ def process_flood_layer(country, path_in, path_out):
     else:
         print('Must generate national_outline.shp first' )
 
-    #if os.path.exists(path_out):
-    #    return
+    if os.path.exists(path_out):
+        return
     #print(country)
     geo = gpd.GeoDataFrame()
 
@@ -120,7 +120,7 @@ def process_flood_layer(country, path_in, path_out):
     coords = [json.loads(geo.to_json())['features'][0]['geometry']]
 
     out_img, out_transform = mask(hazard, coords, crop=True)
-
+    #print(out_img)
     out_meta = hazard.meta.copy()
 
     out_meta.update({"driver": "GTiff",
@@ -162,18 +162,18 @@ def process_regional_flooding_layers(country, region, scenarios):
             os.makedirs(folder)
         path_out = os.path.join(folder, region + '_' + filename + '.tif')
 
-        if not os.path.exists(path_out):
-
-            #print('--{}: {}'.format(name, filename))
+        if os.path.exists(path_out):
+            continue
+        print('--{}: {}'.format(region, filename))
 
             #if not os.path.exists(folder):
             #    os.makedirs(folder)
             #print(path_in)
-            try:
-                process_regional_flood_layer(country, region, path_in, path_out)
-            except:
-                print('{} failed: {}'.format(country['iso3'], scenario))
-                continue
+        try:
+            process_regional_flood_layer(country, region, path_in, path_out)
+        except:
+            #    print('{} failed: {}'.format(country['iso3'], scenario))
+            continue
 
             #failures.append({
             #     'iso3': iso3,
@@ -252,7 +252,7 @@ def process_flooding_extent_stats(country, region, scenarios):
         #if not 'inuncoast_rcp8p5_wtsub_2080_rp1000_0' in scenario_path:
         #    continue
         
-        print(scenario_path)
+        #print(scenario_path)
         filename = os.path.basename(scenario_path).replace('.tif','')
         #print(filename)
         folder_out = os.path.join(DATA_PROCESSED,'results','validation','country_data',
@@ -266,12 +266,12 @@ def process_flooding_extent_stats(country, region, scenarios):
         if os.path.exists(path_out):
             continue
 
-        print('Working on {}'.format(filename))
+        print('Working on flood extent for {}'.format(filename))
 
         metrics = []
 
-        path = os.path.join(folder,  region + '_' + filename + '.tif')
-        
+        path = os.path.join(folder, region + '_' + filename + '.tif')
+        #path = os.path.join(folder, filename + '.tif')
         if not os.path.exists(path):
             print('path does not exist: {}'.format(path))
             continue
@@ -289,12 +289,15 @@ def process_flooding_extent_stats(country, region, scenarios):
         #print('working on raster loops')
         for idx, row in enumerate(data):
             for idx2, i in enumerate(row):
-                if i > 0 and i < 150:
+                if i > 0.001 and i < 150:
+                    #print(i)
                     coords = raster.transform * (idx2, idx)
                     depths.append(i)
+                else:
+                    continue
 
         depths.sort()
-
+        #print(sum(depths))
         if 'river' in filename:
             hazard = filename.split('_')[0]
             climate_scenario = filename.split('_')[1]
@@ -443,34 +446,38 @@ if __name__ == "__main__":
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] in ['USA',#'ARG',
-            #'BEL','BIH','BRB','EST','GUM','KHM','LSO','TWN','VGB', 'AND',
-            #'BFA','UBZ','BMU','BTN','CYM','DJI','FRO','ISR','KNA','LCA','MLI','MNG','MUS','PRY','TCA','WSM'
-            ]: #'GHA'
-            continue
+        #if not country['iso3'] in ['USA',#'ARG',
+        #    #'BEL','BIH','BRB','EST','GUM','KHM','LSO','TWN','VGB', 'AND',
+        #    #'BFA','UBZ','BMU','BTN','CYM','DJI','FRO','ISR','KNA','LCA','MLI','MNG','MUS','PRY','TCA','WSM'
+        #    ]: #'GHA'
+        #    continue
         #print(country)
+        if not country['iso3'] in [
+            'ASM','AUS','COK','FJI','FSM','GUM','KIR','MHL','MNP',
+            'NCL','NFK','NIU','NRU','NZL','PCN','PLW','PNG','PYF',
+            'SLB','TKL','TON','TUV','UMI','VUT','WLF','WSM',
+            ]:
+            continue
+         
+
+
         print('-Working on {}'.format(country['iso3']))
 
         #process_flooding_layers(country, scenarios)
 
 
-        # regions = [
-        #     'RWA.1_1',
-        #     'RWA.2_1',
-        #     'RWA.3_1',
-        #     'RWA.4_1',
-        #     'RWA.5_1',
-        # ]
+        regions = get_regions(country, country['gid_region'])#[::-1]
+        if len(regions) == 0:
+            continue
 
-        regions = get_regions(country, country['gid_region'])
         for idx, region in regions.iterrows():
                     
             
             region = region['GID_{}'.format(country['gid_region'])]
-            #if not 'USA.51.' in region:# or not 'USA.51.' in region:
+            #if not 'USA.2.1_1' in region: #'USA.10.43_1' in region:# or not 'USA.51.' in region:
             #    continue
 
-            #print('processing regional extent for : {}'.format(region))
+            print('processing : {}'.format(region))
             process_regional_flooding_layers(country, region, scenarios)
             process_flooding_extent_stats(country, region, scenarios)
      #print(failures)

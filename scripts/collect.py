@@ -26,6 +26,9 @@ def collect_regional_results(scenario):
 
     folder_out = os.path.join(DATA_PROCESSED, 'results', 'regional')
 
+    if not os.path.exists(folder_out):
+        os.makedirs(folder_out)
+
     output = []
 
     scenario_name = os.path.basename(scenario)#[:-4]
@@ -54,6 +57,9 @@ def collect_regional_results(scenario):
         for filename in all_regional_results:
             #print(filename, scenario_name)
             if not scenario_name in filename:
+                continue
+
+            if not 'STORM' in filename:
                 continue
 
             path_in = os.path.join(folder, filename)
@@ -288,8 +294,8 @@ if __name__ == "__main__":
 
     args = sys.argv
 
-    #print('collecting regional results')
-    #collect_regional_results(args[1])
+    print('collecting regional results')
+    collect_regional_results(args[1])
 
     print('collecting final results')
     collect_final_results(args[1])

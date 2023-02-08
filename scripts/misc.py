@@ -123,10 +123,13 @@ def get_scenarios():
 
     for scenario in scenarios:
 
+        #if 'river' in scenario:
+        #    continue
+
         if any(x in scenario for x in return_periods): #specify return periods
 
-            if 'inunriver' in scenario:
-                continue
+            #if 'inunriver' in scenario:
+            #    continue
 
             #if '2030' in scenario or '2050' in scenario:
             #    continue 
@@ -138,8 +141,8 @@ def get_scenarios():
                 #if 'historical' in scenario:
                 #    if '2030' or '2050' or '2080' in scenario:
                 #    continue
-                if 'perc' in scenario:
-                     continue
+                #if not 'perc' in scenario:
+                #     continue
                 if not 'hist' in scenario:
                     output.add(scenario)
 
@@ -164,7 +167,15 @@ def get_scenarios():
 
     output = list(output)
     output.sort()
-    return output#[:1]
+    #output = [#'inuncoast_rcp4p5_wtsub_2050_rp1000_0',
+    #'inuncoast_rcp4p5_wtsub_2080_rp0100_0',
+    #'inuncoast_rcp4p5_wtsub_2080_rp1000_0',
+    #'inuncoast_rcp4p5_wtsub_2030_rp0500_0',
+    #'inuncoast_rcp4p5_wtsub_2050_rp0100_0',
+    #'inuncoast_rcp8p5_wtsub_2080_rp0500_0',
+    #]
+
+    return output #['inuncoast_rcp4p5_wtsub_2080_rp0100_0']
 
 
 def get_tropical_storm_scenarios():
@@ -393,6 +404,7 @@ if __name__ == '__main__':
         print(scenario)
 
     #tropical_storm_scenarios = get_tropical_storm_scenarios()
-
     #for scenario in tropical_storm_scenarios:
     #    print(scenario)
+
+
