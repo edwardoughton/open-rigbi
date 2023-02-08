@@ -19,7 +19,7 @@ CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
 BASE_PATH = CONFIG['file_locations']['base_path']
 
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '..', 'scripts'))
-from misc import get_scenarios
+from misc import get_scenarios, get_tropical_storm_scenarios
 
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
@@ -28,7 +28,8 @@ DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 if __name__ == "__main__":
 
     scenarios = get_scenarios()
-   
+    scenarios = get_tropical_storm_scenarios()
+
     scenarios = [os.path.basename(i)[:-4] for i in scenarios]#[:12] 
     #scenarios = [i for i in scenarios if 'GFDL' in i][:8]
     #print(scenarios)

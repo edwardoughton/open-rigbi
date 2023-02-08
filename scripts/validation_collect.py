@@ -27,8 +27,8 @@ def collect(countries, scenarios):
     folder_out = os.path.join(DATA_PROCESSED, 'results', 'validation')
 
     for idx, country in countries.iterrows():
-
-        if not country['iso3'] == 'USA':
+        #print(country['iso3'])
+        if not country['iso3'] in ['AUS','NZL','ASM','FJI','FSM','GUM','NCL','PLW','PNG','PYF','SLB','TON','TUV','VUT','ARG','WSM']:
             continue
 
         print("Working on {}".format(country['iso3']))
@@ -51,6 +51,10 @@ def collect(countries, scenarios):
             if os.path.exists(country_folder):
                 file_paths = os.listdir(country_folder)
                 for filename in file_paths:
+                    #print(filename, scenario) 
+                    if not scenario in os.path.basename(filename).replace('.tif',''):
+                        continue
+                    #print('here')
                     # print('Working on {}'.format(filename))
                     path = os.path.join(country_folder, filename)
                     if not os.path.exists(path):
@@ -65,6 +69,7 @@ def collect(countries, scenarios):
                         mean_depth.append(data[0]['mean_depth'])
                         max_depth.append(data[0]['max_depth'])
                         flooded_area_km2.append(data[0]['flooded_area_km2'])
+                #print(len(flooded_area_km2), sum(flooded_area_km2))
                 if len(flooded_area_km2) > 0:
                     min_depth = min(min_depth)
                     mean_depth = sum(mean_depth) / len(mean_depth)
@@ -82,7 +87,7 @@ def collect(countries, scenarios):
                 median_depth = "-"
                 max_depth = "-"
                 flooded_area_km2 = "-"
-
+            
             if 'river' in scenario:
                 hazard = scenario.split('_')[0]
                 climate_scenario = scenario.split('_')[1]
@@ -137,6 +142,9 @@ def collect_all(countries):
 
     for idx, country in countries.iterrows():
         
+        #if not country['iso3'] == 'USA':
+        #    continue
+
         path = os.path.join(folder_in,country['iso3'],'scenario_stats.csv')
 
         if not os.path.exists(path):

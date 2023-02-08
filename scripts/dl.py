@@ -29,8 +29,8 @@ def dl_flood_layers():
         if not in_path.endswith('.tif'):
             continue
 
-        #if not 'inuncoast' in in_path:
-        #    continue
+        if not 'inuncoast_rcp8p5_wtsub_2080_rp0500_0' in in_path:
+            continue
 
         filename = os.path.basename(in_path)
 
