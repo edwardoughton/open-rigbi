@@ -9,14 +9,17 @@ February 2022
 import sys
 import os
 import configparser
+import json
 import pandas as pd
 import geopandas as gpd
 import pyproj
 from shapely.ops import transform
-from shapely.geometry import shape, Point, mapping, LineString, MultiPolygon
+from shapely.geometry import Point, box
+import rasterio
+from rasterio.mask import mask
 from tqdm import tqdm
 
-from misc import get_countries, process_country_shapes, process_regions, get_regions
+from misc import get_countries, process_country_shapes, process_regions, get_regions, get_scenarios
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -26,9 +29,9 @@ DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 
-def run_site_processing(iso3):
+def run_preprocessing(iso3):
     """
-    Meta function for running site processing.
+    Meta function for running preprocessing.
 
     """
     filename = "countries.csv"
@@ -39,51 +42,54 @@ def run_site_processing(iso3):
     country = country.to_records('dicts')[0]
     regional_level = int(country['gid_region'])
 
-    print('Working on create_national_sites_csv')
-    create_national_sites_csv(country)
+    # print('Working on create_national_sites_csv')
+    # create_national_sites_csv(country)
 
-    print('Working on process_country_shapes')
-    process_country_shapes(iso3)
+    # print('Working on process_country_shapes')
+    # process_country_shapes(iso3)
 
-    print('Working on process_regions')
-    process_regions(iso3, regional_level)
+    # print('Working on process_regions')
+    # process_regions(iso3, regional_level)
 
-    print('Working on create_national_sites_shp')
-    create_national_sites_shp(iso3)
+    # print('Working on create_national_sites_shp')
+    # create_national_sites_shp(iso3)
 
-    regions = get_regions(country, regional_level)[::-1]
+    # regions = get_regions(country, regional_level)[::-1]
 
-    print('Working on regional disaggregation')
-    for idx, region in regions.iterrows():
+    # print('Working on regional disaggregation')
+    # for idx, region in regions.iterrows():
 
-        region = region['GID_{}'.format(regional_level)]
-        print(region)
-        #if not region == 'USA.1.5_1':
-        #    continue
-        
-        if regional_level == 1:
+    #     region = region['GID_{}'.format(regional_level)]
+    #     print(region)
+    #     #if not region == 'USA.1.5_1':
+    #     #    continue
 
-            print('Working on segment_by_gid_1')
-            segment_by_gid_1(iso3, 1, region)
+    #     if regional_level == 1:
 
-            print('Working on create_regional_sites_layer')
-            create_regional_sites_layer(iso3, 1, region)
+    #         print('Working on segment_by_gid_1')
+    #         segment_by_gid_1(iso3, 1, region)
 
-        if regional_level == 2:
+    #         print('Working on create_regional_sites_layer')
+    #         create_regional_sites_layer(iso3, 1, region)
 
-            gid_1 = get_gid_1(region)
+    #     if regional_level == 2:
 
-            print('Working on segment_by_gid_1')
-            segment_by_gid_1(iso3, 1, gid_1)
+    #         gid_1 = get_gid_1(region)
 
-            print('Working on create_regional_sites_layer')
-            create_regional_sites_layer(iso3, 1, gid_1)
+    #         print('Working on segment_by_gid_1')
+    #         segment_by_gid_1(iso3, 1, gid_1)
 
-            print('Working on segment_by_gid_2')
-            segment_by_gid_2(iso3, 2, region, gid_1)
+    #         print('Working on create_regional_sites_layer')
+    #         create_regional_sites_layer(iso3, 1, gid_1)
 
-            print('Working on create_regional_sites_layer')
-            create_regional_sites_layer(iso3, 2, region)
+    #         print('Working on segment_by_gid_2')
+    #         segment_by_gid_2(iso3, 2, region, gid_1)
+
+    #         print('Working on create_regional_sites_layer')
+    #         create_regional_sites_layer(iso3, 2, region)
+
+    print('Working on process_flooding_layers')
+    process_flooding_layers(country)
 
     return
 
@@ -598,7 +604,7 @@ def create_regional_sites_layer(iso3, level, region):
     if os.path.exists(path_in):
         surface_water = gpd.read_file(path_in, crs='epsg:4326')
         surface_water = surface_water.unary_union
-    
+
     output = []
 
     for idx, site in sites.iterrows():
@@ -739,6 +745,113 @@ def process_surface_water(country, region):
     return
 
 
+def process_flooding_layers(country):
+    """
+    Loop to process all flood layers.
+
+    """
+    scenarios = get_scenarios()
+    iso3 = country['iso3']
+    name = country['country']
+
+    hazard_dir = os.path.join(DATA_RAW, 'flood_hazard')
+
+    failures = []
+
+    for scenario in scenarios:
+
+        #if 'river' in scenario:
+        #    continue
+
+        if not os.path.basename(scenario) == 'inunriver_rcp4p5_0000HadGEM2-ES_2050_rp00500.tif':
+           continue
+
+        filename = os.path.basename(scenario).replace('.tif','')
+        path_in = os.path.join(hazard_dir, filename + '.tif')
+
+        folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding')
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        path_out = os.path.join(folder, filename + '.tif')
+
+        if not os.path.exists(path_out):
+
+            print('--{}: {}'.format(name, filename))
+
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+
+            try:
+                process_flood_layer(country, path_in, path_out)
+            except:
+                print('{} failed: {}'.format(country['iso3'], scenario))
+                failures.append({
+                    'iso3': country['iso3'],
+                    'filename': filename
+                })
+                continue
+
+    return
+
+
+def process_flood_layer(country, path_in, path_out):
+    """
+    Clip the hazard layer to the chosen country boundary
+    and place in desired country folder.
+
+    Parameters
+    ----------
+    country : dict
+        Contains all desired country information.
+    path_in : string
+        The path for the chosen global hazard file to be processed.
+    path_out : string
+        The path to write the clipped hazard file.
+
+    """
+    iso3 = country['iso3']
+    regional_level = country['gid_region']
+
+    hazard = rasterio.open(path_in, 'r+', BIGTIFF='YES')
+
+    hazard.nodata = 255
+    hazard.crs.from_epsg(4326)
+
+    iso3 = country['iso3']
+    path_country = os.path.join(DATA_PROCESSED, iso3,
+        'national_outline.shp')
+
+    if os.path.exists(path_country):
+        country = gpd.read_file(path_country)
+    else:
+        print('Must generate national_outline.shp first' )
+
+    if os.path.exists(path_out):
+        return
+
+    geo = gpd.GeoDataFrame()
+
+    geo = gpd.GeoDataFrame({'geometry': country['geometry']})
+
+    coords = [json.loads(geo.to_json())['features'][0]['geometry']]
+
+    out_img, out_transform = mask(hazard, coords, crop=True)
+
+    out_meta = hazard.meta.copy()
+
+    out_meta.update({"driver": "GTiff",
+                    "height": out_img.shape[1],
+                    "width": out_img.shape[2],
+                    "transform": out_transform,
+                    "crs": 'epsg:4326',
+                    "compress": 'lzw'})
+
+    with rasterio.open(path_out, "w", **out_meta) as dest:
+            dest.write(out_img)
+
+    return
+
+
 if __name__ == "__main__":
 
     #args = sys.argv
@@ -750,14 +863,12 @@ if __name__ == "__main__":
     failures = []
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'USA':
+        if not country['iso3'] == 'RWA':
             continue
 
-        print(country['iso3'])
-        
         #try:
-        run_site_processing(country['iso3'])
-            
+        run_preprocessing(country['iso3'])
+
         #except:
         #    failures.append(
         #    (country['iso3'],country['country']))
