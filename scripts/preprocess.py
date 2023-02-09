@@ -16,7 +16,7 @@ from shapely.ops import transform
 from shapely.geometry import shape, Point, mapping, LineString, MultiPolygon
 from tqdm import tqdm
 
-from misc import process_country_shapes, process_regions, get_regions
+from misc import get_countries, process_country_shapes, process_regions, get_regions
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -51,12 +51,16 @@ def run_site_processing(iso3):
     print('Working on create_national_sites_shp')
     create_national_sites_shp(iso3)
 
-    regions = get_regions(country, regional_level)
+    regions = get_regions(country, regional_level)[::-1]
 
+    print('Working on regional disaggregation')
     for idx, region in regions.iterrows():
 
         region = region['GID_{}'.format(regional_level)]
-
+        print(region)
+        #if not region == 'USA.1.5_1':
+        #    continue
+        
         if regional_level == 1:
 
             print('Working on segment_by_gid_1')
@@ -594,14 +598,14 @@ def create_regional_sites_layer(iso3, level, region):
     if os.path.exists(path_in):
         surface_water = gpd.read_file(path_in, crs='epsg:4326')
         surface_water = surface_water.unary_union
-
+    
     output = []
 
     for idx, site in sites.iterrows():
 
         geom = Point(site['lon'], site['lat'])
 
-        if len(surface_water) > 0:
+        if not type(surface_water) == list:
             try:
                 surface_water_results = surface_water.contains(geom)
                 if surface_water_results.any():
@@ -737,9 +741,24 @@ def process_surface_water(country, region):
 
 if __name__ == "__main__":
 
-    args = sys.argv
+    #args = sys.argv
+    #iso3 = args[1]
+    #print('Running site processing for {}'.format(iso3))
+    #run_site_processing(iso3)
 
-    iso3 = args[1]
+    countries = get_countries()
+    failures = []
+    for idx, country in countries.iterrows():
 
-    print('Running site processing for {}'.format(iso3))
-    run_site_processing(iso3)
+        if not country['iso3'] == 'USA':
+            continue
+
+        print(country['iso3'])
+        
+        #try:
+        run_site_processing(country['iso3'])
+            
+        #except:
+        #    failures.append(
+        #    (country['iso3'],country['country']))
+        #print(failures)
