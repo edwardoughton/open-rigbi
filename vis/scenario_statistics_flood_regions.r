@@ -19,7 +19,7 @@ data$max_depth = as.numeric(as.character(data$max_depth))
 data$flooded_area_km2 = as.numeric(as.character(data$flooded_area_km2))
 
 country_info = read_csv(file.path(folder, '..', 'data','raw', 'countries.csv'))
-country_info = select(country_info, iso3, flood_region)
+country_info = select(country_info, iso3, continent)
 
 data = merge(data,country_info,by="iso3")
 

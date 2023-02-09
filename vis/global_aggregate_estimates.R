@@ -10,7 +10,7 @@ library(stringr)
 ###################
 #####Aggregate cells
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, 'results_v2')
+data_directory = file.path(folder, 'results_v3')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="inuncoast")
@@ -66,11 +66,11 @@ data$climatescenario = factor(data$climatescenario,
 data$returnperiod =  gsub(".csv", "", data$returnperiod) 
 
 #replace return periods
-data$returnperiod =  gsub("rp00002", "rp0002", data$returnperiod)
-data$returnperiod =  gsub("rp00005", "rp0005", data$returnperiod)
-data$returnperiod =  gsub("rp00010", "rp0010", data$returnperiod)
-data$returnperiod =  gsub("rp00025", "rp0025", data$returnperiod)
-data$returnperiod =  gsub("rp00050", "rp0050", data$returnperiod)
+# data$returnperiod =  gsub("rp00002", "rp0002", data$returnperiod)
+# data$returnperiod =  gsub("rp00005", "rp0005", data$returnperiod)
+# data$returnperiod =  gsub("rp00010", "rp0010", data$returnperiod)
+# data$returnperiod =  gsub("rp00025", "rp0025", data$returnperiod)
+# data$returnperiod =  gsub("rp00050", "rp0050", data$returnperiod)
 data$returnperiod =  gsub("rp00100", "rp0100", data$returnperiod)
 data$returnperiod =  gsub("rp00250", "rp0250", data$returnperiod)
 data$returnperiod =  gsub("rp00500", "rp0500", data$returnperiod)
@@ -78,11 +78,11 @@ data$returnperiod =  gsub("rp01000", "rp1000", data$returnperiod)
 
 #convert to probability_of_exceedance 
 data$probability = ''
-data$probability[data$returnperiod == "rp0002"] = "50%" # (1/2) * 100 = 50%
-data$probability[data$returnperiod == "rp0005"] = "20%" # (1/10) * 100 = 10%
-data$probability[data$returnperiod == "rp0010"] = "10%" # (1/10) * 100 = 10%
-data$probability[data$returnperiod == "rp0025"] = "4%" # (1/25) * 100 = 4%
-data$probability[data$returnperiod == "rp0050"] = "2%" # (1/50) * 100 = 2%
+# data$probability[data$returnperiod == "rp0002"] = "50%" # (1/2) * 100 = 50%
+# data$probability[data$returnperiod == "rp0005"] = "20%" # (1/10) * 100 = 10%
+# data$probability[data$returnperiod == "rp0010"] = "10%" # (1/10) * 100 = 10%
+# data$probability[data$returnperiod == "rp0025"] = "4%" # (1/25) * 100 = 4%
+# data$probability[data$returnperiod == "rp0050"] = "2%" # (1/50) * 100 = 2%
 data$probability[data$returnperiod == "rp0100"] = "1%" # (1/100) * 100 = 1%
 data$probability[data$returnperiod == "rp0250"] = "0.4%" # (1/250) * 100 = .4%
 data$probability[data$returnperiod == "rp0500"] = "0.2%" # (1/500) * 100 = .2%
@@ -101,11 +101,11 @@ data$returnperiod = factor(data$returnperiod,
                             "rp1000"
                           ),
                           labels=c(
-                            "1-in-2-Years",
-                            "1-in-5-Years",
-                            "1-in-10-Years",
-                            "1-in-25-Years",
-                            "1-in-50-Years",
+                            # "1-in-2-Years",
+                            # "1-in-5-Years",
+                            # "1-in-10-Years",
+                            # "1-in-25-Years",
+                            # "1-in-50-Years",
                             "1-in-100-Years",
                             "1-in-250-Years",
                             "1-in-500-Years",
@@ -119,11 +119,11 @@ data$probability = factor(data$probability,
                              "0.2%",
                              "0.4%",
                              "1%",
-                             "2%",
-                             "4%",
-                             "10%",
-                             "20%",
-                             "50%"
+                             # "2%",
+                             # "4%",
+                             # "10%",
+                             # "20%",
+                             # "50%"
                            )
 )
 
@@ -143,38 +143,35 @@ data$radio = factor(data$radio,
 data = data[data$subsidence_model != 'nosub', ] 
 data$subsidence_model = NULL
 
+
+data$percentile2 = ''
+data$percentile = data %>%
+  mutate_at(vars(percentile), ~replace_na(., "high"))
+data$percentile2 = gsub("05.csv", "low", data$percentile)
+data$percentile2 = gsub("50.csv", "mean", data$percentile)
+write_csv(data, 'test.csv')
+
+
+
+
+data$percentile2[data$climatescenario == 'Historical'] <- 'mean'  
+
+
+
+
+
+
+
+
 data = data %>%
   mutate_at(vars(percentile), ~replace_na(., "high"))
-# unique(data$percentile)
 data$percentile = gsub("05.csv", "low", data$percentile)
 data$percentile = gsub("50.csv", "mean", data$percentile)
+write_csv(data, 'test.csv')
 data$percentile[data$climatescenario == 'Historical'] <- 'mean'  
 
 data$zero = NULL
 data$perc = NULL
-# table(data$percentile)
-# table(data$year)
-
-# data$interaction = paste(data$probability, data$climatescenario)
-# 
-# data$interaction = factor(data$interaction,
-#                     levels=c(
-#                        "0.1% Historical","0.1% RCP4.5", "0.1% RCP8.5",
-#                        "0.2% Historical","0.2% RCP4.5", "0.2% RCP8.5",
-#                        "0.4% Historical","0.4% RCP4.5", "0.4% RCP8.5",
-#                        "1% Historical","1% RCP4.5", "1% RCP8.5"
-#                              )#,
-#                     # labels=c("2G GSM","3G UMTS",
-#                     #          "4G LTE","5G NR"
-#                     # )
-# )
-
-# data_all  = data %>%
-#   group_by(interaction, year, #probability, returnperiod,
-#            radio, 
-#            percentile) %>%
-#   summarise(cell_count = round(sum(cell_count)/1e6,2))
-# data_all = data_all[data_all$percentile == 'mean', ] 
 
 data_aggregated  = data %>%
   group_by(year, climatescenario, probability, #returnperiod,
@@ -191,7 +188,8 @@ data_aggregated = spread(data_aggregated, percentile, cell_count)
 
 max_y_value = max(data_aggregated$mean)
 
-plot1 = ggplot(data_aggregated, 
+# plot1 = 
+  ggplot(data_aggregated, 
                aes(x=probability, y=mean, fill=climatescenario)) + 
   geom_bar(stat="identity", position = position_dodge()) +
   geom_errorbar(data=data_aggregated, aes(y=mean, ymin=low, ymax=high),
@@ -213,6 +211,11 @@ plot1 = ggplot(data_aggregated,
   scale_x_discrete(expand = c(0, 0.15)) +
   scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+.7)) +
   facet_wrap(~year, ncol=4, nrow=1)
+  
+  
+  
+  
+  
   
 
 data_aggregated  = data %>%
