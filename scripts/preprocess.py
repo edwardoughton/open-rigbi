@@ -763,8 +763,8 @@ def process_flooding_layers(country):
         #if 'river' in scenario:
         #    continue
 
-        if not os.path.basename(scenario) == 'inunriver_rcp4p5_0000HadGEM2-ES_2050_rp00500.tif':
-           continue
+        #if not os.path.basename(scenario) == 'inunriver_rcp4p5_0000HadGEM2-ES_2050_rp00500.tif':
+        #   continue
 
         filename = os.path.basename(scenario).replace('.tif','')
         path_in = os.path.join(hazard_dir, filename + '.tif')
@@ -774,23 +774,24 @@ def process_flooding_layers(country):
             os.makedirs(folder)
         path_out = os.path.join(folder, filename + '.tif')
 
-        if not os.path.exists(path_out):
+        #if not os.path.exists(path_out):
 
-            print('--{}: {}'.format(name, filename))
+        #    print('--{}: {}'.format(name, filename))
 
-            if not os.path.exists(folder):
-                os.makedirs(folder)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
 
-            try:
-                process_flood_layer(country, path_in, path_out)
-            except:
-                print('{} failed: {}'.format(country['iso3'], scenario))
-                failures.append({
-                    'iso3': country['iso3'],
-                    'filename': filename
-                })
-                continue
-
+        try:
+            process_flood_layer(country, path_in, path_out)
+        except:
+            print('{} failed: {}'.format(country['iso3'], scenario))
+            failures.append({
+                'iso3': country['iso3'],
+                'filename': filename
+            })
+            print(failures)
+            continue
+            
     return
 
 
@@ -863,13 +864,15 @@ if __name__ == "__main__":
     failures = []
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] == 'RWA':
-            continue
+        #if not country['iso3'] == 'RWA':
+        #    continue
 
-        #try:
-        run_preprocessing(country['iso3'])
+        print('Working on {}'.format(country['iso3']))
 
-        #except:
-        #    failures.append(
-        #    (country['iso3'],country['country']))
-        #print(failures)
+        try:
+            run_preprocessing(country['iso3'])
+
+        except:
+            failures.append(
+            (country['iso3'],country['country']))
+        print(failures)
