@@ -62,32 +62,32 @@ def run_preprocessing(iso3):
     for idx, region in regions_df.iterrows():
 
         region = region['GID_{}'.format(regional_level)]
-        # print(region)
+        #print(region)
         #if not region == 'USA.1.5_1':
         #    continue
 
         if regional_level == 1:
 
-            print('Working on segment_by_gid_1')
+            #print('Working on segment_by_gid_1')
             segment_by_gid_1(iso3, 1, region)
 
-            print('Working on create_regional_sites_layer')
+            #print('Working on create_regional_sites_layer')
             create_regional_sites_layer(iso3, 1, region)
 
         if regional_level == 2:
 
             gid_1 = get_gid_1(region)
 
-            print('Working on segment_by_gid_1')
+            #print('Working on segment_by_gid_1')
             segment_by_gid_1(iso3, 1, gid_1)
 
-            print('Working on create_regional_sites_layer')
+            #print('Working on create_regional_sites_layer')
             create_regional_sites_layer(iso3, 1, gid_1)
 
-            print('Working on segment_by_gid_2')
+            #print('Working on segment_by_gid_2')
             segment_by_gid_2(iso3, 2, region, gid_1)
 
-            print('Working on create_regional_sites_layer')
+            #print('Working on create_regional_sites_layer')
             create_regional_sites_layer(iso3, 2, region)
 
     print('Working on process_regional_flooding_layers')
@@ -256,22 +256,22 @@ def process_flooding_layers(country):
             os.makedirs(folder)
         path_out = os.path.join(folder, filename + '.tif')
 
-        if not os.path.exists(path_out):
+        #if not os.path.exists(path_out):
 
-            print('--{}: {}'.format(name, filename))
+        print('--{}: {}'.format(name, filename))
 
-            if not os.path.exists(folder):
-                os.makedirs(folder)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
 
-            # try:
+        try:
             process_flood_layer(country, path_in, path_out)
-            # except:
-            #     print('{} failed: {}'.format(country['iso3'], scenario))
-            #     failures.append({
-            #         'iso3': country['iso3'],
-            #         'filename': filename
-            #     })
-            #     continue
+        except:
+            print('{} failed: {}'.format(country['iso3'], scenario))
+            failures.append({
+                 'iso3': country['iso3'],
+                 'filename': filename
+            })
+            continue
 
     return
 
@@ -355,6 +355,8 @@ def segment_by_gid_1(iso3, level):
     filename = '{}.csv'.format(iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
     path = os.path.join(folder, filename)
+    if not os.path.exists(path):
+        return
     sites = pd.read_csv(path)#[:100]
 
     filename = 'regions_{}_{}.shp'.format(level, iso3)
@@ -905,11 +907,11 @@ def process_regional_flooding_layers(country, region):
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-        # try:
-        process_regional_flood_layer(country, region, path_in, path_out)
-        # except:
-        #     # print('{} failed: {}'.format(country['iso3'], scenario))
-        #     continue
+        try:
+            process_regional_flood_layer(country, region, path_in, path_out)
+        except:
+            print('{} failed: {}'.format(country['iso3'], scenario))
+            continue
 
     return
 
@@ -990,16 +992,17 @@ if __name__ == "__main__":
     #run_site_processing(iso3)
 
     countries = get_countries()
+     
     failures = []
     for idx, country in countries.iterrows():
 
-        # if not country['iso3'] == 'RWA':
-        #     continue
+        #if not country['iso3'] == 'TJK':
+        #    continue
 
-        #try:
-        run_preprocessing(country['iso3'])
+        try:
+            run_preprocessing(country['iso3'])
 
-        #except:
-        #    failures.append(
-        #    (country['iso3'],country['country']))
-        #print(failures)
+        except:
+            failures.append(
+            (country['iso3'],country['country']))
+        print(failures)

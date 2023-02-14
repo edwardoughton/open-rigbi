@@ -56,8 +56,8 @@ def get_countries():
 
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
-    countries = countries.sort_values(by=['iso3'], ascending=True)
-
+    #countries = countries.sort_values(by=['Population'], ascending=True)
+    countries = countries.sample(frac=1)
     return countries#[:10]
 
 
@@ -123,8 +123,8 @@ def get_scenarios():
 
     for scenario in scenarios:
 
-        #if 'river' in scenario:
-        #    continue
+        if 'coast' in scenario:
+            continue
 
         if any(x in scenario for x in return_periods): #specify return periods
 
@@ -394,14 +394,13 @@ def process_regions(iso3, level):
 if __name__ == '__main__':
 
     countries = get_countries()
+    for idx, country in countries.iterrows():
+        #if country['iso3'] == 'TJK':
+        print(country['country'])
 
-    # for country in countries:
-    #     print(country)
-
-    scenarios = get_scenarios()
-
-    for scenario in scenarios:
-        print(scenario)
+    #scenarios = get_scenarios()
+    #for scenario in scenarios:
+    #    print(scenario)
 
     #tropical_storm_scenarios = get_tropical_storm_scenarios()
     #for scenario in tropical_storm_scenarios:
