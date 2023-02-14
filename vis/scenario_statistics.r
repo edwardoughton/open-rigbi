@@ -129,7 +129,7 @@ plot1 =
          aes(x=interaction, y=mean_value, fill=continent)) + #, income_group
   geom_bar(stat="identity", position='stack') +
   geom_text(data = df_errorbar, aes(label = paste(round(mean_value,2),"m")), 
-            size = 1.2,
+            size = 1.5,
             # position = position_dodge(1), 
             vjust =-.5, hjust =.5, angle = 0) +
   theme(legend.position = '',
@@ -264,7 +264,7 @@ plot2 =
        aes(x=interaction, y=mean_value, fill=continent)) + #, income_group
   geom_bar(stat="identity", position='stack') +
   geom_text(data = df_errorbar, 
-    aes(label = paste(round(mean_value,2),"m")), size = 1.2,
+    aes(label = paste(round(mean_value,2),"m")), size = 1.5,
     vjust =-.5, hjust =.5, angle = 0) +
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=60, hjust=1)) +

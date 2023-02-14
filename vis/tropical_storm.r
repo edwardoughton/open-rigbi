@@ -151,7 +151,7 @@ historical = historical %>% ungroup()
 historical = select(historical, interaction, continent, low, mean, high)
 
 data = rbind(data, historical)
-unique(data$interaction)
+
 data$interaction = factor(data$interaction,
                                 levels=c(
                                   "0.01% Historical",
@@ -169,6 +169,7 @@ data$interaction = factor(data$interaction,
                                 ),
 )
 
+write_csv(data, 'tropical_storm_data.csv')
 
 rm(test, historical)
 
@@ -203,7 +204,7 @@ df_errorbar <-
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
        title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Cells",
-       subtitle = "Reported by Return Period and Model Type",
+       subtitle = "Reported by Return Period, Climate Scenario and Continent.",
        x = "", y = "Direct Damage Cost (USD Billions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +

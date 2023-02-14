@@ -90,11 +90,11 @@ data$probability[data$returnperiod == "rp1000"] = "0.1%" # (1/1000) * 100 = .1%
 
 data$returnperiod = factor(data$returnperiod,
                           levels=c(
-                            "rp0002",
-                            "rp0005",
-                            "rp0010",
-                            "rp0025",
-                            "rp0050",
+                            # "rp0002",
+                            # "rp0005",
+                            # "rp0010",
+                            # "rp0025",
+                            # "rp0050",
                             "rp0100",
                             "rp0250",
                             "rp0500",
@@ -118,7 +118,7 @@ data$probability = factor(data$probability,
                              "0.1%",
                              "0.2%",
                              "0.4%",
-                             "1%",
+                             "1%"#,
                              # "2%",
                              # "4%",
                              # "10%",
@@ -143,13 +143,12 @@ data$radio = factor(data$radio,
 data = data[data$subsidence_model != 'nosub', ] 
 data$subsidence_model = NULL
 
-
-data$percentile2 = ''
-data$percentile = data %>%
+write_csv(data, file.path(folder, 'test.csv'))
+data = data %>%
   mutate_at(vars(percentile), ~replace_na(., "high"))
-data$percentile2 = gsub("05.csv", "low", data$percentile)
-data$percentile2 = gsub("50.csv", "mean", data$percentile)
-write_csv(data, 'test.csv')
+data$percentile = gsub("05.csv", "low", data$percentile)
+data$percentile = gsub("50.csv", "mean", data$percentile)
+
 
 
 

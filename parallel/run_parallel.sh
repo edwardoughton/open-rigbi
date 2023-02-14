@@ -2,7 +2,7 @@
 
 source activate rigbi-env
 
-countries=`python /projects/open-rigbi/parallel/region_generator.py`
+countries=`python /projects/open-rigbi/parallel/scenario_generator.py`
 
 echo $countries
 
