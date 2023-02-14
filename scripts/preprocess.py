@@ -986,23 +986,23 @@ def process_regional_flood_layer(country, region, path_in, path_out):
 
 if __name__ == "__main__":
 
-    #args = sys.argv
-    #iso3 = args[1]
-    #print('Running site processing for {}'.format(iso3))
-    #run_site_processing(iso3)
+    args = sys.argv
+    iso3 = args[1]
+    print('Running site processing for {}'.format(iso3))
+    run_preprocessing(iso3)
 
-    countries = get_countries()
-     
-    failures = []
-    for idx, country in countries.iterrows():
+    # countries = get_countries()
 
-        #if not country['iso3'] == 'TJK':
-        #    continue
+    # failures = []
+    # for idx, country in countries.iterrows():
 
-        try:
-            run_preprocessing(country['iso3'])
+    #     #if not country['iso3'] == 'TJK':
+    #     #    continue
 
-        except:
-            failures.append(
-            (country['iso3'],country['country']))
-        print(failures)
+    #     try:
+    #         run_preprocessing(country['iso3'])
+
+    #     except:
+    #         failures.append(
+    #         (country['iso3'],country['country']))
+    #     print(failures)
