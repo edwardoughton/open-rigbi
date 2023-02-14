@@ -18,7 +18,7 @@ DATA_RAW = os.path.join(BASE_PATH, 'raw')
 
 def dl_flood_layers():
     """
-
+    Download WRI Aqueduct flooding layers.
     """
     path = 'http://wri-projects.s3.amazonaws.com/AqueductFloodTool/download/v2/index.html'
     page = requests.get(path)
@@ -29,8 +29,8 @@ def dl_flood_layers():
         if not in_path.endswith('.tif'):
             continue
 
-        if not 'inuncoast_rcp8p5_wtsub_2080_rp0500_0' in in_path:
-            continue
+        # if not 'inunriver_rcp4p5_00IPSL-CM5A-LR_2050_rp00250' in in_path:
+        #     continue
 
         filename = os.path.basename(in_path)
 
