@@ -68,11 +68,11 @@ if __name__ == "__main__":
 
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
-    
     #countries = countries[countries['iso3'] == 'USA']
-    
-    regions = get_regional_id_information(countries)#[:1]
-    
-    random.shuffle(regions)
+    countries = countries['iso3']
+    countries.tolist()
+    print(*countries, sep='\n')    
 
-    print(*regions, sep='\n')
+    #regions = get_regional_id_information(countries)#[:1]
+    #random.shuffle(regions)
+    #print(*regions, sep='\n')

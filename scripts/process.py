@@ -271,7 +271,7 @@ def estimate_results(country, region, scenarios, regional_level):
 
         if os.path.exists(path_output):
             print('path_output exists {}'.format(path_output))
-           continue
+            continue
 
         filename = '{}_{}.csv'.format(region, scenario_name)
         folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'flood_scenarios')
