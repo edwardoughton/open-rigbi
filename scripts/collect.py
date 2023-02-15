@@ -7,7 +7,7 @@ import os
 import configparser
 import pandas as pd
 
-from misc import get_countries
+from misc import get_countries, get_scenarios
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -31,16 +31,17 @@ def collect_regional_results(scenario):
 
     output = []
 
-    scenario_name = os.path.basename(scenario)#[:-4]
+    scenario_name = os.path.basename(scenario).replace('.tif','')#[:-4]
     path_out = os.path.join(folder_out, scenario_name + '.csv')
-    #print('writing to {}'.format(path_out))
+    # print('writing to {}'.format(path_out))
     for idx, country in countries.iterrows():
 
-        print('Working on {}'.format(country['iso3']))
+        # if not country['iso3'] == 'RWA':
+        #     continue
+
+        # print('Working on {}'.format(country['iso3']))
 
         collect_country_regional_results(country['iso3'], scenario)
-
-        scenario_name = os.path.basename(scenario)#[:-4]
 
         folder = os.path.join(DATA_PROCESSED, country['iso3'],
             'results', 'regional_aggregated', 'regions')
@@ -55,15 +56,18 @@ def collect_regional_results(scenario):
             continue
 
         for filename in all_regional_results:
-            #print(filename, scenario_name)
+
+            filename = filename.replace('.csv','')
+            # print(filename, scenario_name)
             if not scenario_name in filename:
                 continue
+            # print(filename, scenario_name)
+            # if not 'STORM' in filename:
+            #     continue
 
-            if not 'STORM' in filename:
-                continue
-
-            path_in = os.path.join(folder, filename)
+            path_in = os.path.join(folder, filename + '.csv')
             if not os.path.exists(path_in):
+                print('here')
                 continue
             try:
                 data = pd.read_csv(path_in)
@@ -71,12 +75,12 @@ def collect_regional_results(scenario):
                 output = output + data
             except:
                 print('failed on {})'.format(path_in))
-            #print(len(output))
+
     if len(output) == 0:
         return
 
     output = pd.DataFrame(output)
-    #print('writing: {}'.format(path_out))
+    print('writing: {}'.format(path_out))
     output.to_csv(path_out, index=False)
 
     return
@@ -89,7 +93,7 @@ def collect_country_regional_results(iso3, scenario):
     """
     output = []
 
-    scenario_name = os.path.basename(scenario)#[:-4]
+    scenario_name = os.path.basename(scenario).replace('.tif','')#[:-4]
     folder = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_aggregated', 'regions')
 
     if not os.path.exists(folder):
@@ -146,13 +150,13 @@ def collect_final_results(scenario):
 
     output = []
 
-    scenario_name = os.path.basename(scenario)#[:-4]
+    scenario_name = os.path.basename(scenario).replace('.tif','')
 
     path_out = os.path.join(folder_out, scenario_name + '.csv')
     #print('writing to {}'.format(path_out))
     for idx, country in countries.iterrows():
 
-        # if not country['iso3'] == 'GBR':
+        # if not country['iso3'] == 'RWA':
         #     continue
 
         print('Working on {}'.format(country['iso3']))
@@ -248,7 +252,7 @@ def collect_national_results(iso3, scenario):
     """
     output = []
 
-    scenario_name = os.path.basename(scenario)#[:-4]
+    scenario_name = os.path.basename(scenario).replace('.tif','')#[:-4]
     folder = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario_name)
 
     if not os.path.exists(folder):
@@ -261,10 +265,12 @@ def collect_national_results(iso3, scenario):
 
     for filename in all_regional_results:
 
+        filename = filename.replace('.csv','')
+
         if not scenario_name in filename:
             continue
 
-        path_in = os.path.join(folder, filename)
+        path_in = os.path.join(folder, filename + '.csv')
 
         if not os.path.exists(path_in):
             continue
@@ -299,3 +305,13 @@ if __name__ == "__main__":
 
     print('collecting final results')
     collect_final_results(args[1])
+
+    # scenarios = get_scenarios()
+
+    # for scenario in scenarios:
+
+    #     print('collecting regional results')
+    #     collect_regional_results(scenario)
+
+    #     print('collecting final results')
+    #     collect_final_results(scenario)
