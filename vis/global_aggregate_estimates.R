@@ -271,7 +271,7 @@ ggsave(path, units="in", width=8, height=6, dpi=300)
 ###################
 #####Aggregate cells
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, 'results_v2')
+data_directory = file.path(folder, 'results_v3')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="inunriver")
