@@ -43,7 +43,7 @@ def process_tropical_storm_layers(countries, scenario):
         name = country['country']
 
         filename = os.path.basename(scenario).replace('.tif','')
-        print(filename)
+        # print(filename)
         path_in = os.path.join(hazard_dir, filename + '.tif')
 
         folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'tropical_storm')
@@ -221,13 +221,13 @@ def process_regional_storm_layer(country, region, path_in, path_out):
     iso3 = country['iso3']
     filename = 'regions_{}_{}.shp'.format(regional_level, iso3)
     path_country = os.path.join(DATA_PROCESSED, iso3, 'regions', filename)
-    #print(path_country, path_in)   
+    #print(path_country, path_in)
     if os.path.exists(path_country):
         regions = gpd.read_file(path_country)
         region = regions[regions[gid_level] == region]
     else:
         print('Must generate national_outline.shp first' )
-        return    
+        return
 
     if os.path.exists(path_out):
         return

@@ -136,7 +136,6 @@ def collect_country_regional_results(iso3, scenario):
     return
 
 
-
 def collect_final_results(scenario):
     """
     Collect all results.

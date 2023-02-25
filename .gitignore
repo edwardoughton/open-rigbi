@@ -138,10 +138,13 @@ results/*
 vis/results_v1/*
 vis/results_v2/*
 vis/results_v3/*
+vis/results_v4/*
 vis/figures/*
 vis/results/*
 data/raw/*
 vis/wb_maps/*
+vis/data/*
+vis/regional_results/*
 
 rigbi-env/*
 personal_access_token.txt

@@ -24,7 +24,7 @@ def collect(countries, scenarios):
     # gid_level = 'GID_{}'.format(country['gid_region'])
 
     folder_in = os.path.join(DATA_PROCESSED, 'results', 'validation', 'country_data')
-    folder_out = os.path.join(DATA_PROCESSED, 'results', 'validation')
+    #folder_out = os.path.join(DATA_PROCESSED, 'results', 'validation')
 
     for idx, country in countries.iterrows():
         #print(country['iso3'])

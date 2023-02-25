@@ -30,11 +30,6 @@ DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 
-
-
-
-
-
 if __name__ == "__main__":
 
     os.environ['GDAL_DATA'] = ("C:\\Users\\edwar\\Anaconda3\\Library\\share\\gdal")
@@ -71,7 +66,6 @@ if __name__ == "__main__":
             continue
 
         for idx, region in regions.iterrows():
-
 
             region = region['GID_{}'.format(country['gid_region'])]
             #if not 'USA.2.1_1' in region: #'USA.10.43_1' in region:# or not 'USA.51.' in region:
