@@ -145,6 +145,7 @@ data/raw/*
 vis/wb_maps/*
 vis/data/*
 vis/regional_results/*
+validation/*
 
 rigbi-env/*
 personal_access_token.txt
