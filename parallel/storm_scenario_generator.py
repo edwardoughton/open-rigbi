@@ -33,4 +33,14 @@ if __name__ == "__main__":
 
     scenarios = [i.replace('.tif','') for i in scenarios]
 
+    scenarios = [
+    'STORM_FIXED_RETURN_PERIODS_CNRM-CM6-1-HR_10000_YR_RP',
+    'STORM_FIXED_RETURN_PERIODS_CNRM-CM6-1-HR_1000_YR_RP',
+    'STORM_FIXED_RETURN_PERIODS_EC-Earth3P-HR_500_YR_RP',
+    'STORM_FIXED_RETURN_PERIODS_HadGEM3-GC31-HM_500_YR_RP',
+    'STORM_FIXED_RETURN_PERIODS_constant_1000_YR_RP',
+    'STORM_FIXED_RETURN_PERIODS_CMCC-CM2-VHR4_50_YR_RP',
+    'STORM_FIXED_RETURN_PERIODS_EC-Earth3P-HR_10000_YR_RP'
+    ]
+
     print(*scenarios, sep='\n')

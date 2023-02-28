@@ -7,7 +7,7 @@ import os
 import configparser
 import pandas as pd
 
-from misc import get_countries, get_scenarios, get_regions
+from misc import get_countries, get_scenarios, get_regions, get_tropical_storm_scenarios
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -27,15 +27,18 @@ def collect(countries, scenarios):
     #folder_out = os.path.join(DATA_PROCESSED, 'results', 'validation')
 
     for idx, country in countries.iterrows():
-        #print(country['iso3'])
-        if not country['iso3'] in ['AUS','NZL','ASM','FJI','FSM','GUM','NCL','PLW','PNG','PYF','SLB','TON','TUV','VUT','ARG','WSM']:
-            continue
+        
+        #if not country['iso3'] in ['ARG']:
+        #    continue
 
         print("Working on {}".format(country['iso3']))
 
         output = []
 
         for scenario_path in scenarios:#[:1]:
+
+            if '_perc_' in scenario_path:
+                continue
 
             scenario = os.path.basename(scenario_path).replace('.tif','')
 
@@ -103,11 +106,12 @@ def collect(countries, scenarios):
                 year = scenario.split('_')[3]
                 return_period = scenario.split('_')[4]
                 remaining_portion = scenario.split('_')[5]
-                if remaining_portion == '0':
+                #print(remaining_portion, scenario)
+                if not len(scenario.split('_')) > 6:
                     percentile = 0
                 else:
                     percentile = scenario.split('_')[7]#[:-4]
-
+                #print(percentile)
             output.append({
                 'iso3': country['iso3'],
                 'hazard': hazard,
@@ -166,6 +170,9 @@ if __name__ == "__main__":
 
     countries = get_countries()
     scenarios = get_scenarios()
+    #scenarios_tropical = get_tropical_storm_scenarios()
+
+    scenarios = scenarios
 
     collect(countries, scenarios)
 
