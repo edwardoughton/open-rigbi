@@ -304,9 +304,9 @@ def query_tropical_storm_layers(countries, scenario):
                 os.makedirs(folder_out)
             path_output = os.path.join(folder_out, filename)
 
-            if os.path.exists(path_output):
-                print('storm layer output file already exists: {}'.format(path_output))
-                continue
+            #if os.path.exists(path_output):
+            #    print('storm layer output file already exists: {}'.format(path_output))
+            #    continue
 
             filename = '{}.csv'.format(region)
             folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
@@ -410,9 +410,9 @@ def estimate_results(countries, scenario):
             folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario)
             path_output = os.path.join(folder_out, filename)
 
-            if os.path.exists(path_output):
-                print('results file already exists {}'.format(path_output))
-                continue
+            #if os.path.exists(path_output):
+            #    print('results file already exists {}'.format(path_output))
+            #    continue
 
             filename = '{}_{}.csv'.format(region, scenario)
             folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'tropical_storm_scenarios')

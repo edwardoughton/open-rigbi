@@ -57,7 +57,7 @@ def get_countries():
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
     #countries = countries.sort_values(by=['Population'], ascending=True)
-    countries = countries.sample(frac=1)
+    #countries = countries.sample(frac=1)
     return countries#[:10]
 
 
@@ -123,8 +123,8 @@ def get_scenarios():
 
     for scenario in scenarios:
 
-        if 'coast' in scenario:
-            continue
+        #if not 'inuncoast_rcp4p5_wtsub_2030_rp0250' in scenario:
+        #    continue
 
         if any(x in scenario for x in return_periods): #specify return periods
 
@@ -174,6 +174,8 @@ def get_scenarios():
     #'inuncoast_rcp4p5_wtsub_2050_rp0100_0',
     #'inuncoast_rcp8p5_wtsub_2080_rp0500_0',
     #]
+
+    #output = ['inuncoast_rcp4p5_wtsub_2030_rp0250_0']
 
     return output #['inuncoast_rcp4p5_wtsub_2080_rp0100_0']
 
@@ -393,14 +395,14 @@ def process_regions(iso3, level):
 
 if __name__ == '__main__':
 
-    countries = get_countries()
-    for idx, country in countries.iterrows():
-        #if country['iso3'] == 'TJK':
-        print(country['country'])
+    #countries = get_countries()
+    #for idx, country in countries.iterrows():
+    #    #if country['iso3'] == 'TJK':
+    #    print(country['country'])
 
-    #scenarios = get_scenarios()
-    #for scenario in scenarios:
-    #    print(scenario)
+    scenarios = get_scenarios()
+    for scenario in scenarios:
+        print(scenario)
 
     #tropical_storm_scenarios = get_tropical_storm_scenarios()
     #for scenario in tropical_storm_scenarios:
