@@ -9,15 +9,10 @@ March 2022.
 import os
 import sys
 import configparser
-# import json
-# import csv
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import seaborn as sns
-# import contextily as ctx
-# import openpyxl
-# import xlwings as xw
 from shapely.geometry import MultiPolygon
 
 CONFIG = configparser.ConfigParser()
@@ -30,7 +25,7 @@ DATA_PROCESSED = os.path.join(BASE_PATH, '..', 'vis', 'processed')
 VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures')
 
 sys.path.insert(1, os.path.join(BASE_PATH, '..','scripts'))
-from misc import get_countries, get_regions
+from misc import get_countries #, get_regions
 
 
 def get_country_outlines(countries):
@@ -126,7 +121,7 @@ def collect_results(countries):
     Collect results.
 
     """
-    filename = 'inunriver_rcp85_mean_results.csv'
+    filename = 'tropical_storm_rcp85_mean_results.csv'
     folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data')
     path_out = os.path.join(folder_out, filename)
 
@@ -135,7 +130,7 @@ def collect_results(countries):
         # output = output.to_dict('records')
         return output
 
-    filename = 'inunriver_rcp85_regions.csv'
+    filename = 'tropical_storm_rcp85_regions.csv'
     folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data')
     path = os.path.join(folder_out, filename)
 
@@ -147,10 +142,13 @@ def collect_results(countries):
 
         for filename in os.listdir(folder_in):
 
-            if not 'inunriver_rcp8p5' in filename:
+            if not 'STORM' in filename:
                 continue
 
-            if not '2080_rp01000' in filename:
+            if not '_1000_YR_RP' in filename:
+                continue
+
+            if 'PERIODS_constant' in filename:
                 continue
 
             data = pd.read_csv(os.path.join(folder_in, filename))
@@ -206,7 +204,7 @@ def collect_results(countries):
             })
 
         interim = pd.DataFrame(interim)
-        filename = 'inunriver_rcp85_mean_results.csv'
+        filename = 'tropical_storm_rcp85_mean_results.csv'
         folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data', 'countries', country['iso3'])
         if not os.path.exists(folder_out):
             os.makedirs(folder_out)
@@ -219,7 +217,7 @@ def collect_results(countries):
 
         print('Working on {}'.format(country['iso3']))
 
-        filename = 'inunriver_rcp85_mean_results.csv'
+        filename = 'tropical_storm_rcp85_mean_results.csv'
         folder_in = os.path.join(BASE_PATH, '..', 'vis', 'data', 'countries', country['iso3'])
         path_in = os.path.join(folder_in, filename)
         if not os.path.exists(path_in):
@@ -231,7 +229,7 @@ def collect_results(countries):
         data = data.to_dict('records')
         output = output + data
 
-    filename = 'inunriver_rcp85_mean_results.csv'
+    filename = 'tropical_storm_rcp85_mean_results.csv'
     folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data')
     path_out = os.path.join(folder_out, filename)
 
@@ -305,7 +303,7 @@ def combine_data(results, regions):
 
     regions = regions.merge(results, how='left', left_on='gid_id', right_on='gid_id')
     regions.reset_index(drop=True, inplace=True)
-    regions.to_file(os.path.join(VIS,'..','data','country_data_riverine.shp'))
+    regions.to_file(os.path.join(VIS,'..','data','country_data_tropical_storm.shp'))
 
     return regions
 
@@ -328,8 +326,11 @@ def plot_regional_results(regions, path, countries):
     # zeros = regions[regions['cost'] == 0]
     # regions = regions[regions['cost'] != 0]
 
-    bins = [-10,10,20,30,40,50,60,70,80,90, 1e12]
-    labels = ['<$10m','$20m','$30m','$40m','$50m','$60m','$70m','$80m','$90m','>$100m']
+    # bins = [-10,10,20,30,40,50,60,70,80,90, 1e12]
+    # labels = ['<$10m','$20m','$30m','$40m','$50m','$60m','$70m','$80m','$90m','>$100m']
+
+    bins = [-10,5,10,15,20,25,30,35,40,45, 1e12]
+    labels = ['<$5m','$10m','$15m','$20m','$25m','$30m','$35m','$40m','$45m','>$50m']
 
     regions['bin'] = pd.cut(
         regions[metric],
@@ -359,7 +360,7 @@ def plot_regional_results(regions, path, countries):
     # ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
     # inunriver_rcp8p5_00000NorESM1-M_2030_rp00100
     n = len(regions)
-    name = 'Mean Direct Damage Cost From Riverine Flooding (2080, RCP8.5, 1-in-1000) (n={})'.format(n)
+    name = 'Mean Direct Damage Cost from a 1-in-1000 Tropical Storm (2050, RCP8.5) (n={})'.format(n)
     fig.suptitle(name)
 
     fig.tight_layout()
@@ -378,15 +379,15 @@ if __name__ == "__main__":
     # #### out = pd.DataFrame(results)
     # #### out.to_csv(os.path.join(VIS, '..', 'data.csv'))
 
-    regions = get_regional_shapes(countries)#[:1000]
-    regions = combine_data(results, regions)
-    regions = pd.DataFrame(regions)
+    # regions = get_regional_shapes(countries)#[:1000]
+    # regions = combine_data(results, regions)
+    # # regions = pd.DataFrame(regions)
 
-    #### regions = regions[['GID_id', 'cost', 'decile']]
-    #### regions.to_csv(os.path.join(VIS, '..', 'test.csv'))
+    # #### regions = regions[['GID_id', 'cost', 'decile']]
+    # #### regions.to_csv(os.path.join(VIS, '..', 'test.csv'))
 
-    path_in_shp = os.path.join(VIS,'..','data','country_data_riverine.shp')
+    path_in_shp = os.path.join(VIS,'..','data','country_data_tropical_storm.shp')
     regions = gpd.read_file(path_in_shp, crs='epsg:4326')#[:1000]
 
-    path_in = os.path.join(VIS, 'regions_by_cost_riverine.png')
+    path_in = os.path.join(VIS, 'regions_by_cost_tropical_storm.png')
     plot_regional_results(regions, path_in, countries_shps)

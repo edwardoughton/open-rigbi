@@ -10,7 +10,7 @@ library(stringr)
 ###################
 #####Aggregate cells
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, 'results_v4')
+data_directory = file.path(folder, 'results_v5')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="inuncoast")
@@ -36,6 +36,10 @@ import_function = lapply(metric_files, function(x) {
   return(df_merge)})
 
 data <- do.call(rbind, import_function)
+
+# data = data[(data$radio == 'LTE' | data$radio == 'UMTS'),]
+data = data[(data$radio == 'GSM'),]
+data = data[complete.cases(data[ , c('radio')]), ]
 
 rm(empty_df, import_function)
 
@@ -255,7 +259,7 @@ ggsave(path, units="in", width=8, height=6, dpi=300)
 ###################
 #####Aggregate cells
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, 'results_v4')
+data_directory = file.path(folder, 'results_v5')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="inunriver")
@@ -281,6 +285,10 @@ import_function = lapply(metric_files, function(x) {
   return(df_merge)})
 
 data <- do.call(rbind, import_function)
+
+# data = data[(data$radio == 'LTE' | data$radio == 'UMTS'),]
+data = data[(data$radio == 'LTE'),]
+data = data[complete.cases(data[ , c('radio')]), ]
 
 rm(empty_df, import_function)
 
@@ -561,7 +569,7 @@ ggsave(path, units="in", width=8, height=6, dpi=300)
 ########################################################
 #####Tropical storms
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, 'results_v4')
+data_directory = file.path(folder, 'results_v5')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="STORM")
@@ -587,6 +595,9 @@ import_function = lapply(metric_files, function(x) {
   return(df_merge)})
 
 data <- do.call(rbind, import_function)
+
+data = data[(data$radio != 'LTE' | data$radio != 'UMTS'),]
+data = data[complete.cases(data[ , c('radio')]), ]
 
 rm(empty_df, import_function)
 
