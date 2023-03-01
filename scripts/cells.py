@@ -26,24 +26,26 @@ def count_cells(country):
 
     """
     regional_level = country['gid_region']
-    gid_level = 'GID_{}'.format(regional_level) #regional_level
+    gid_level = 'gid_{}'.format(regional_level) #regional_level
     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
 
     regions_df = get_regions(country, regional_level)
 
     if len(regions_df) == 0:
+        print("len(regions_df) == 0")
         return
 
     output = []
 
     for idx, region in regions_df.iterrows():
 
-        region = region[gid_level]
-
+        region = region["GID_{}".format(regional_level)]
+        
         filename = "{}.csv".format(region)
         path_in = os.path.join(folder, filename)
-
+        
         if not os.path.exists(path_in):
+            print("path_in did not exist: {}".format(path_in))
             continue
 
         data = pd.read_csv(path_in)
@@ -54,7 +56,7 @@ def count_cells(country):
         cells_5g = 0
 
         for idx, row in data.iterrows():
-
+            
             if row['radio'] == 'GSM':
                 cells_2g += 1
             elif row['radio'] == 'UMTS':
@@ -73,7 +75,7 @@ def count_cells(country):
             "cells_4g": cells_4g,
             "cells_5g": cells_5g,
         })
-
+        
     if not len(output) > 0:
         return
 
@@ -102,6 +104,8 @@ def collect_cells(countries):
 
         if not os.path.exists(path_in):
             continue
+        
+        print("Collecting cells for {}".format(country['iso3']))
 
         data = pd.read_csv(path_in)
         data = data.to_dict('records')
@@ -125,9 +129,11 @@ if __name__ == "__main__":
     countries = get_countries()
 
     for idx, country in countries.iterrows():
-
+        
         # if not country['iso3'] == 'RWA':
         #     continue
+        
+        print("Working on {}".format(country['iso3']))
 
         count_cells(country)
 
