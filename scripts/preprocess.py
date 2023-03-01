@@ -42,58 +42,73 @@ def run_preprocessing(iso3):
     country = country.to_records('dicts')[0]
     regional_level = int(country['gid_region'])
 
-    print('Working on create_national_sites_csv')
-    create_national_sites_csv(country)
+    # print('Working on create_national_sites_csv')
+    # create_national_sites_csv(country)
 
-    print('Working on process_country_shapes')
-    process_country_shapes(iso3)
+    # print('Working on process_country_shapes')
+    # process_country_shapes(iso3)
 
-    print('Working on process_regions')
-    process_regions(iso3, regional_level)
+    # print('Working on process_regions')
+    # process_regions(iso3, regional_level)
 
-    print('Working on create_national_sites_shp')
-    create_national_sites_shp(iso3)
+    # print('Working on create_national_sites_shp')
+    # create_national_sites_shp(iso3)
 
-    print('Working on process_flooding_layers')
-    process_flooding_layers(country)
+    # print('Working on process_flooding_layers')
+    # process_flooding_layers(country)
 
     regions_df = get_regions(country, regional_level)#[:1]#[::-1]
-    print('Working on regional disaggregation')
-    for idx, region in regions_df.iterrows():
+    # print('Working on regional disaggregation')
+    # for idx, region in regions_df.iterrows():
 
-        region = region['GID_{}'.format(regional_level)]
-        #print(region)
-        #if not region == 'USA.1.5_1':
+    #     region = region['GID_{}'.format(regional_level)]
+    #     #print(region)
+    #     #if not region == 'USA.1.5_1':
+    #     #    continue
+
+    #     if regional_level == 1:
+
+    #         #print('Working on segment_by_gid_1')
+    #         segment_by_gid_1(iso3, 1, region)
+
+    #         #print('Working on create_regional_sites_layer')
+    #         create_regional_sites_layer(iso3, 1, region)
+
+    #     if regional_level == 2:
+
+    #         gid_1 = get_gid_1(region)
+
+    #         #print('Working on segment_by_gid_1')
+    #         segment_by_gid_1(iso3, 1, gid_1)
+
+    #         #print('Working on create_regional_sites_layer')
+    #         create_regional_sites_layer(iso3, 1, gid_1)
+
+    #         #print('Working on segment_by_gid_2')
+    #         segment_by_gid_2(iso3, 2, region, gid_1)
+
+    #         #print('Working on create_regional_sites_layer')
+    #         create_regional_sites_layer(iso3, 2, region)
+
+    # print('Working on process_regional_flooding_layers')
+    # for idx, region in regions_df.iterrows():
+    #     region = region['GID_{}'.format(regional_level)]
+    #     process_regional_flooding_layers(country, region)
+
+    print('Convert cell estimates to site estimates')
+    gid_id = "GID_{}".format(regional_level)
+    region_ids = regions_df[gid_id].unique()
+    for region in region_ids:
+
+        polygon = regions_df[regions_df[gid_id] == region]
+
+        if not len(polygon) > 0:
+            continue
+
+        # if not region == 'RWA.1_1':
         #    continue
 
-        if regional_level == 1:
-
-            #print('Working on segment_by_gid_1')
-            segment_by_gid_1(iso3, 1, region)
-
-            #print('Working on create_regional_sites_layer')
-            create_regional_sites_layer(iso3, 1, region)
-
-        if regional_level == 2:
-
-            gid_1 = get_gid_1(region)
-
-            #print('Working on segment_by_gid_1')
-            segment_by_gid_1(iso3, 1, gid_1)
-
-            #print('Working on create_regional_sites_layer')
-            create_regional_sites_layer(iso3, 1, gid_1)
-
-            #print('Working on segment_by_gid_2')
-            segment_by_gid_2(iso3, 2, region, gid_1)
-
-            #print('Working on create_regional_sites_layer')
-            create_regional_sites_layer(iso3, 2, region)
-
-    print('Working on process_regional_flooding_layers')
-    for idx, region in regions_df.iterrows():
-        region = region['GID_{}'.format(regional_level)]
-        process_regional_flooding_layers(country, region)
+        create_sites_layer(country, regional_level, region, polygon)
 
     return
 
@@ -982,6 +997,107 @@ def process_regional_flood_layer(country, region, path_in, path_out):
             dest.write(out_img)
 
     return
+
+
+def create_sites_layer(country, regional_level, region, polygon):
+    """
+    Process cell estimates into an estimated site layer.
+
+    """
+    gid_level = "gid_{}".format(regional_level)
+    filename = "{}.csv".format(region)
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
+    path = os.path.join(folder, filename)
+
+    if not os.path.join(path):
+        return
+
+    data = pd.read_csv(path)
+
+    data = convert_to_gpd_df(data)
+
+    data = gpd.overlay(data, polygon, how='intersection')
+
+    data['cell_id'] = round(data['cell'] / 256)
+    unique_operators = data['net'].unique()
+    unique_cell_ids = data['cell_id'].unique()
+    unique_radios = data['radio'].unique()
+
+    output = []
+
+    for unique_operator in unique_operators:
+        for unique_cell_id in unique_cell_ids:
+            for unique_radio in unique_radios:
+
+                latitudes = []
+                longitudes = []
+
+                for idx, row in data.iterrows():
+
+                    if not unique_operator == row['net']:
+                        continue
+
+                    if not unique_cell_id == row['cell_id']:
+                        continue
+
+                    if not unique_radio == row['radio']:
+                        continue
+
+                    lon, lat = row['cellid4326'].split("_")
+                    latitudes.append(float(lat))
+                    longitudes.append(float(lon))
+
+                if len(latitudes) == 0:
+                    continue
+                latitude = sum(latitudes) / len(latitudes)
+
+                if len(longitudes) == 0:
+                    continue
+                longitude = sum(longitudes) / len(longitudes)
+
+                output.append({
+                    "radio": unique_radio,
+                    "net": unique_operator,
+                    "cell_id": unique_cell_id,
+                    "latitude": latitude,
+                    "longitude": longitude,
+                    "cellid4326": "{}_{}".format(latitude, longitude)
+                })
+
+    if len(output) == 0:
+        return
+
+    output = pd.DataFrame(output)
+
+    filename = "{}_unique.csv".format(region)
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
+    path_out = os.path.join(folder, filename)
+    output.to_csv(path_out, index=False)
+
+    return
+
+
+def convert_to_gpd_df(data):
+    """
+    Convert pandas df to geopandas df.
+
+    """
+
+    lon = data['cellid4326'].str.split("_", n = 1, expand = True)#[0]
+    lat = data['cellid4326'].str.split("_", n = 1, expand = True)#[1]
+
+    data['lon'] = lon[0]
+    data['lat'] = lat[1]
+
+    data['lon'] = pd.to_numeric(data['lon'])
+    data['lat'] = pd.to_numeric(data['lat'])
+
+    data = gpd.GeoDataFrame(
+        data,
+        geometry=gpd.points_from_xy(data.lon, data.lat), crs='epsg:4326'
+    )
+
+    return data
 
 
 if __name__ == "__main__":
