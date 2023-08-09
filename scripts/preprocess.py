@@ -18,6 +18,7 @@ from shapely.geometry import Point, box
 import rasterio
 from rasterio.mask import mask
 from tqdm import tqdm
+import numpy as np
 
 from misc import get_countries, process_country_shapes, process_regions, get_regions, get_scenarios
 
@@ -99,7 +100,7 @@ def run_preprocessing(iso3):
     gid_id = "GID_{}".format(regional_level)
     region_ids = regions_df[gid_id].unique()
     for region in region_ids:
-
+        print(region)
         polygon = regions_df[regions_df[gid_id] == region]
 
         if not len(polygon) > 0:
@@ -1005,26 +1006,33 @@ def create_sites_layer(country, regional_level, region, polygon):
 
     """
     gid_level = "gid_{}".format(regional_level)
+    filename = "{}_unique.csv".format(region)
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
+    path_out = os.path.join(folder, filename)
+    
+    if os.path.exists(path_out):
+        return
+
     filename = "{}.csv".format(region)
     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
     path = os.path.join(folder, filename)
 
-    if not os.path.join(path):
+    if not os.path.exists(path):
         return
 
-    data = pd.read_csv(path)
+    data = pd.read_csv(path)#[:500]
 
     data = convert_to_gpd_df(data)
 
     data = gpd.overlay(data, polygon, how='intersection')
 
-    data['cell_id'] = round(data['cell'] / 256)
+    data['cell_id'] = np.floor(data['cell'] / 256)
     unique_operators = data['net'].unique()
     unique_cell_ids = data['cell_id'].unique()
     unique_radios = data['radio'].unique()
 
     output = []
-
+    
     for unique_operator in unique_operators:
         for unique_cell_id in unique_cell_ids:
             for unique_radio in unique_radios:
@@ -1033,20 +1041,20 @@ def create_sites_layer(country, regional_level, region, polygon):
                 longitudes = []
 
                 for idx, row in data.iterrows():
-
+                    
                     if not unique_operator == row['net']:
-                        continue
-
+                        continue 
+                    #print('aaa')
                     if not unique_cell_id == row['cell_id']:
                         continue
-
+                    #print('there')
                     if not unique_radio == row['radio']:
                         continue
-
+                    #print('here')
                     lon, lat = row['cellid4326'].split("_")
                     latitudes.append(float(lat))
                     longitudes.append(float(lon))
-
+                    #print(len(longitudes))
                 if len(latitudes) == 0:
                     continue
                 latitude = sum(latitudes) / len(latitudes)
@@ -1054,7 +1062,7 @@ def create_sites_layer(country, regional_level, region, polygon):
                 if len(longitudes) == 0:
                     continue
                 longitude = sum(longitudes) / len(longitudes)
-
+                #print(len(output))
                 output.append({
                     "radio": unique_radio,
                     "net": unique_operator,
@@ -1066,12 +1074,12 @@ def create_sites_layer(country, regional_level, region, polygon):
 
     if len(output) == 0:
         return
-
+    #print(output)
     output = pd.DataFrame(output)
 
-    filename = "{}_unique.csv".format(region)
-    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
-    path_out = os.path.join(folder, filename)
+    #filename = "{}_unique.csv".format(region)
+    #folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
+    #path_out = os.path.join(folder, filename)
     output.to_csv(path_out, index=False)
 
     return
