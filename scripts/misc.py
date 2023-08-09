@@ -56,6 +56,7 @@ def get_countries():
 
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
+    countries = countries.to_dict('records')
     #countries = countries.sort_values(by=['Population'], ascending=True)
     #countries = countries.sample(frac=1)
     return countries#[:10]
@@ -208,52 +209,8 @@ def get_tropical_storm_scenarios():
 
     output = list(output)
     output.sort()
+
     return output#[:1]
-
-
-def generate_mean_scenarios(scenarios, return_periods):
-    """
-    Generate mean scenario names.
-
-    """
-    output = []
-
-    climate_scenarios = set()
-    years = set()
-    return_periods = set()
-
-    for scenario in scenarios:
-
-        if not 'inunriver' in scenario:
-            continue
-
-        basename = os.path.basename(scenario).replace('.tif', '')
-
-        climate_scenario = basename.split('_')[1]
-        if not 'historical' in climate_scenario:
-            climate_scenarios.add(climate_scenario)
-
-        year = basename.split('_')[3]
-        if not any(x in year for x in ['1980', 'hist']):
-            years.add(year)
-
-        return_periods.add(basename.split('_')[4])
-
-    for climate_scenario in list(climate_scenarios):
-        for year in list(years):
-            for return_period in list(return_periods):
-
-                scenario = 'inunriver_{}_model-mean_{}_{}.tif'.format(
-                    climate_scenario,
-                    year,
-                    return_period
-                )
-
-                scenario_path = os.path.join('data', 'raw', 'flood_hazard', scenario)
-
-                output.append(scenario_path)
-
-    return output
 
 
 def process_country_shapes(iso3):
@@ -364,8 +321,8 @@ def process_regions(iso3, level):
         folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
         path_processed = os.path.join(folder, filename)
 
-        if os.path.exists(path_processed):
-            continue
+        # if os.path.exists(path_processed):
+        #     continue
 
         print('Processing GID_{} region shapes'.format(regional_level))
 
@@ -380,7 +337,7 @@ def process_regions(iso3, level):
 
         regions = regions.copy()
         regions["geometry"] = regions.geometry.simplify(
-            tolerance=0.005, preserve_topology=True)
+            tolerance=0.003, preserve_topology=True)
 
         regions['geometry'] = regions.apply(remove_small_shapes, axis=1)
 
