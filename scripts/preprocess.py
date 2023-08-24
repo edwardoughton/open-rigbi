@@ -43,75 +43,79 @@ def run_preprocessing(iso3):
     country = country.to_records('dicts')[0]
     regional_level = int(country['gid_region'])
 
-    print('Working on create_national_sites_csv')
-    create_national_sites_csv(country)
+    # print('Working on create_national_sites_csv')
+    # create_national_sites_csv(country)
 
-    print('Working on process_country_shapes')
-    process_country_shapes(iso3)
+    # print('Working on process_country_shapes')
+    # process_country_shapes(iso3)
 
-    print('Working on process_regions')
-    process_regions(iso3, regional_level)
+    # print('Working on process_regions')
+    # process_regions(iso3, regional_level)
 
-    print('Working on create_national_sites_shp')
-    create_national_sites_shp(iso3)
+    # print('Working on create_national_sites_shp')
+    # create_national_sites_shp(iso3)
 
     # print('Working on process_flooding_layers')
     # process_flooding_layers(country)
 
     regions_df = get_regions(country, regional_level)#[:1]#[::-1]
-    regions_df = regions_df.to_records('dicts')
+    regions = regions_df.to_dict('records')
 
-    print('Working on regional disaggregation')
-    for region in regions_df:
+    # print('Working on regional disaggregation')
+    # for region in regions:
 
-        region = region['GID_{}'.format(regional_level)]
+    #     region = region['GID_{}'.format(regional_level)]
 
-        # if not region == 'BDI.6.6_1':
-        #    continue
+    #     if not region == 'BGD.1.1_1':
+    #        continue
 
-        if regional_level == 1:
+    #     if regional_level == 1:
 
-            #print('Working on segment_by_gid_1')
-            segment_by_gid_1(iso3, 1, region)
+    #         #print('Working on segment_by_gid_1')
+    #         segment_by_gid_1(iso3, 1, region)
 
-            #print('Working on create_regional_sites_layer')
-            create_regional_sites_layer(iso3, 1, region)
+    #         #print('Working on create_regional_sites_layer')
+    #         create_regional_sites_layer(iso3, 1, region)
 
-        if regional_level == 2:
+    #     if regional_level == 2:
 
-            gid_1 = get_gid_1(region)
+    #         gid_1 = get_gid_1(region)
 
-            #print('Working on segment_by_gid_1')
-            segment_by_gid_1(iso3, 1, gid_1)
+    #         #print('Working on segment_by_gid_1')
+    #         segment_by_gid_1(iso3, 1, gid_1)
 
-            #print('Working on create_regional_sites_layer')
-            create_regional_sites_layer(iso3, 1, gid_1)
+    #         #print('Working on create_regional_sites_layer')
+    #         create_regional_sites_layer(iso3, 1, gid_1)
 
-            #print('Working on segment_by_gid_2')
-            segment_by_gid_2(iso3, 2, region, gid_1)
+    #         #print('Working on segment_by_gid_2')
+    #         segment_by_gid_2(iso3, 2, region, gid_1)
 
-            #print('Working on create_regional_sites_layer')
-            create_regional_sites_layer(iso3, 2, region)
+    #         #print('Working on create_regional_sites_layer')
+    #         create_regional_sites_layer(iso3, 2, region)
 
     # print('Working on process_regional_flooding_layers')
     # for region in regions_df:
+
+    #     # if not region['GID_2'] == 'BGD.5.8_1':
+    #     #    continue
+
     #     region = region['GID_{}'.format(regional_level)]
     #     process_regional_flooding_layers(country, region)
 
-    # print('Convert cell estimates to site estimates')
-    # gid_id = "GID_{}".format(regional_level)
+    print('Convert cell estimates to site estimates')
+    gid_id = "GID_{}".format(regional_level)
     # region_ids = regions_df[gid_id].unique()
-    # for region in region_ids:
-    #     print(region)
-    #     polygon = regions_df[regions_df[gid_id] == region]
+    for region in regions:
+        # print(region)
+        # polygon = regions_df[regions_df[gid_id] == region]
 
-    #     if not len(polygon) > 0:
-    #         continue
+        # if not len(polygon) > 0:
+        #     continue
 
-    #     # if not region == 'RWA.1_1':
-    #     #    continue
+        if not region['GID_2'] == 'BGD.1.1_1':
+           continue
 
-    #     create_sites_layer(country, regional_level, region, polygon)
+        create_sites_layer(country, regional_level, region['GID_2'], region['geometry'])
 
     return
 
@@ -742,7 +746,7 @@ def process_regional_flooding_layers(country, region):
     hazard_dir = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding')
 
     for scenario in scenarios:
-
+        # print(scenario)
         #if 'river' in scenario:
         #    continue
 
@@ -760,19 +764,19 @@ def process_regional_flooding_layers(country, region):
             os.makedirs(folder)
         path_out = os.path.join(folder, region + '_' + filename + '.tif')
 
-        if os.path.exists(path_out):
-            continue
+        # if os.path.exists(path_out):
+        #     continue
 
         print('--{}: {}'.format(region, filename))
 
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-        try:
-            process_regional_flood_layer(country, region, path_in, path_out)
-        except:
-            print('{} failed: {}'.format(country['iso3'], scenario))
-            continue
+        # try:
+        process_regional_flood_layer(country, region, path_in, path_out)
+        # except:
+        #     print('{} failed: {}'.format(country['iso3'], scenario))
+        #     continue
 
     return
 
@@ -793,7 +797,7 @@ def process_regional_flood_layer(country, region, path_in, path_out):
 
     """
     iso3 = country['iso3']
-    regional_level = country['gid_region']
+    regional_level = int(country['gid_region'])
     gid_level = 'GID_{}'.format(regional_level)
 
     hazard = rasterio.open(path_in, 'r+', BIGTIFF='YES')
@@ -812,9 +816,7 @@ def process_regional_flood_layer(country, region, path_in, path_out):
         return
 
     geo = gpd.GeoDataFrame()
-
     geo = gpd.GeoDataFrame({'geometry': region['geometry']})
-
     coords = [json.loads(geo.to_json())['features'][0]['geometry']]
 
     out_img, out_transform = mask(hazard, coords, crop=True)
@@ -838,7 +840,7 @@ def process_regional_flood_layer(country, region, path_in, path_out):
                     "width": out_img.shape[2],
                     "transform": out_transform,
                     "crs": 'epsg:4326'})
-    #print(path_out)
+
     with rasterio.open(path_out, "w", **out_meta) as dest:
             dest.write(out_img)
 
@@ -855,29 +857,35 @@ def create_sites_layer(country, regional_level, region, polygon):
     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
     path_out = os.path.join(folder, filename)
     
-    if os.path.exists(path_out):
-        return
+    # if os.path.exists(path_out):
+    #     return
 
     filename = "{}.csv".format(region)
     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
     path = os.path.join(folder, filename)
 
-    if not os.path.exists(path):
-        return
+    # if not os.path.exists(path):
+    #     return
 
     data = pd.read_csv(path)#[:500]
 
     data = convert_to_gpd_df(data)
 
-    data = gpd.overlay(data, polygon, how='intersection')
+    polygon_df = gpd.GeoDataFrame({'geometry': polygon}, crs='epsg:4326')
+    data = gpd.overlay(data, polygon_df, how='intersection')
 
-    data['cell_id'] = np.floor(data['cell'] / 256)
-    data = data.to_dict('records')
+    data['bs_id_float'] = data['cell'] / 256
+    data['bs_id_int'] = np.round(data['bs_id_float'],0)
+    data['sector_id'] = data['bs_id_float'] - data['bs_id_int']
+    data['sector_id'] = np.round(data['sector_id'].abs() * 256)
+    # data.to_csv(path_out, index=False)
     
     unique_operators = data['net'].unique()
-    unique_cell_ids = data['cell_id'].unique()
+    unique_cell_ids = data['bs_id_int'].unique()
     unique_radios = data['radio'].unique()
 
+    data = data.to_dict('records')
+    
     output = []
     
     for unique_operator in unique_operators:
@@ -891,17 +899,17 @@ def create_sites_layer(country, regional_level, region, polygon):
                     
                     if not unique_operator == row['net']:
                         continue 
-                    #print('aaa')
-                    if not unique_cell_id == row['cell_id']:
+
+                    if not unique_cell_id == row['bs_id_int']:
                         continue
-                    #print('there')
+
                     if not unique_radio == row['radio']:
                         continue
-                    #print('here')
+
                     lon, lat = row['cellid4326'].split("_")
                     latitudes.append(float(lat))
                     longitudes.append(float(lon))
-                    #print(len(longitudes))
+
                 if len(latitudes) == 0:
                     continue
                 latitude = sum(latitudes) / len(latitudes)
@@ -909,7 +917,7 @@ def create_sites_layer(country, regional_level, region, polygon):
                 if len(longitudes) == 0:
                     continue
                 longitude = sum(longitudes) / len(longitudes)
-                #print(len(output))
+
                 output.append({
                     "radio": unique_radio,
                     "net": unique_operator,
@@ -921,7 +929,7 @@ def create_sites_layer(country, regional_level, region, polygon):
 
     if len(output) == 0:
         return
-    #print(output)
+
     output = pd.DataFrame(output)
 
     #filename = "{}_unique.csv".format(region)
