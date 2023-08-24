@@ -175,7 +175,7 @@ def get_scenarios():
     #'inuncoast_rcp4p5_wtsub_2050_rp0100_0',
     #'inuncoast_rcp8p5_wtsub_2080_rp0500_0',
     #]
-
+    print(output)
     #output = ['inuncoast_rcp4p5_wtsub_2030_rp0250_0']
 
     return output #['inuncoast_rcp4p5_wtsub_2080_rp0100_0']
