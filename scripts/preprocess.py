@@ -58,16 +58,16 @@ def run_preprocessing(iso3):
     # print('Working on process_flooding_layers')
     # process_flooding_layers(country)
 
-    regions_df = get_regions(country, regional_level)#[:1]#[::-1]
-    regions = regions_df.to_dict('records')
+    # regions_df = get_regions(country, regional_level)#[:1]#[::-1]
+    # regions = regions_df.to_dict('records')
 
     # print('Working on regional disaggregation')
     # for region in regions:
 
     #     region = region['GID_{}'.format(regional_level)]
 
-    #     if not region == 'BGD.1.1_1':
-    #        continue
+    #     # if not region == 'BGD.1.1_1':
+    #     #    continue
 
     #     if regional_level == 1:
 
@@ -93,9 +93,12 @@ def run_preprocessing(iso3):
     #         #print('Working on create_regional_sites_layer')
     #         create_regional_sites_layer(iso3, 2, region)
 
-    # print('Working on process_regional_flooding_layers')
-    # for region in regions_df:
+    regions_df = get_regions(country, regional_level)#[:1]#[::-1]
+    regions = regions_df.to_dict('records')
 
+    # print('Working on process_regional_flooding_layers')
+    # for region in regions:
+    #     print(region)
     #     # if not region['GID_2'] == 'BGD.5.8_1':
     #     #    continue
 
@@ -104,18 +107,16 @@ def run_preprocessing(iso3):
 
     print('Convert cell estimates to site estimates')
     gid_id = "GID_{}".format(regional_level)
-    # region_ids = regions_df[gid_id].unique()
+
     for region in regions:
-        # print(region)
-        # polygon = regions_df[regions_df[gid_id] == region]
 
         # if not len(polygon) > 0:
         #     continue
 
-        if not region['GID_2'] == 'BGD.1.1_1':
-           continue
+        # if not region['GID_2'] == 'BGD.1.1_1':
+        #   continue
 
-        create_sites_layer(country, regional_level, region['GID_2'], region['geometry'])
+        create_sites_layer(country, regional_level, region[gid_id], region['geometry'])
 
     return
 
@@ -870,10 +871,14 @@ def create_sites_layer(country, regional_level, region, polygon):
     data = pd.read_csv(path)#[:500]
 
     data = convert_to_gpd_df(data)
+    
+    if polygon.type == 'Polygon':
+        polygon_df = gpd.GeoDataFrame({'geometry': polygon}, index=[0], crs='epsg:4326')
+    elif polygon.type == 'MultiPolygon':
+        polygon_df = gpd.GeoDataFrame({'geometry': polygon.geoms}, crs='epsg:4326')
 
-    polygon_df = gpd.GeoDataFrame({'geometry': polygon}, crs='epsg:4326')
     data = gpd.overlay(data, polygon_df, how='intersection')
-
+    
     data['bs_id_float'] = data['cell'] / 256
     data['bs_id_int'] = np.round(data['bs_id_float'],0)
     data['sector_id'] = data['bs_id_float'] - data['bs_id_int']
