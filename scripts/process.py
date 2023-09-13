@@ -17,7 +17,7 @@ from shapely.geometry import shape, Point, mapping, LineString, MultiPolygon
 import rasterio
 import random
 
-from misc import get_countries, get_scenarios, get_regions
+from misc import get_countries, get_scenarios, get_regions, get_f_curves
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -27,23 +27,28 @@ DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 
-def run_site_processing(iso3):
+def run_site_processing(region_id):
     """
     Meta function for running site processing.
 
     """
-    filename = "countries.csv"
-    path = os.path.join(DATA_RAW, filename)
+    iso3 = region_id[:3]
+    filename = "{}.csv".format(iso3)
+    path = os.path.join(DATA_PROCESSED, iso3, filename)
 
-    countries = pd.read_csv(path, encoding='latin-1')
-    country = countries[countries.iso3 == iso3]
+    country = pd.read_csv(path, encoding='latin-1')
     country = country.to_records('dicts')[0]
     regional_level = int(country['gid_region'])
+    gid_level = 'GID_{}'.format(regional_level)
 
     scenarios = get_scenarios()#[:1]
     regions_df = get_regions(country, regional_level)#[:1]#[::-1]
+    regions = regions_df.to_dict('records')
 
-    for idx, region in regions_df.iterrows():
+    for region in regions:
+
+        if not region[gid_level] == 'BGD.4.10_1':
+           continue
 
         print('Working on process_flooding_extent_stats')
         process_flooding_extent_stats(country, region, scenarios, regional_level)
@@ -112,7 +117,7 @@ def process_flooding_extent_stats(country, region, scenarios, regional_level):
 
         for idx, row in enumerate(data):
             for idx2, i in enumerate(row):
-                if i > 0.001 and i < 150:
+                if i >= 0.000001 and i < 150:
                     coords = raster.transform * (idx2, idx)
                     depths.append(i)
                 else:
@@ -175,40 +180,46 @@ def query_hazard_layers(country, region, scenarios, regional_level):
 
     for scenario in scenarios: #tqdm(scenarios):
 
-        print('Working on {}'.format(scenario))
+        scenario_name = os.path.basename(scenario).replace('.tif', '')
+
+        print('Working on {}'.format(scenario_name))
 
         output = []
 
-        scenario_name = os.path.basename(scenario).replace('.tif', '')
-
-        filename = '{}_{}.csv'.format(region, scenario_name)
+        filename = '{}_{}_unique.csv'.format(region, scenario_name)
         folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'flood_scenarios')
         path_output = os.path.join(folder_out, filename)
 
-        if os.path.exists(path_output):
-           continue
+        # if os.path.exists(path_output):
+        #    continue
 
-        filename = '{}.csv'.format(region)
+        filename = '{}_{}.tif'.format(region, scenario_name)
+        folder_in = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional')
+        path_in = os.path.join(folder_in, filename)
+
+        filename = '{}_unique.csv'.format(region)
         folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
-        path = os.path.join(folder, filename)
+        path_sites = os.path.join(folder, filename)
 
-        if not os.path.exists(path):
-            print('path did not exist: {}'.format(path))
+        if not os.path.exists(path_sites):
+            print('path did not exist: {}'.format(path_sites))
             continue
 
-        sites = pd.read_csv(path)#[:10]
+        sites = pd.read_csv(path_sites)#[:5]
+        sites = sites.to_dict('records')
 
         failures = 0
 
-        for idx, site in sites.iterrows():
+        for site in sites:
 
-            x = float(site['cellid4326'].split('_')[0])
-            y = float(site['cellid4326'].split('_')[1])
+            x = float(site['longitude'])
+            y = float(site['latitude'])
 
-            with rasterio.open(scenario) as src:
 
-                src.kwargs = {'nodata':255}
+            with rasterio.open(path_in) as src:
 
+                src.kwargs = {'nodata': -9999}
+                    
                 coords = [(x, y)]
 
                 depth = [sample[0] for sample in src.sample(coords)][0]
@@ -218,14 +229,16 @@ def query_hazard_layers(country, region, scenarios, regional_level):
 
                 output.append({
                     'radio': site['radio'],
-                    'mcc': site['mcc'],
+                    # 'mcc': site['mcc'],
                     'net': site['net'],
-                    'area': site['area'],
-                    'cell': site['cell'],
+                    # 'area': site['area'],
+                    'cell': site['cell_id'],
+                    'latitude': site['latitude'],
+                    'longitude': site['longitude'],
                     'gid_level': gid_level,
                     'gid_id': region,
                     'cellid4326': site['cellid4326'],
-                    'cellid3857': site['cellid3857'],
+                    # 'cellid3857': site['cellid3857'],
                     'depth': depth,
                 })
 
@@ -252,9 +265,9 @@ def estimate_results(country, region, scenarios, regional_level):
     gid_level = 'GID_{}'.format(regional_level)
     region = region[gid_level]
 
-    filename = 'fragility_curve.csv'
-    path_fragility = os.path.join(DATA_RAW, filename)
-    low, baseline, high = load_f_curves(path_fragility)
+    # filename = 'fragility_curve.csv'
+    # path_fragility = os.path.join(DATA_RAW, filename)
+    low, baseline, high = load_f_curves() #path_fragility)
 
     for scenario in scenarios: #tqdm
 
@@ -265,23 +278,24 @@ def estimate_results(country, region, scenarios, regional_level):
         # if not region == 'EGY.1_1':
         #     continue
 
-        filename = '{}_{}.csv'.format(region, scenario_name)
+        filename = '{}_{}_unique.csv'.format(region, scenario_name)
         folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario_name)
         path_output = os.path.join(folder_out, filename)
 
-        if os.path.exists(path_output):
-            print('path_output exists {}'.format(path_output))
-            continue
+        # if os.path.exists(path_output):
+        #     print('path_output exists {}'.format(path_output))
+        #     continue
 
-        filename = '{}_{}.csv'.format(region, scenario_name)
+        filename = '{}_{}_unique.csv'.format(region, scenario_name)
         folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'flood_scenarios')
         path_in = os.path.join(folder, filename)
         if not os.path.exists(path_in):
             # print('path_in does not exist {}'.format(path_in))
             continue
         sites = pd.read_csv(path_in)
+        sites = sites.to_dict('records')
 
-        for idx, site in sites.iterrows():
+        for site in sites:
 
             if not site['depth'] > 0:
                 continue
@@ -292,25 +306,26 @@ def estimate_results(country, region, scenarios, regional_level):
 
             output.append({
                 'radio': site['radio'],
-                'mcc': site['mcc'],
+                # 'mcc': site['mcc'],
                 'net': site['net'],
-                'area': site['area'],
+                # 'area': site['area'],
                 'cell': site['cell'],
+                'latitude': site['latitude'],
+                'longitude': site['longitude'],
                 'gid_level': gid_level,
                 'gid_id': region,
                 'cellid4326': site['cellid4326'],
-                'cellid3857': site['cellid3857'],
+                # 'cellid3857': site['cellid3857'],
                 'depth': site['depth'],
                 'damage_low': damage_low,
                 'damage_baseline': damage_baseline,
                 'damage_high': damage_high,
-                'cost_usd_low': round(40000 * damage_low),
-                'cost_usd_baseline': round(40000 * damage_baseline),
-                'cost_usd_high': round(40000 * damage_high),
+                'cost_usd_low': round(33333.333 * damage_low),
+                'cost_usd_baseline': round(33333.333 * damage_baseline),
+                'cost_usd_high': round(33333.333 * damage_high),
             })
 
         if len(output) == 0:
-            #print('len(output) == 0')
             continue
 
         if not os.path.exists(folder_out):
@@ -322,7 +337,7 @@ def estimate_results(country, region, scenarios, regional_level):
     return
 
 
-def load_f_curves(path_fragility):
+def load_f_curves():
     """
     Load depth-damage curves.
 
@@ -331,9 +346,9 @@ def load_f_curves(path_fragility):
     baseline = []
     high = []
 
-    f_curves = pd.read_csv(path_fragility)
+    f_curves = get_f_curves()
 
-    for idx, item in f_curves.iterrows():
+    for item in f_curves:
 
         my_dict = {
             'depth_lower_m': item['depth_lower_m'],
@@ -394,10 +409,10 @@ def convert_to_regional_results(country, region, scenarios, regional_level):
         output = []
 
         scenario_name = os.path.basename(scenario)[:-4]
-        filename = '{}_{}.csv'.format(region, scenario_name)
+        filename = '{}_{}_unique.csv'.format(region, scenario_name)
         path_out = os.path.join(folder_out, filename)
 
-        filename = '{}_{}.csv'.format(region, scenario_name)
+        filename = '{}_{}_unique.csv'.format(region, scenario_name)
         folder_in = os.path.join(DATA_PROCESSED, iso3, 'results',
             'regional_data', scenario_name)
         path_in = os.path.join(folder_in, filename)
@@ -422,6 +437,7 @@ def convert_to_regional_results(country, region, scenarios, regional_level):
             continue
 
         data = pd.read_csv(path_in, sep=',')
+        data = data.to_dict('records')
 
         if len(data) == 0:
             continue
@@ -441,7 +457,7 @@ def convert_to_regional_results(country, region, scenarios, regional_level):
             cost_usd_baseline = 0
             cost_usd_high = 0
 
-            for idx, item in data.iterrows():
+            for item in data:
 
                 if not item['gid_id'] == gid_id:
                     continue
@@ -487,6 +503,6 @@ if __name__ == "__main__":
 
     args = sys.argv
 
-    scenario = args[1]
+    region_id = args[1]
 
-    run_site_processing(scenario)
+    run_site_processing(region_id)
