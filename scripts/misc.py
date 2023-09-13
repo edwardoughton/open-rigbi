@@ -175,7 +175,7 @@ def get_scenarios():
     #'inuncoast_rcp4p5_wtsub_2050_rp0100_0',
     #'inuncoast_rcp8p5_wtsub_2080_rp0500_0',
     #]
-    print(output)
+    # print(output)
     #output = ['inuncoast_rcp4p5_wtsub_2030_rp0250_0']
 
     return output #['inuncoast_rcp4p5_wtsub_2080_rp0100_0']
@@ -348,6 +348,39 @@ def process_regions(iso3, level):
             pass
 
     return
+
+
+def get_f_curves():
+    """
+    Fragility curves.
+    
+    """
+    return [
+    {'depth_lower_m': 0.0, 'depth_upper_m': 0.3, 'damage': 0.25, 'scenario': 'baseline', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 0.3, 'depth_upper_m': 1.0, 'damage': 0.5, 'scenario': 'baseline', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 1.0, 'depth_upper_m': 1.5, 'damage': 0.65, 'scenario': 'baseline', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 1.5, 'depth_upper_m': 2.0, 'damage': 0.8, 'scenario': 'baseline', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 2.0, 'depth_upper_m': 2.5, 'damage': 1.0, 'scenario': 'baseline', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 2.5, 'depth_upper_m': 3.0, 'damage': 1.0, 'scenario': 'baseline', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 3.0, 'depth_upper_m': 4.0, 'damage': 1.0, 'scenario': 'baseline', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 4.0, 'depth_upper_m': 5.0, 'damage': 1.0, 'scenario': 'baseline', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 0.0, 'depth_upper_m': 0.3, 'damage': 0.13, 'scenario': 'low', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 0.3, 'depth_upper_m': 1.0, 'damage': 0.25, 'scenario': 'low', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 1.0, 'depth_upper_m': 1.5, 'damage': 0.33, 'scenario': 'low', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 1.5, 'depth_upper_m': 2.0, 'damage': 0.4, 'scenario': 'low', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 2.0, 'depth_upper_m': 2.5, 'damage': 0.5, 'scenario': 'low', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 2.5, 'depth_upper_m': 3.0, 'damage': 0.6, 'scenario': 'low', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 3.0, 'depth_upper_m': 4.0, 'damage': 0.8, 'scenario': 'low', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 4.0, 'depth_upper_m': 5.0, 'damage': 1.0, 'scenario': 'low', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 0.0, 'depth_upper_m': 0.3, 'damage': 0.5, 'scenario': 'high', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 0.3, 'depth_upper_m': 1.0, 'damage': 0.75, 'scenario': 'high', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 1.0, 'depth_upper_m': 1.5, 'damage': 1.0, 'scenario': 'high', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 1.5, 'depth_upper_m': 2.0, 'damage': 1.0, 'scenario': 'high', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 2.0, 'depth_upper_m': 2.5, 'damage': 1.0, 'scenario': 'high', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 2.5, 'depth_upper_m': 3.0, 'damage': 1.0, 'scenario': 'high', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 3.0, 'depth_upper_m': 4.0, 'damage': 1.0, 'scenario': 'high', 'source': 'kok_et_al_2004'}, 
+    {'depth_lower_m': 4.0, 'depth_upper_m': 5.0, 'damage': 1.0, 'scenario': 'high', 'source': 'kok_et_al_2004'}
+]
 
 
 if __name__ == '__main__':
