@@ -61,49 +61,49 @@ def run_preprocessing(iso3):
     regions_df = get_regions(country, regional_level)#[:1]#[::-1]
     regions = regions_df.to_dict('records')
 
-    # print('Working on regional disaggregation')
-    # for region in regions:
+    print('Working on regional disaggregation')
+    for region in regions:
 
-    #     # if not region['GID_2'] == 'AFG.1.5_1': #'BGD.1.1_1':
-    #     #   continue
+        # if not region['GID_2'] == 'BGD.1.4_1': #'BGD.1.1_1':
+        #   continue
 
-    #     region = region['GID_{}'.format(regional_level)]
+        region = region['GID_{}'.format(regional_level)]
 
-    #     if regional_level == 1:
+        if regional_level == 1:
 
-    #         #print('Working on segment_by_gid_1')
-    #         segment_by_gid_1(iso3, 1, region)
+            #print('Working on segment_by_gid_1')
+            segment_by_gid_1(iso3, 1, region)
 
-    #         #print('Working on create_regional_sites_layer')
-    #         create_regional_sites_layer(iso3, 1, region)
+            #print('Working on create_regional_sites_layer')
+            create_regional_sites_layer(iso3, 1, region)
 
-    #     if regional_level == 2:
+        if regional_level == 2:
 
-    #         gid_1 = get_gid_1(region)
+            gid_1 = get_gid_1(region)
 
-    #         #print('Working on segment_by_gid_1')
-    #         segment_by_gid_1(iso3, 1, gid_1)
+            #print('Working on segment_by_gid_1')
+            segment_by_gid_1(iso3, 1, gid_1)
 
-    #         #print('Working on create_regional_sites_layer')
-    #         create_regional_sites_layer(iso3, 1, gid_1)
+            #print('Working on create_regional_sites_layer')
+            create_regional_sites_layer(iso3, 1, gid_1)
 
-    #         #print('Working on segment_by_gid_2')
-    #         segment_by_gid_2(iso3, 2, region, gid_1)
+            #print('Working on segment_by_gid_2')
+            segment_by_gid_2(iso3, 2, region, gid_1)
 
-    #         #print('Working on create_regional_sites_layer')
-    #         create_regional_sites_layer(iso3, 2, region)
+            #print('Working on create_regional_sites_layer')
+            create_regional_sites_layer(iso3, 2, region)
 
-    # regions_df = get_regions(country, regional_level)#[:1]#[::-1]
-    # regions = regions_df.to_dict('records')
+    regions_df = get_regions(country, regional_level)#[:1]#[::-1]
+    regions = regions_df.to_dict('records')
 
-    # # print('Working on process_regional_flooding_layers')
-    # # for region in regions:
-    # #     print(region)
-    # #     # if not region['GID_2'] == 'BGD.5.8_1':
-    # #     #    continue
+    print('Working on process_regional_flooding_layers')
+    for region in regions:
 
-    # #     region = region['GID_{}'.format(regional_level)]
-    # #     process_regional_flooding_layers(country, region)
+        # if not region['GID_2'] == 'BGD.1.4_1':
+        #    continue
+
+        region = region['GID_{}'.format(regional_level)]
+        process_regional_flooding_layers(country, region)
 
     print('Convert cell estimates to site estimates')
     gid_id = "GID_{}".format(regional_level)
@@ -113,7 +113,7 @@ def run_preprocessing(iso3):
         # if not len(polygon) > 0:
         #     continue
 
-        # if not region['GID_2'] == 'AFG.1.5_1': #'BGD.1.1_1':
+        # if not region['GID_2'] == 'BGD.1.4_1':
         #   continue
 
         create_sites_layer(country, regional_level, region[gid_id], region['geometry'])

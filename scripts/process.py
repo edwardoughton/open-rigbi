@@ -47,7 +47,7 @@ def run_site_processing(region_id):
 
     for region in regions:
 
-        if not region[gid_level] == 'BGD.4.10_1':
+        if not region[gid_level] == region_id:
            continue
 
         print('Working on process_flooding_extent_stats')
@@ -178,6 +178,15 @@ def query_hazard_layers(country, region, scenarios, regional_level):
     gid_level = 'GID_{}'.format(regional_level) #regional_level
     region = region[gid_level]
 
+    filename = 'coastal_lookup.csv'
+    folder = os.path.join(DATA_PROCESSED, iso3, 'coastal')
+    path_coastal = os.path.join(folder, filename)
+    if not os.path.exists(path_coastal):
+        coastal_lut = []
+    else:
+        coastal_lut = pd.read_csv(path_coastal)
+        coastal_lut = list(coastal_lut['gid_id'])
+
     for scenario in scenarios: #tqdm(scenarios):
 
         scenario_name = os.path.basename(scenario).replace('.tif', '')
@@ -190,8 +199,11 @@ def query_hazard_layers(country, region, scenarios, regional_level):
         folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'flood_scenarios')
         path_output = os.path.join(folder_out, filename)
 
-        # if os.path.exists(path_output):
-        #    continue
+        if os.path.exists(path_output):
+           continue
+
+        if 'inuncoast' in scenario and region not in coastal_lut:
+            continue
 
         filename = '{}_{}.tif'.format(region, scenario_name)
         folder_in = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional')
@@ -437,12 +449,13 @@ def convert_to_regional_results(country, region, scenarios, regional_level):
             continue
 
         data = pd.read_csv(path_in, sep=',')
+        gid_ids = list(data['gid_id'].unique())
+
         data = data.to_dict('records')
 
         if len(data) == 0:
             continue
 
-        gid_ids = list(data['gid_id'].unique())
         # radios = list(data['radio'].unique())
         # networks = list(data['net'].unique())
 
