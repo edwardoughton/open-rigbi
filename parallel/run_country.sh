@@ -3,7 +3,7 @@
 
 full_code=$1
 
-echo -----running on `hostname`: full_code
+echo -----running on `hostname`: $full_code
 
 iso3=${full_code:0:3}
 
