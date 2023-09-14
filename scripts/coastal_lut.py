@@ -19,7 +19,7 @@ from misc import get_countries
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
 BASE_PATH = CONFIG['file_locations']['base_path']
-DATA_RAW = os.path.join(BASE_PATH, '..', '..', 'data_raw')
+DATA_RAW = os.path.join(BASE_PATH, 'raw')
 
 
 def process_coastal_shapefile():
@@ -135,22 +135,19 @@ def process_regional_lut(country):
                         'properties': {
                             'gid_id': region[gid_level],
                             'gid_level': gid_level,
-                            # 'iso3': iso3
                         }
                     })
                     my_csv.append({
                         'gid_id': region[gid_level],
                         'gid_level': gid_level,
-                        # 'iso3': iso3
                     })
 
-    if len(my_shp) == 0:
+    if len(my_csv) == 0:
         return  
 
-    ##shp files
-    output = gpd.GeoDataFrame.from_features(my_shp)
-    
-    # filename = 'coastal_regions.shp'
+    # ##shp files
+    # output = gpd.GeoDataFrame.from_features(my_shp)
+        # filename = 'coastal_regions.shp'
     # folder_out = os.path.join(BASE_PATH, 'processed', iso3, 'coastal')
     # if not os.path.exists(folder_out):
     #     os.makedirs(folder_out)
@@ -173,8 +170,8 @@ if __name__ == "__main__":
 
     for country in countries:
 
-        if not country['iso3'] == 'CIV':
-            continue
+        # if not country['iso3'] == 'CIV':
+        #     continue
 
         print("---- {}".format(country['iso3']))
 
