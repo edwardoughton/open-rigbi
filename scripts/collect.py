@@ -27,7 +27,7 @@ def collect_regional_results(scenario):
     folder_out = os.path.join(DATA_PROCESSED, 'results', 'regional')
 
     if not os.path.exists(folder_out):
-        os.makedirs(folder_out)
+        os.mkdir(folder_out)
 
     output = []
 
