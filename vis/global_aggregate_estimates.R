@@ -10,7 +10,7 @@ library(stringr)
 ###################
 #####Aggregate cells
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, 'results_v5')
+data_directory = file.path(folder, 'results')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="inuncoast")
@@ -168,7 +168,7 @@ data$perc = NULL
 data_aggregated  = data %>%
   group_by(year, climatescenario, probability, #returnperiod,
            percentile) %>%
-  summarise(cell_count = round(sum(cell_count_baseline)/1e6,2))
+  summarise(cell_count = round(sum(cell_count_baseline)/1e3,3))
 
 hist = data_aggregated[data_aggregated$climatescenario == 'Historical', ] 
 data_aggregated = data_aggregated[data_aggregated$climatescenario != 'Historical', ] 
@@ -188,20 +188,20 @@ plot1 =
                 position = position_dodge(1),
                 lwd = 0.2,
                 show.legend = FALSE, width=0.7,  color="#FF0000FF") +
-  geom_text(aes(label = paste(round(mean,2),"Mn")), size = 1.8,
+  geom_text(aes(label = paste(round(mean,1),"")), size = 1.8,
             position = position_dodge(1), vjust =.5, hjust =-.5, angle = 90)+
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
        title = "Estimated Coastal Flooding Impact to Mobile Voice/Data Cells",
        subtitle = "Reported by Annual Probability, Year, and Climate Scenario.", 
-       x = "Annual Probability", y = "Cells (Millions)", fill=NULL) +
+       x = "Annual Probability", y = "Sites (Thousands)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+.7)) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+25)) +
   facet_wrap(~year, ncol=4, nrow=1)
   
   
@@ -240,7 +240,7 @@ plot2 = ggplot(data_aggregated,
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+17)) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+1.5)) +
   facet_wrap(~year, ncol=4, nrow=1)
 
 ggarrange(
@@ -259,7 +259,7 @@ ggsave(path, units="in", width=8, height=6, dpi=300)
 ###################
 #####Aggregate cells
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, 'results_v5')
+data_directory = file.path(folder, 'results')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="inunriver")
@@ -460,7 +460,7 @@ inunriver = rbind(inunriver, historical_v2)
 
 rm(historical_v2)
 
-inunriver$value = inunriver$value/1e6
+inunriver$value = inunriver$value/1e3
 inunriver = spread(inunriver, key, value)
 
 max_y_value = max(inunriver$mean)
@@ -473,20 +473,20 @@ plot1 = ggplot(inunriver,
                 position = position_dodge(1),
                 lwd = 0.2,
                 show.legend = FALSE, width=0.5,  color="#FF0000FF") +
-  geom_text(aes(label = paste(round(mean,1),"Mn")), size = 1.8,
+  geom_text(aes(label = paste(round(mean,1),"")), size = 1.8,
             position = position_dodge(1), vjust =.5, hjust=-.7, angle = 90)+
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
        title = "Estimated Riverine Flooding Impact to Mobile Voice/Data Cells",
        subtitle = "Reported by Annual Probability, Year, and Climate Scenario.", 
-       x = "Annual Probability", y = "Cells (Millions)", fill=NULL) +
+       x = "Annual Probability", y = "Sites (Thousands)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+5)) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+300)) +
   facet_wrap(~year, ncol=4, nrow=1)
 
 ####################
@@ -551,7 +551,7 @@ plot2 =
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+95)) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+8)) +
   facet_wrap(~year, ncol=4, nrow=1)
 
 ggarrange(
@@ -569,7 +569,7 @@ ggsave(path, units="in", width=8, height=6, dpi=300)
 ########################################################
 #####Tropical storms
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, 'results_v5')
+data_directory = file.path(folder, 'results')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="STORM")

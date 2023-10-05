@@ -26,7 +26,7 @@ def collect(countries, scenarios):
     folder_in = os.path.join(DATA_PROCESSED, 'results', 'validation', 'country_data')
     #folder_out = os.path.join(DATA_PROCESSED, 'results', 'validation')
 
-    for idx, country in countries.iterrows():
+    for country in countries:
         
         #if not country['iso3'] in ['ARG']:
         #    continue
@@ -143,7 +143,7 @@ def collect_all(countries):
 
     output = []
 
-    for idx, country in countries.iterrows():
+    for country in countries:
         
         #if not country['iso3'] == 'USA':
         #    continue
