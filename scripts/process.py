@@ -18,6 +18,7 @@ import rasterio
 import random
 
 from misc import get_countries, get_scenarios, get_regions, get_f_curves
+from validation import collect, collect_all
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -61,6 +62,11 @@ def run_site_processing(region_id):
 
         print('Converting to regional results')
         convert_to_regional_results(country, region, scenarios, regional_level)
+
+    countries = get_countries()
+    scenarios = get_scenarios()
+    collect(countries, scenarios)
+    collect_all(countries)
 
     return print('Completed processing')
 

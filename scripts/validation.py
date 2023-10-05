@@ -171,7 +171,7 @@ if __name__ == "__main__":
     scenarios = get_scenarios()
     #scenarios_tropical = get_tropical_storm_scenarios()
 
-    scenarios = scenarios
+    # scenarios = scenarios
 
     collect(countries, scenarios)
 

@@ -96,7 +96,7 @@ def collect_cells(countries):
     """
     output = []
 
-    for idx, country in countries.iterrows():
+    for country in countries:
 
         filename = "cell_count.csv"
         folder_in = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
@@ -128,7 +128,7 @@ if __name__ == "__main__":
 
     countries = get_countries()
 
-    for idx, country in countries.iterrows():
+    for country in countries:
         
         # if not country['iso3'] == 'RWA':
         #     continue
