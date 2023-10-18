@@ -649,8 +649,8 @@ if __name__ == "__main__":
 
     countries = get_countries()
 
-    process_tropical_storm_layers(countries, scenario)
-    process_regional_storm_layers(countries, scenario)
+    # process_tropical_storm_layers(countries, scenario)
+    # process_regional_storm_layers(countries, scenario)
     query_tropical_storm_layers(countries, scenario)
     estimate_results(countries, scenario)
     convert_to_regional_results(countries, scenario)
