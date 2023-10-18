@@ -308,7 +308,7 @@ def query_tropical_storm_layers(countries, scenario):
             #    print('storm layer output file already exists: {}'.format(path_output))
             #    continue
 
-            filename = '{}.csv'.format(region)
+            filename = '{}_unique.csv'.format(region)
             folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
             path = os.path.join(folder, filename)
 
