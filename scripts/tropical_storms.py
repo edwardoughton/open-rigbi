@@ -324,6 +324,7 @@ def query_tropical_storm_layers(countries, scenario):
                 continue
 
             sites = pd.read_csv(path)#[:10]
+            sites = sites.to_dict('records')
 
             failures = 0
 
@@ -421,6 +422,7 @@ def estimate_results(countries, scenario):
                 # print('path_in does not exist {}'.format(path_in))
                 continue
             sites = pd.read_csv(path_in)
+            sites = sites.to_dict('records')
 
             for site in sites:
 
@@ -473,6 +475,7 @@ def load_f_curves(path_fragility):
     high = []
 
     f_curves = pd.read_csv(path_fragility)
+    f_curves = f_curves.to_dict('records')
 
     for item in f_curves:
 
@@ -580,6 +583,7 @@ def convert_to_regional_results(countries, scenario):
                 continue
 
             data = pd.read_csv(path_in, sep=',')
+            data = data.to_dict('records')
 
             if len(data) == 0:
                 continue
