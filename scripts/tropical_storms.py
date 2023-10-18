@@ -273,7 +273,7 @@ def query_tropical_storm_layers(countries, scenario):
     """
     for country in countries:
 
-        #if not country['iso3'] == 'USA':
+        # if not country['iso3'] == 'BGD':
         #    continue
 
         iso3 = country['iso3']

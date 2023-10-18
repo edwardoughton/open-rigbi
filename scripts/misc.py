@@ -92,7 +92,8 @@ def get_regions(country, region_type):
         return []
 
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
-
+    regions = regions.to_dict('records')
+    
     return regions
 
 
