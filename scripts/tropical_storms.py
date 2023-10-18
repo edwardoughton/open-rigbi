@@ -34,7 +34,7 @@ def process_tropical_storm_layers(countries, scenario):
 
     failures = []
 
-    for idx, country in countries.iterrows():
+    for country in countries:
 
         #if not country['iso3'] == 'USA':
         #    continue
@@ -144,7 +144,7 @@ def process_regional_storm_layers(countries, scenario):
 
     """
 
-    for idx, country in countries.iterrows():
+    for country in countries:
 
         #if not country['iso3'] == 'USA':
         #    continue
@@ -166,7 +166,7 @@ def process_regional_storm_layers(countries, scenario):
         if len(regions) == 0:
             continue
 
-        for idx, region_series in regions.iterrows():
+        for region_series in regions:
 
             region = region_series['GID_{}'.format(regional_level)]
             path_out = os.path.join(folder, region + '_' + filename + '.tif')
@@ -271,7 +271,7 @@ def query_tropical_storm_layers(countries, scenario):
     Query tropical storm hazard layers and estimate damage.
 
     """
-    for idx, country in countries.iterrows():
+    for country in countries:
 
         #if not country['iso3'] == 'USA':
         #    continue
@@ -289,7 +289,7 @@ def query_tropical_storm_layers(countries, scenario):
             print('get_regions returned no data')
             continue
 
-        for idx, region_series in regions.iterrows():
+        for region_series in regions:
 
             region = region_series['GID_{}'.format(regional_level)]
 
@@ -327,7 +327,7 @@ def query_tropical_storm_layers(countries, scenario):
 
             failures = 0
 
-            for idx, site in sites.iterrows():
+            for site in sites:
 
                 x = float(site['cellid4326'].split('_')[0])
                 y = float(site['cellid4326'].split('_')[1])
@@ -379,7 +379,7 @@ def estimate_results(countries, scenario):
     path_fragility = os.path.join(DATA_RAW, filename)
     low, baseline, high = load_f_curves(path_fragility)
 
-    for idx, country in countries.iterrows():
+    for country in countries:
 
         #if not country['iso3'] == 'USA':
         #    continue
@@ -397,7 +397,7 @@ def estimate_results(countries, scenario):
             print('get_regions returned no data')
             continue
 
-        for idx, region_series in regions.iterrows():
+        for region_series in regions:
 
             region = region_series['GID_{}'.format(regional_level)]
 
@@ -422,7 +422,7 @@ def estimate_results(countries, scenario):
                 continue
             sites = pd.read_csv(path_in)
 
-            for idx, site in sites.iterrows():
+            for site in sites:
 
                 if not site['wind_speed'] > 0:
                     continue
@@ -474,7 +474,7 @@ def load_f_curves(path_fragility):
 
     f_curves = pd.read_csv(path_fragility)
 
-    for idx, item in f_curves.iterrows():
+    for item in f_curves:
 
         my_dict = {
             'wind_speed_lower_m': item['wind_speed_lower_m'],
@@ -521,7 +521,7 @@ def convert_to_regional_results(countries, scenario):
     """
     scenario = scenario.replace('.tif', '')
 
-    for idx, country in countries.iterrows():
+    for country in countries:
 
         #if not country['iso3'] == 'USA':
         #    continue
@@ -539,7 +539,7 @@ def convert_to_regional_results(countries, scenario):
             print('get_regions returned no data')
             continue
 
-        for idx, region_series in regions.iterrows():
+        for region_series in regions:
 
             region = region_series['GID_{}'.format(regional_level)]
 
@@ -599,7 +599,7 @@ def convert_to_regional_results(countries, scenario):
                 cost_usd_baseline = 0
                 cost_usd_high = 0
 
-                for idx, item in data.iterrows():
+                for item in data:
 
                     if not item['gid_id'] == gid_id:
                         continue
