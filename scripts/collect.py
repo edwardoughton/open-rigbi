@@ -52,7 +52,10 @@ def collect_regional_results(scenario):
 
         all_regional_results = os.listdir(folder_in)#[:1]
         if len(all_regional_results) == 0:
-            print('len of all_regional_results = 0')
+            print('len of all_regional_results = 0 for {} and {}'.format(
+                country['iso3'], scenario
+                )
+            )
             continue
 
         for filename in all_regional_results:
@@ -181,8 +184,10 @@ def collect_final_results(scenario):
             if not item['iso3'] == country:
                 continue
 
-            if item['cost_usd_baseline'] > 0:
+            if item['cell_count_baseline'] > 0:
                 cell_count_baseline += 1
+
+            if item['cost_usd_baseline'] > 0:
                 cost_usd_baseline += item['cost_usd_baseline']
 
         output.append({
