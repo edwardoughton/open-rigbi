@@ -53,11 +53,11 @@ def run_site_processing(region_id):
         # print('Working on process_flooding_extent_stats')
         # process_flooding_extent_stats(country, region, scenarios, regional_level)
 
-        print('Working on query_hazard_layers')
-        query_hazard_layers(country, region, scenarios, regional_level)
+        # print('Working on query_hazard_layers')
+        # query_hazard_layers(country, region, scenarios, regional_level)
 
-    #     print('Estimating results')
-    #     estimate_results(country, region, scenarios, regional_level)
+        print('Estimating results')
+        estimate_results(country, region, scenarios, regional_level)
 
     #     print('Converting to regional results')
     #     convert_to_regional_results(country, region, scenarios, regional_level)
@@ -191,7 +191,7 @@ def query_hazard_layers(country, region, scenarios, regional_level):
     else:
         coastal_lut = pd.read_csv(path_coastal)
         coastal_lut = list(coastal_lut['gid_id'])
-    print(coastal_lut)
+
     for scenario in scenarios: #tqdm(scenarios):
 
         scenario_name = os.path.basename(scenario).replace('.tif', '')
