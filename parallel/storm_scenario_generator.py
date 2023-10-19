@@ -39,5 +39,5 @@ if __name__ == "__main__":
     # 'STORM_FIXED_RETURN_PERIODS_CMCC-CM2-VHR4_50_YR_RP',
     # 'STORM_FIXED_RETURN_PERIODS_EC-Earth3P-HR_10000_YR_RP'
     # ]
-    print(scenarios)
+
     print(*scenarios, sep='\n')

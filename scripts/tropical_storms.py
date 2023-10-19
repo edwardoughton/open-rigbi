@@ -287,7 +287,7 @@ def query_tropical_storm_layers(countries, scenario):
 
             output = []
 
-            filename = '{}_{}.csv'.format(region, os.path.basename(scenario).replace('.tif',''))
+            filename = '{}_{}_unique.csv'.format(region, os.path.basename(scenario).replace('.tif',''))
             folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'tropical_storm_scenarios')
             if not os.path.exists(folder_out):
                 os.makedirs(folder_out)
@@ -297,7 +297,7 @@ def query_tropical_storm_layers(countries, scenario):
             #    print('storm layer output file already exists: {}'.format(path_output))
             #    continue
 
-            filename = '{}.csv'.format(region)
+            filename = '{}_unique.csv'.format(region)
             # filename = '{}_unique.csv'.format(region)
             folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
             path = os.path.join(folder, filename)
@@ -397,7 +397,7 @@ def estimate_results(countries, scenario):
 
             output = []
 
-            filename = '{}_{}.csv'.format(region, scenario)
+            filename = '{}_{}_unique.csv'.format(region, scenario)
             folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario)
             path_output = os.path.join(folder_out, filename)
 
@@ -405,7 +405,7 @@ def estimate_results(countries, scenario):
             #    print('results file already exists {}'.format(path_output))
             #    continue
 
-            filename = '{}_{}.csv'.format(region, scenario)
+            filename = '{}_{}_unique.csv'.format(region, scenario)
             folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'tropical_storm_scenarios')
             path_in = os.path.join(folder, filename)
             if not os.path.exists(path_in):
@@ -545,10 +545,10 @@ def convert_to_regional_results(countries, scenario):
             if not os.path.exists(folder_out):
                 os.makedirs(folder_out)
 
-            filename = '{}_{}.csv'.format(region, scenario)
+            filename = '{}_{}_unique.csv'.format(region, scenario)
             path_out = os.path.join(folder_out, filename)
 
-            filename = '{}_{}.csv'.format(region, scenario)
+            filename = '{}_{}_unique.csv'.format(region, scenario)
             folder_in = os.path.join(DATA_PROCESSED, iso3, 'results',
                 'regional_data', scenario)
             path_in = os.path.join(folder_in, filename)
