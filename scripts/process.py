@@ -273,7 +273,6 @@ def query_hazard_layers(country, region, scenarios, regional_level):
     return
 
 
-
 def estimate_results(country, region, scenarios, regional_level):
     """
 
@@ -300,7 +299,7 @@ def estimate_results(country, region, scenarios, regional_level):
 
         output = []
 
-        scenario_name = os.path.basename(scenario)[:-4]
+        scenario_name = os.path.basename(scenario)#[:-4]
         print(scenario_name)
         # if not region == 'EGY.1_1':
         #     continue
@@ -440,7 +439,7 @@ def convert_to_regional_results(country, region, scenarios, regional_level):
 
         output = []
 
-        scenario_name = os.path.basename(scenario)[:-4]
+        scenario_name = os.path.basename(scenario)#[:-4]
         filename = '{}_{}_unique.csv'.format(region, scenario_name)
         path_out = os.path.join(folder_out, filename)
 
