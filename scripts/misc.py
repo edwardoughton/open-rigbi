@@ -103,11 +103,10 @@ def get_scenarios():
     """
     output = set()
 
-    # hazard_dir = os.path.join(DATA_PROCESSED, country['iso3'], 'hazards', 'flooding')
     hazard_dir = os.path.join(DATA_RAW,  'flood_hazard')
+    scenarios = os.listdir(os.path.join(hazard_dir))#[:20]
+    scenarios = [i.replace('.tif','') for i in scenarios]
 
-    scenarios = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:20]
-    # print(scenarios)
     return_periods = [
         'rp0100',
         'rp0250',
@@ -119,14 +118,7 @@ def get_scenarios():
         'rp01000'
     ]
 
-    #mean_scenarios = generate_mean_scenarios(scenarios, return_periods)
-
-    # scenarios = scenarios #+ mean_scenarios
-
     for scenario in scenarios:
-
-        #if not 'inuncoast_rcp4p5_wtsub_2030_rp0250' in scenario:
-        #    continue
 
         if any(x in scenario for x in return_periods): #specify return periods
 
@@ -143,8 +135,8 @@ def get_scenarios():
                 #if 'historical' in scenario:
                 #    if '2030' or '2050' or '2080' in scenario:
                 #    continue
-                #if not 'perc' in scenario:
-                #     continue
+                if 'perc' in scenario:
+                    continue
                 if not 'hist' in scenario:
                     output.add(scenario)
 

@@ -165,10 +165,10 @@ def collect_final_results(scenario):
     if not os.path.exists(path_in):
         return
     data = pd.read_csv(path_in, sep=',')
-    iso3 = list(data['iso3'].unique())
+    countries = list(data['iso3'].unique())
     data = data.to_dict('records')
 
-    for country in country:
+    for country in countries:
 
         if not country == 'ARG':
             continue
@@ -178,7 +178,7 @@ def collect_final_results(scenario):
 
         for item in data:
 
-            if not item['iso3'] == iso3:
+            if not item['iso3'] == country:
                 continue
 
             if item['cost_usd_baseline'] > 0:
