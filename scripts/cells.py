@@ -41,7 +41,7 @@ def count_cells(country):
 
         region = region["GID_{}".format(regional_level)]
         
-        filename = "{}.csv".format(region)
+        filename = "{}_unique.csv".format(region)
         path_in = os.path.join(folder, filename)
         
         if not os.path.exists(path_in):
