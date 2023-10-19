@@ -53,8 +53,8 @@ def run_site_processing(region_id):
         # print('Working on process_flooding_extent_stats')
         # process_flooding_extent_stats(country, region, scenarios, regional_level)
 
-        # print('Working on query_hazard_layers')
-        # query_hazard_layers(country, region, scenarios, regional_level)
+        print('Working on query_hazard_layers')
+        query_hazard_layers(country, region, scenarios, regional_level)
 
         print('Estimating results')
         estimate_results(country, region, scenarios, regional_level)
@@ -210,7 +210,7 @@ def query_hazard_layers(country, region, scenarios, regional_level):
         if 'inuncoast' in scenario and region not in coastal_lut:
             print('if inuncoast in scenario and region not in coastal_lut:')
             continue
-        
+                
         filename = '{}_{}.tif'.format(region, scenario_name)
         folder_in = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional')
         path_in = os.path.join(folder_in, filename)
@@ -287,6 +287,15 @@ def estimate_results(country, region, scenarios, regional_level):
     # path_fragility = os.path.join(DATA_RAW, filename)
     low, baseline, high = load_f_curves() #path_fragility)
 
+    filename = 'coastal_lookup.csv'
+    folder = os.path.join(DATA_PROCESSED, iso3, 'coastal')
+    path_coastal = os.path.join(folder, filename)
+    if not os.path.exists(path_coastal):
+        coastal_lut = []
+    else:
+        coastal_lut = pd.read_csv(path_coastal)
+        coastal_lut = list(coastal_lut['gid_id'])
+
     for scenario in scenarios: #tqdm
 
         output = []
@@ -304,6 +313,10 @@ def estimate_results(country, region, scenarios, regional_level):
         #     print('path_output exists {}'.format(path_output))
         #     continue
 
+        if 'inuncoast' in scenario and region not in coastal_lut:
+            print('if inuncoast in scenario and region not in coastal_lut:')
+            continue
+        
         filename = '{}_{}_unique.csv'.format(region, scenario_name)
         folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', 
                               region, 'flood_scenarios')
