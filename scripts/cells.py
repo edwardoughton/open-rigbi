@@ -47,8 +47,12 @@ def count_cells(country):
         if not os.path.exists(path_in):
             print("path_in did not exist: {}".format(path_in))
             continue
-
-        data = pd.read_csv(path_in)
+        try:
+            data = pd.read_csv(path_in)
+        except:
+            print('Failed to read in: {}'.format(path_in))
+            continue
+        
         data = data.to_dict('records')
 
         cells_2g = 0
