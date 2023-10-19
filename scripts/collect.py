@@ -36,8 +36,8 @@ def collect_regional_results(scenario):
 
     for country in countries:
 
-        if not country['iso3'] == 'ARG':
-            continue
+        # if not country['iso3'] == 'ARG':
+        #     continue
 
         # print('Working on {}'.format(country['iso3']))
 
