@@ -210,7 +210,7 @@ def get_tropical_storm_scenarios():
 
     output = list(output)
     output.sort()
-
+    print(output)
     return output#[:1]
 
 
@@ -391,12 +391,12 @@ if __name__ == '__main__':
     #    #if country['iso3'] == 'TJK':
     #    print(country['country'])
 
-    scenarios = get_scenarios()
-    for scenario in scenarios:
-        print(scenario)
+    # scenarios = get_scenarios()
+    # for scenario in scenarios:
+    #     print(scenario)
 
-    #tropical_storm_scenarios = get_tropical_storm_scenarios()
-    #for scenario in tropical_storm_scenarios:
-    #    print(scenario)
+    tropical_storm_scenarios = get_tropical_storm_scenarios()
+    for scenario in tropical_storm_scenarios:
+       print(scenario)
 
 
