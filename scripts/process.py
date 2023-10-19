@@ -50,22 +50,22 @@ def run_site_processing(region_id):
         if not region[gid_level] == region_id:
            continue
 
-        print('Working on process_flooding_extent_stats')
-        process_flooding_extent_stats(country, region, scenarios, regional_level)
+        # print('Working on process_flooding_extent_stats')
+        # process_flooding_extent_stats(country, region, scenarios, regional_level)
 
         print('Working on query_hazard_layers')
         query_hazard_layers(country, region, scenarios, regional_level)
 
-        print('Estimating results')
-        estimate_results(country, region, scenarios, regional_level)
+    #     print('Estimating results')
+    #     estimate_results(country, region, scenarios, regional_level)
 
-        print('Converting to regional results')
-        convert_to_regional_results(country, region, scenarios, regional_level)
+    #     print('Converting to regional results')
+    #     convert_to_regional_results(country, region, scenarios, regional_level)
 
-    countries = get_countries()
-    scenarios = get_scenarios()
-    collect(countries, scenarios)
-    collect_all(countries)
+    # countries = get_countries()
+    # scenarios = get_scenarios()
+    # collect(countries, scenarios)
+    # collect_all(countries)
 
     return print('Completed processing')
 
@@ -191,7 +191,7 @@ def query_hazard_layers(country, region, scenarios, regional_level):
     else:
         coastal_lut = pd.read_csv(path_coastal)
         coastal_lut = list(coastal_lut['gid_id'])
-
+    print(coastal_lut)
     for scenario in scenarios: #tqdm(scenarios):
 
         scenario_name = os.path.basename(scenario).replace('.tif', '')
@@ -204,12 +204,13 @@ def query_hazard_layers(country, region, scenarios, regional_level):
         folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'flood_scenarios')
         path_output = os.path.join(folder_out, filename)
 
-        if os.path.exists(path_output):
-           continue
+        # if os.path.exists(path_output):
+        #    continue
 
         if 'inuncoast' in scenario and region not in coastal_lut:
+            print('if inuncoast in scenario and region not in coastal_lut:')
             continue
-
+        
         filename = '{}_{}.tif'.format(region, scenario_name)
         folder_in = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional')
         path_in = os.path.join(folder_in, filename)
@@ -261,7 +262,7 @@ def query_hazard_layers(country, region, scenarios, regional_level):
 
         if len(output) == 0:
             return
-
+        print(len(output))
         if not os.path.exists(folder_out):
             os.makedirs(folder_out)
 
