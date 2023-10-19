@@ -32,8 +32,8 @@ if __name__ == "__main__":
     scenarios = [os.path.basename(i).replace('.tif','') for i in scenarios]
     # scenarios_tropical = get_tropical_storm_scenarios()
     # scenarios_tropical = [os.path.basename(i).replace('.tif','') for i in scenarios_tropical]#[:12] 
-    scenarios = [i for i in scenarios if 'coastal' in i]#[:8]
-    #print(scenarios)
+    # scenarios = [i for i in scenarios if 'coastal' in i]#[:8]
+    # print(scenarios)
     #random.shuffle(scenarios)
     #scenarios = [i.replace('.tif','') for i in scenarios]
 

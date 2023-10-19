@@ -107,7 +107,7 @@ def get_scenarios():
     hazard_dir = os.path.join(DATA_RAW,  'flood_hazard')
 
     scenarios = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:20]
-
+    # print(scenarios)
     return_periods = [
         'rp0100',
         'rp0250',
@@ -121,7 +121,7 @@ def get_scenarios():
 
     #mean_scenarios = generate_mean_scenarios(scenarios, return_periods)
 
-    scenarios = scenarios #+ mean_scenarios
+    # scenarios = scenarios #+ mean_scenarios
 
     for scenario in scenarios:
 
@@ -130,8 +130,8 @@ def get_scenarios():
 
         if any(x in scenario for x in return_periods): #specify return periods
 
-            #if 'inunriver' in scenario:
-            #    continue
+            if 'inunriver' in scenario:
+               continue
 
             #if '2030' in scenario or '2050' in scenario:
             #    continue 
@@ -210,7 +210,6 @@ def get_tropical_storm_scenarios():
 
     output = list(output)
     output.sort()
-    print(output)
     return output#[:1]
 
 
@@ -391,12 +390,12 @@ if __name__ == '__main__':
     #    #if country['iso3'] == 'TJK':
     #    print(country['country'])
 
-    # scenarios = get_scenarios()
-    # for scenario in scenarios:
-    #     print(scenario)
+    scenarios = get_scenarios()
+    for scenario in scenarios:
+        print(scenario)
 
-    tropical_storm_scenarios = get_tropical_storm_scenarios()
-    for scenario in tropical_storm_scenarios:
-       print(scenario)
+    # tropical_storm_scenarios = get_tropical_storm_scenarios()
+    # for scenario in tropical_storm_scenarios:
+    #    print(scenario)
 
 
