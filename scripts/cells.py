@@ -37,7 +37,7 @@ def count_cells(country):
 
     output = []
 
-    for idx, region in regions_df.iterrows():
+    for region in regions_df:
 
         region = region["GID_{}".format(regional_level)]
         
@@ -49,13 +49,14 @@ def count_cells(country):
             continue
 
         data = pd.read_csv(path_in)
+        data = data.to_dict('records')
 
         cells_2g = 0
         cells_3g = 0
         cells_4g = 0
         cells_5g = 0
 
-        for idx, row in data.iterrows():
+        for row in data:
             
             if row['radio'] == 'GSM':
                 cells_2g += 1
