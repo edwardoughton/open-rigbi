@@ -36,8 +36,8 @@ def collect_regional_results(scenario):
 
     for country in countries:
 
-        if not country['iso3'] == 'ARG':
-            continue
+        # if not country['iso3'] == 'ARG':
+        #     continue
 
         # print('Working on {}'.format(country['iso3']))
 
@@ -170,8 +170,8 @@ def collect_final_results(scenario):
 
     for country in countries:
 
-        if not country == 'ARG':
-            continue
+        # if not country == 'ARG':
+        #     continue
 
         cell_count_baseline = 0
         cost_usd_baseline = 0
