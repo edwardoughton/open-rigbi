@@ -315,11 +315,11 @@ def query_tropical_storm_layers(countries, scenario):
 
             sites = pd.read_csv(path)#[:10]
             sites = sites.to_dict('records')
-            
+
             failures = 0
 
             for site in sites:
-                
+
                 x = float(site['cellid4326'].split('_')[0])
                 y = float(site['cellid4326'].split('_')[1])
 
@@ -336,14 +336,14 @@ def query_tropical_storm_layers(countries, scenario):
 
                     output.append({
                         'radio': site['radio'],
-                        'mcc': site['mcc'],
+                        # 'mcc': site['mcc'],
                         'net': site['net'],
-                        'area': site['area'],
-                        'cell': site['cell'],
+                        # 'area': site['area'],
+                        'cell': site['cell_id'],
                         'gid_level': gid_level,
                         'gid_id': region,
                         'cellid4326': site['cellid4326'],
-                        'cellid3857': site['cellid3857'],
+                        # 'cellid3857': site['cellid3857'],
                         'wind_speed': wind_speed,
                     })
 
