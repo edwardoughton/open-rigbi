@@ -59,8 +59,8 @@ def run_site_processing(region_id):
         print('Estimating results')
         estimate_results(country, region, scenarios, regional_level)
 
-    #     print('Converting to regional results')
-    #     convert_to_regional_results(country, region, scenarios, regional_level)
+        print('Converting to regional results')
+        convert_to_regional_results(country, region, scenarios, regional_level)
 
     # countries = get_countries()
     # scenarios = get_scenarios()
@@ -294,13 +294,13 @@ def estimate_results(country, region, scenarios, regional_level):
     else:
         coastal_lut = pd.read_csv(path_coastal)
         coastal_lut = list(coastal_lut['gid_id'])
-    print(coastal_lut)
+
     for scenario in scenarios: #tqdm
 
         output = []
 
         scenario_name = os.path.basename(scenario)#[:-4]
-        print(scenario_name)
+
         # if not region == 'EGY.1_1':
         #     continue
 
@@ -358,7 +358,7 @@ def estimate_results(country, region, scenarios, regional_level):
 
         if len(output) == 0:
             continue
-        print(len(output))
+
         if not os.path.exists(folder_out):
             os.makedirs(folder_out)
 
