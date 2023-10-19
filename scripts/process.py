@@ -43,8 +43,7 @@ def run_site_processing(region_id):
     gid_level = 'GID_{}'.format(regional_level)
 
     scenarios = get_scenarios()#[:1]
-    regions_df = get_regions(country, regional_level)#[:1]#[::-1]
-    regions = regions_df.to_dict('records')
+    regions = get_regions(country, regional_level)#[:1]#[::-1]
 
     for region in regions:
 
@@ -305,7 +304,8 @@ def estimate_results(country, region, scenarios, regional_level):
         #     continue
 
         filename = '{}_{}_unique.csv'.format(region, scenario_name)
-        folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'flood_scenarios')
+        folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', 
+                              region, 'flood_scenarios')
         path_in = os.path.join(folder, filename)
         if not os.path.exists(path_in):
             # print('path_in does not exist {}'.format(path_in))
