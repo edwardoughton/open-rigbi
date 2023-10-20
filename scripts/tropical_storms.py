@@ -663,6 +663,12 @@ def convert_to_regional_results(countries, scenario):
                         'cost_usd_low': 0,
                         'cost_usd_baseline': 0,
                         'cost_usd_high': 0,
+                        'microwave_misalignment': 0,
+                        'loss_of_cell_antenna': 0,
+                        'loss_of_off_site_power': 0,
+                        'loss_of_onsite_power': 0,
+                        'structural_failure': 0,
+                        'foundation_failure': 0,
                     })
                 continue
 

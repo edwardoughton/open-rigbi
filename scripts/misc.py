@@ -185,7 +185,8 @@ def get_tropical_storm_scenarios():
 
     hazard_dir = os.path.join(DATA_RAW,  'storm_data')
 
-    scenarios = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:20]
+    scenarios = os.listdir(os.path.join(hazard_dir))#[:20]
+    scenarios = [i.replace('.tif', '') for i in scenarios]
 
     return_periods = [
         "10_YR_RP",
@@ -208,6 +209,7 @@ def get_tropical_storm_scenarios():
 
     output = list(output)
     output.sort()
+    # print(output)
     return output#[:1]
 
 
