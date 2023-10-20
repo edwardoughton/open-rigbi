@@ -667,7 +667,6 @@ def convert_to_regional_results(countries, scenario):
                 continue
 
             data = pd.read_csv(path_in, sep=',')
-            data = data.to_dict('records')
 
             if len(data) == 0:
                 continue
@@ -675,6 +674,8 @@ def convert_to_regional_results(countries, scenario):
             gid_ids = list(data['gid_id'].unique())
             # radios = list(data['radio'].unique())
             # networks = list(data['net'].unique())
+            
+            data = data.to_dict('records')
 
             for gid_id in gid_ids:
 
