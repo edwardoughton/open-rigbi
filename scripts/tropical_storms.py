@@ -378,8 +378,8 @@ def estimate_results(countries, scenario):
 
     for country in countries:
 
-        if not country['iso3'] == 'BGD':
-           continue
+        # if not country['iso3'] == 'BGD':
+        #    continue
 
         iso3 = country['iso3']
         name = country['country']
@@ -739,7 +739,7 @@ if __name__ == "__main__":
 
     # process_tropical_storm_layers(countries, scenario)
     # process_regional_storm_layers(countries, scenario)
-    # query_tropical_storm_layers(countries, scenario)
+    query_tropical_storm_layers(countries, scenario)
     estimate_results(countries, scenario)
     # convert_to_regional_results(countries, scenario)
 
