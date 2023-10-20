@@ -687,6 +687,13 @@ def convert_to_regional_results(countries, scenario):
                 cost_usd_baseline = 0
                 cost_usd_high = 0
 
+                microwave_misalignment = 0
+                loss_of_cell_antenna = 0
+                loss_of_off_site_power = 0
+                loss_of_onsite_power = 0
+                structural_failure = 0
+                foundation_failure = 0
+
                 for item in data:
 
                     if not item['gid_id'] == gid_id:
@@ -704,6 +711,24 @@ def convert_to_regional_results(countries, scenario):
                         cell_count_high += 1
                         cost_usd_high += item['cost_usd_high']
 
+                    if item['microwave_misalignment'] > 0:
+                        microwave_misalignment += 1
+
+                    if item['loss_of_cell_antenna'] > 0:
+                        loss_of_cell_antenna += 1
+
+                    if item['loss_of_off_site_power'] > 0:
+                        loss_of_off_site_power += 1
+
+                    if item['loss_of_onsite_power'] > 0:
+                        loss_of_onsite_power += 1
+
+                    if item['structural_failure'] > 0:
+                        structural_failure += 1
+
+                    if item['foundation_failure'] > 0:
+                        foundation_failure += 1
+
                 output.append({
                     'iso3': country['iso3'],
                     'iso2': country['iso2'],
@@ -717,6 +742,12 @@ def convert_to_regional_results(countries, scenario):
                     'cost_usd_baseline': cost_usd_baseline,
                     'cell_count_high': cell_count_high,
                     'cost_usd_high': cost_usd_high,
+                    'microwave_misalignment': microwave_misalignment,
+                    'loss_of_cell_antenna': loss_of_cell_antenna,
+                    'loss_of_off_site_power': loss_of_off_site_power,
+                    'loss_of_onsite_power': loss_of_onsite_power,
+                    'structural_failure': structural_failure,
+                    'foundation_failure': foundation_failure,
                     })
 
             if len(output) == 0:
@@ -740,6 +771,6 @@ if __name__ == "__main__":
     # process_tropical_storm_layers(countries, scenario)
     # process_regional_storm_layers(countries, scenario)
     # query_tropical_storm_layers(countries, scenario)
-    estimate_results(countries, scenario)
-    # convert_to_regional_results(countries, scenario)
+    # estimate_results(countries, scenario)
+    convert_to_regional_results(countries, scenario)
 
