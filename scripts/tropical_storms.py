@@ -303,14 +303,14 @@ def query_tropical_storm_layers(countries, scenario):
             path = os.path.join(folder, filename)
 
             if not os.path.exists(path):
-                print('sites file does not exist: {}'.format(path))
+                # print('sites file does not exist: {}'.format(path))
                 continue
 
             filename = os.path.join(region + '_' + scenario.replace('.tif','') + '.tif')
             scenario_path = os.path.join(DATA_PROCESSED,iso3,'hazards','tropical_storm','regional',filename)
 
             if not os.path.exists(scenario_path):
-                print('scenario_path does not exist: {}'.format(scenario_path))
+                # print('scenario_path does not exist: {}'.format(scenario_path))
                 continue
 
             try:
@@ -325,7 +325,7 @@ def query_tropical_storm_layers(countries, scenario):
 
                 x = float(site['cellid4326'].split('_')[0])
                 y = float(site['cellid4326'].split('_')[1])
-                print(site, x, y, scenario_path)
+
                 with rasterio.open(scenario_path) as src:
 
                     src.kwargs = {'nodata':255}
@@ -333,7 +333,10 @@ def query_tropical_storm_layers(countries, scenario):
                     coords = [(x, y)]
 
                     wind_speed = [sample[0] for sample in src.sample(coords)][0]
-                    print(wind_speed)
+                    
+                    if wind_speed > 0:
+                        print(wind_speed)
+
                     # if wind_speed == 255:
                     #     wind_speed = 0
 
