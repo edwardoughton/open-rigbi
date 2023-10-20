@@ -330,7 +330,7 @@ def query_tropical_storm_layers(countries, scenario):
 
                     src.kwargs = {'nodata': 255}
 
-                    coords = [(x, y)]
+                    coords = [(y, x)]
 
                     wind_speed = [sample[0] for sample in src.sample(coords)][0]
                     print(x, y, src.bounds, [i for i in src.sample(coords)])
