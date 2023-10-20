@@ -407,9 +407,9 @@ def estimate_results(countries, scenario):
             folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario)
             path_output = os.path.join(folder_out, filename)
 
-            if os.path.exists(path_output):
-               print('results file already exists {}'.format(path_output))
-               continue
+            # if os.path.exists(path_output):
+            #    print('results file already exists {}'.format(path_output))
+            #    continue
 
             filename = '{}_{}_unique.csv'.format(region, scenario)
             folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'tropical_storm_scenarios')
@@ -739,7 +739,7 @@ if __name__ == "__main__":
 
     # process_tropical_storm_layers(countries, scenario)
     # process_regional_storm_layers(countries, scenario)
-    query_tropical_storm_layers(countries, scenario)
+    # query_tropical_storm_layers(countries, scenario)
     estimate_results(countries, scenario)
     # convert_to_regional_results(countries, scenario)
 
