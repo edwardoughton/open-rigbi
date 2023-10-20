@@ -313,7 +313,10 @@ def query_tropical_storm_layers(countries, scenario):
                 print('scenario_path does not exist: {}'.format(scenario_path))
                 continue
 
-            sites = pd.read_csv(path)#[:10]
+            try:
+                sites = pd.read_csv(path)#[:10]
+            except:
+                continue
             sites = sites.to_dict('records')
 
             failures = 0
@@ -411,7 +414,10 @@ def estimate_results(countries, scenario):
             if not os.path.exists(path_in):
                 # print('path_in does not exist {}'.format(path_in))
                 continue
-            sites = pd.read_csv(path_in)
+            try:
+                sites = pd.read_csv(path_in)#[:10]
+            except:
+                continue
             sites = sites.to_dict('records')
 
             for site in sites:
