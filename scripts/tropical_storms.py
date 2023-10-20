@@ -333,9 +333,9 @@ def query_tropical_storm_layers(countries, scenario):
                     coords = [(x, y)]
 
                     wind_speed = [sample[0] for sample in src.sample(coords)][0]
-                    # print(x, y, src.crs, wind_speed)
-                    if wind_speed > 0:
-                        print(wind_speed)
+                    print(x, y, src.bounds)
+                    # if wind_speed > 0:
+                    #     print(wind_speed)
 
                     # if wind_speed == 255:
                     #     wind_speed = 0
