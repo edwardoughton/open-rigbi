@@ -185,7 +185,7 @@ def collect_final_results(scenario):
                 continue
 
             if item['cell_count_baseline'] > 0:
-                cell_count_baseline += 1
+                cell_count_baseline += item['cell_count_baseline']
 
             if item['cost_usd_baseline'] > 0:
                 cost_usd_baseline += item['cost_usd_baseline']
