@@ -293,9 +293,9 @@ def query_tropical_storm_layers(countries, scenario):
                 os.makedirs(folder_out)
             path_output = os.path.join(folder_out, filename)
 
-            # if os.path.exists(path_output):
-            #    print('storm layer output file already exists: {}'.format(path_output))
-            #    continue
+            if os.path.exists(path_output):
+               print('storm layer output file already exists: {}'.format(path_output))
+               continue
 
             filename = '{}_unique.csv'.format(region)
             # filename = '{}_unique.csv'.format(region)
@@ -370,13 +370,16 @@ def estimate_results(countries, scenario):
     scenario = scenario.replace('.tif', '')
 
     filename = 'fragility_curve_tropical_storm.csv'
-    path_fragility = os.path.join(DATA_RAW, filename)
-    low, baseline, high = load_f_curves(path_fragility)
+    path_fragility_original = os.path.join(DATA_RAW, filename)
+    low, baseline, high = load_original_f_curves(path_fragility_original)
+    filename = 'fragility_curves_booker_et_al.csv'
+    path_fragility_booker = os.path.join(DATA_RAW, filename)
+    booker_f_curve = load_booker_f_curves(path_fragility_booker)
 
     for country in countries:
 
-        #if not country['iso3'] == 'USA':
-        #    continue
+        if not country['iso3'] == 'BGD':
+           continue
 
         iso3 = country['iso3']
         name = country['country']
@@ -425,20 +428,33 @@ def estimate_results(countries, scenario):
                 if not site['wind_speed'] > 0:
                     continue
 
-                damage_low = query_fragility_curve(low, site['wind_speed'])
-                damage_baseline = query_fragility_curve(baseline, site['wind_speed'])
-                damage_high = query_fragility_curve(high, site['wind_speed'])
+                damage_low = query_original_fragility_curve(low, site['wind_speed'])
+                damage_baseline = query_original_fragility_curve(baseline, site['wind_speed'])
+                damage_high = query_original_fragility_curve(high, site['wind_speed'])
+
+                microwave_misalignment = query_booker_fragility_curve(
+                    booker_f_curve['microwave_misalignment'], site['wind_speed'])
+                loss_of_cell_antenna = query_booker_fragility_curve(
+                    booker_f_curve['loss_of_cell_antenna'], site['wind_speed'])
+                loss_of_off_site_power = query_booker_fragility_curve(
+                    booker_f_curve['loss_of_off_site_power'], site['wind_speed'])
+                loss_of_onsite_power = query_booker_fragility_curve(
+                    booker_f_curve['loss_of_onsite_power'], site['wind_speed'])
+                structural_failure = query_booker_fragility_curve(
+                    booker_f_curve['structural_failure'], site['wind_speed'])
+                foundation_failure = query_booker_fragility_curve(
+                    booker_f_curve['foundation_failure'], site['wind_speed'])
 
                 output.append({
                     'radio': site['radio'],
-                    'mcc': site['mcc'],
+                    # 'mcc': site['mcc'],
                     'net': site['net'],
-                    'area': site['area'],
+                    # 'area': site['area'],
                     'cell': site['cell'],
                     'gid_level': gid_level,
                     'gid_id': region,
                     'cellid4326': site['cellid4326'],
-                    'cellid3857': site['cellid3857'],
+                    # 'cellid3857': site['cellid3857'],
                     'wind_speed': site['wind_speed'],
                     'damage_low': damage_low,
                     'damage_baseline': damage_baseline,
@@ -446,6 +462,12 @@ def estimate_results(countries, scenario):
                     'cost_usd_low': round(40000 * damage_low),
                     'cost_usd_baseline': round(40000 * damage_baseline),
                     'cost_usd_high': round(40000 * damage_high),
+                    'microwave_misalignment': microwave_misalignment,
+                    'loss_of_cell_antenna': loss_of_cell_antenna,
+                    'loss_of_off_site_power': loss_of_off_site_power,
+                    'loss_of_onsite_power': loss_of_onsite_power,
+                    'structural_failure': structural_failure,
+                    'foundation_failure': foundation_failure,
                 })
 
             if len(output) == 0:
@@ -461,9 +483,9 @@ def estimate_results(countries, scenario):
     return
 
 
-def load_f_curves(path_fragility):
+def load_original_f_curves(path_fragility):
     """
-    Load depth-damage curves.
+    Load original speed-damage curves.
 
     """
     low = []
@@ -491,24 +513,90 @@ def load_f_curves(path_fragility):
     return low, baseline, high
 
 
-def query_fragility_curve(f_curve, depth):
+def load_booker_f_curves(path_fragility):
+    """
+    Load fragility curve from Booker et al. 
+
+    """
+    output = {}
+
+    f_curves = pd.read_csv(path_fragility)
+    categories = f_curves['category'].unique()
+    f_curves = f_curves.to_dict('records')
+
+    for category in categories:
+
+        interim = []
+
+        for item in f_curves:
+
+            if not category == item['category']:
+                continue
+
+            interim.append({
+                'speed': item['speed'],
+                'probability_of_failure': item['probability_of_failure'],
+            })
+        
+        output[category] = interim
+
+    return output
+
+
+def query_original_fragility_curve(f_curve, speed):
     """
     Query the fragility curve.
 
     """
-    if depth < 0:
+    if speed < 0:
         return 0
 
     for item in f_curve:
-        if item['wind_speed_lower_m'] <= depth < item['wind_speed_upper_m']:
+        if item['wind_speed_lower_m'] <= speed < item['wind_speed_upper_m']:
             return item['damage']
         else:
             continue
 
-    if depth >= max([d['wind_speed_upper_m'] for d in f_curve]):
+    if speed >= max([d['wind_speed_upper_m'] for d in f_curve]):
         return 1
 
-    print('fragility curve failure: {}'.format(depth))
+    print('fragility curve failure: {}'.format(speed))
+
+    return 0
+
+
+def query_booker_fragility_curve(f_curve, speed):
+    """
+    Query the Booker fragility curve.
+
+    """
+    f_curve = sorted(f_curve, key=lambda d: d['speed']) 
+
+    if speed < 0:
+        return 0
+
+    if speed >= max([d['speed'] for d in f_curve]):
+        return 1
+
+    lut_lower_speed = 0
+    lut_lower_probability_of_failure = 0
+    for item in f_curve:
+
+        if lut_lower_speed <= speed < item['speed']:
+            return lut_lower_probability_of_failure
+        
+        lut_lower_speed = item['speed']
+        lut_lower_probability_of_failure = item['probability_of_failure']
+        # print(item)
+    #     if item['wind_speed_lower_m'] <= speed < item['wind_speed_upper_m']:
+    #         return item['damage']
+    #     else:
+    #         continue
+
+    # if speed >= max([d['wind_speed_upper_m'] for d in f_curve]):
+    #     return 1
+
+    # print('fragility curve failure: {}'.format(speed))
 
     return 0
 
@@ -651,7 +739,7 @@ if __name__ == "__main__":
 
     # process_tropical_storm_layers(countries, scenario)
     # process_regional_storm_layers(countries, scenario)
-    query_tropical_storm_layers(countries, scenario)
+    # query_tropical_storm_layers(countries, scenario)
     estimate_results(countries, scenario)
-    convert_to_regional_results(countries, scenario)
+    # convert_to_regional_results(countries, scenario)
 
