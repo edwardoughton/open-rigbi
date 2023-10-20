@@ -199,8 +199,8 @@ def get_tropical_storm_scenarios():
 
     for scenario in scenarios:
 
-        if not 'HadGEM' in scenario:
-            continue
+        # if not 'HadGEM' in scenario:
+        #     continue
 
         if any(x in scenario for x in return_periods): #specify return periods
 
