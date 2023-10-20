@@ -28,17 +28,11 @@ DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 if __name__ == "__main__":
 
     scenarios = []
-    # scenarios = get_scenarios()
-    # scenarios = [os.path.basename(i).replace('.tif','') for i in scenarios]
-    scenarios_tropical = get_tropical_storm_scenarios()
-    # scenarios_tropical = [os.path.basename(i).replace('.tif','') for i in scenarios_tropical]#[:12] 
-    # scenarios = [i for i in scenarios if 'coastal' in i]#[:8]
-    # print(scenarios)
-    #random.shuffle(scenarios)
-    #scenarios = [i.replace('.tif','') for i in scenarios]
-
-    scenarios = scenarios + scenarios_tropical
-
+    scenarios = get_scenarios()
+    scenarios = [os.path.basename(i).replace('.tif','') for i in scenarios]
+    # scenarios_tropical = get_tropical_storm_scenarios()
+    # scenarios = scenarios + scenarios_tropical
+    
     #scenarios = [
     #'STORM_FIXED_RETURN_PERIODS_CNRM-CM6-1-HR_10000_YR_RP',
     #'STORM_FIXED_RETURN_PERIODS_CNRM-CM6-1-HR_1000_YR_RP',
