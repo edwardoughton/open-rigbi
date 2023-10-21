@@ -215,6 +215,10 @@ def query_hazard_layers(country, region, scenarios, regional_level):
         folder_in = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional')
         path_in = os.path.join(folder_in, filename)
 
+        if not os.path.exists(path_in):
+            print('path did not exist: {}'.format(path_in))
+            continue
+
         filename = '{}_unique.csv'.format(region)
         folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
         path_sites = os.path.join(folder, filename)
