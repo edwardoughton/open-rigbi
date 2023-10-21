@@ -742,15 +742,28 @@ def process_regional_flooding_layers(country, region):
     iso3 = country['iso3']
     name = country['country']
 
+    filename = 'coastal_lookup.csv'
+    folder = os.path.join(DATA_PROCESSED, iso3, 'coastal')
+    path_coastal = os.path.join(folder, filename)
+    if not os.path.exists(path_coastal):
+        coastal_lut = []
+    else:
+        coastal_lut = pd.read_csv(path_coastal)
+        coastal_lut = list(coastal_lut['gid_id'])
+
     hazard_dir = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding')
 
     for scenario in scenarios:
-        # print(scenario)
+
         #if 'river' in scenario:
         #    continue
 
         #if not os.path.basename(scenario) == 'inuncoast_rcp8p5_wtsub_2080_rp1000_0.tif':
         #    continue
+        
+        if 'inuncoast' in scenario and region not in coastal_lut:
+            print('if inuncoast in scenario and region not in coastal_lut:')
+            continue
 
         filename = os.path.basename(scenario).replace('.tif','')
         path_in = os.path.join(hazard_dir, filename + '.tif')
@@ -767,9 +780,6 @@ def process_regional_flooding_layers(country, region):
         #     continue
 
         print('--{}: {}'.format(region, filename))
-
-        if not os.path.exists(folder):
-            os.makedirs(folder)
 
         # try:
         process_regional_flood_layer(country, region, path_in, path_out)
