@@ -781,11 +781,11 @@ def process_regional_flooding_layers(country, region):
 
         print('--{}: {}'.format(region, filename))
 
-        # try:
-        process_regional_flood_layer(country, region, path_in, path_out)
-        # except:
-        #     print('{} failed: {}'.format(country['iso3'], scenario))
-        #     continue
+        try:
+            process_regional_flood_layer(country, region, path_in, path_out)
+        except:
+            print('{} failed: {}'.format(region, scenario))
+            continue
 
     return
 
