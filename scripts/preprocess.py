@@ -58,8 +58,7 @@ def run_preprocessing(iso3):
     # print('Working on process_flooding_layers')
     # process_flooding_layers(country)
 
-    # regions_df = get_regions(country, regional_level)#[:1]#[::-1]
-    # regions = regions_df.to_dict('records')
+    # regions = get_regions(country, regional_level)#[:1]#[::-1]
 
     # print('Working on regional disaggregation')
     # for region in regions:
@@ -93,8 +92,7 @@ def run_preprocessing(iso3):
     #         #print('Working on create_regional_sites_layer')
     #         create_regional_sites_layer(iso3, 2, region)
 
-    regions_df = get_regions(country, regional_level)#[:1]#[::-1]
-    regions = regions_df.to_dict('records')
+    regions = get_regions(country, regional_level)#[:1]#[::-1]
 
     print('Working on process_regional_flooding_layers')
     for region in regions:
