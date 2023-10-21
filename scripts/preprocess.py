@@ -760,7 +760,7 @@ def process_regional_flooding_layers(country, region):
         if not os.path.exists(path_in):
             continue
 
-        folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional')
+        folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional2', scenario)
         if not os.path.exists(folder):
             os.makedirs(folder)
         path_out = os.path.join(folder, region + '_' + filename + '.tif')
