@@ -53,8 +53,8 @@ def run_site_processing(region_id):
         # print('Working on process_flooding_extent_stats')
         # process_flooding_extent_stats(country, region, scenarios, regional_level)
 
-        # print('Working on query_hazard_layers')
-        # query_hazard_layers(country, region, scenarios, regional_level)
+        print('Working on query_hazard_layers')
+        query_hazard_layers(country, region, scenarios, regional_level)
 
         print('Estimating results')
         estimate_results(country, region, scenarios, regional_level)
