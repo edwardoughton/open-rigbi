@@ -106,6 +106,8 @@ def get_scenarios():
     hazard_dir = os.path.join(DATA_RAW,  'flood_hazard')
     scenarios = os.listdir(os.path.join(hazard_dir))#[:20]
     scenarios = [i.replace('.tif','') for i in scenarios]
+    scenarios = [i.replace('.aux','') for i in scenarios]
+    scenarios = [i.replace('.xml','') for i in scenarios]
 
     return_periods = [
         'rp0100',
@@ -135,8 +137,8 @@ def get_scenarios():
                 #if 'historical' in scenario:
                 #    if '2030' or '2050' or '2080' in scenario:
                 #    continue
-                if 'perc' in scenario:
-                    continue
+                # if not 'perc' in scenario:
+                #     continue
                 if not 'hist' in scenario:
                     output.add(scenario)
 
