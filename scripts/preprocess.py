@@ -55,8 +55,8 @@ def run_preprocessing(iso3):
     # print('Working on create_national_sites_shp')
     # create_national_sites_shp(iso3)
 
-    # # print('Working on process_flooding_layers')
-    # # process_flooding_layers(country)
+    # print('Working on process_flooding_layers')
+    # process_flooding_layers(country)
 
     # regions_df = get_regions(country, regional_level)#[:1]#[::-1]
     # regions = regions_df.to_dict('records')
@@ -93,17 +93,17 @@ def run_preprocessing(iso3):
     #         #print('Working on create_regional_sites_layer')
     #         create_regional_sites_layer(iso3, 2, region)
 
-    # regions_df = get_regions(country, regional_level)#[:1]#[::-1]
-    # regions = regions_df.to_dict('records')
+    regions_df = get_regions(country, regional_level)#[:1]#[::-1]
+    regions = regions_df.to_dict('records')
 
-    # print('Working on process_regional_flooding_layers')
-    # for region in regions:
+    print('Working on process_regional_flooding_layers')
+    for region in regions:
 
-    #     # if not region['GID_2'] == 'BGD.1.4_1':
-    #     #    continue
+        # if not region['GID_2'] == 'BGD.1.4_1':
+        #    continue
 
-    #     region = region['GID_{}'.format(regional_level)]
-    #     process_regional_flooding_layers(country, region)
+        region = region['GID_{}'.format(regional_level)]
+        process_regional_flooding_layers(country, region)
 
     # print('Convert cell estimates to site estimates')
     # gid_id = "GID_{}".format(regional_level)
