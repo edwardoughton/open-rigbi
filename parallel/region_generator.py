@@ -75,5 +75,5 @@ if __name__ == "__main__":
 
     regions = get_regional_id_information(countries)#[:1]
     # print(len(regions))
-    random.shuffle(regions)
+    # random.shuffle(regions)
     print(*regions, sep='\n')
