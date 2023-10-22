@@ -50,8 +50,8 @@ def run_site_processing(region_id):
         if not region[gid_level] == region_id:
            continue
 
-        print('Working on process_flooding_extent_stats')
-        process_flooding_extent_stats(country, region, scenarios, regional_level)
+        # print('Working on process_flooding_extent_stats')
+        # process_flooding_extent_stats(country, region, scenarios, regional_level)
 
         print('Working on query_hazard_layers')
         query_hazard_layers(country, region, scenarios, regional_level)
@@ -208,7 +208,7 @@ def query_hazard_layers(country, region, scenarios, regional_level):
         #    continue
 
         if 'inuncoast' in scenario and region not in coastal_lut:
-            print('if inuncoast in scenario and region not in coastal_lut:')
+            print('not coastal: {} in {}'.format(region, scenario))
             continue
                 
         filename = '{}_{}.tif'.format(region, scenario_name)
@@ -236,7 +236,6 @@ def query_hazard_layers(country, region, scenarios, regional_level):
 
             x = float(site['longitude'])
             y = float(site['latitude'])
-
 
             with rasterio.open(path_in) as src:
 
@@ -272,6 +271,7 @@ def query_hazard_layers(country, region, scenarios, regional_level):
 
         output = pd.DataFrame(output)
 
+        print('Writing results to: {}'.format(path_output))
         output.to_csv(path_output, index=False)
 
     return
