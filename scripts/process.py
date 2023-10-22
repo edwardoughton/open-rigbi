@@ -542,3 +542,10 @@ if __name__ == "__main__":
     region_id = args[1]
 
     run_site_processing(region_id)
+
+    # regions = get_regions({'iso3':'BGD'}, 2)#[:1]#[::-1]
+
+    # print('Working on process_regional_flooding_layers')
+    # for region in regions:
+
+    #     run_site_processing(region['GID_2'])

@@ -7,7 +7,7 @@ import os
 import configparser
 import pandas as pd
 
-from misc import get_countries, get_scenarios
+from misc import get_countries, get_scenarios, get_regions
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -36,12 +36,16 @@ def collect_regional_results(scenario):
 
     for country in countries:
 
-        # if not country['iso3'] == 'ARG':
-        #     continue
+        if not country['iso3'] == 'BGD':
+            continue
 
         # print('Working on {}'.format(country['iso3']))
 
-        collect_country_regional_results(country['iso3'], scenario)
+        regional_level = int(country['gid_region'])
+        gid_level = 'GID_{}'.format(regional_level)
+        regions = get_regions(country, regional_level)
+
+        collect_country_regional_results(country, scenario, regions)
 
         folder_in = os.path.join(DATA_PROCESSED, country['iso3'],
             'results', 'regional_aggregated', 'regions')
@@ -91,12 +95,25 @@ def collect_regional_results(scenario):
     return
 
 
-def collect_country_regional_results(iso3, scenario):
+def collect_country_regional_results(country, scenario, regions):
     """
     Collect regional results and write to national results folder.
 
     """
     output = []
+    
+    iso3 = country['iso3']
+    regional_level = int(country['gid_region'])
+    gid_level = 'GID_{}'.format(regional_level)
+    
+    filename = 'coastal_lookup.csv'
+    folder = os.path.join(DATA_PROCESSED, iso3, 'coastal')
+    path_coastal = os.path.join(folder, filename)
+    if not os.path.exists(path_coastal):
+        coastal_lut = []
+    else:
+        coastal_lut = pd.read_csv(path_coastal)
+        coastal_lut = list(coastal_lut['gid_id'])
 
     scenario_name = os.path.basename(scenario).replace('.tif','')#[:-4]
     folder_in = os.path.join(DATA_PROCESSED, iso3, 'results', 
@@ -105,18 +122,12 @@ def collect_country_regional_results(iso3, scenario):
     if not os.path.exists(folder_in):
         return
 
-    all_regional_results = os.listdir(folder_in)#[:1]
+    for region in regions:
 
-    if len(all_regional_results) == 0:
-        return
-
-    for filename in all_regional_results:
-
-        if not scenario_name in filename:
+        if not region[gid_level] in coastal_lut:
             continue
 
-        if not 'unique' in filename:
-            continue
+        filename = "{}_{}_unique.csv".format(region[gid_level], scenario)
 
         path_in = os.path.join(folder_in, filename)
 
@@ -173,8 +184,8 @@ def collect_final_results(scenario):
 
     for country in countries:
 
-        # if not country == 'ARG':
-        #     continue
+        if not country == 'BGD':
+            continue
 
         cell_count_baseline = 0
         cost_usd_baseline = 0

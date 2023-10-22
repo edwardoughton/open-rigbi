@@ -97,24 +97,24 @@ def run_preprocessing(iso3):
     print('Working on process_regional_flooding_layers')
     for region in regions:
 
-        # if not region['GID_2'] == 'BGD.1.4_1':
+        # if not region['GID_2'] == 'BGD.1.5_1':
         #    continue
 
         region = region['GID_{}'.format(regional_level)]
         process_regional_flooding_layers(country, region)
 
-    # print('Convert cell estimates to site estimates')
-    # gid_id = "GID_{}".format(regional_level)
+    print('Convert cell estimates to site estimates')
+    gid_id = "GID_{}".format(regional_level)
 
-    # for region in regions:
+    for region in regions:
 
-    #     # if not len(polygon) > 0:
-    #     #     continue
+        # if not len(polygon) > 0:
+        #     continue
 
-    #     # if not region['GID_2'] == 'BGD.1.4_1':
-    #     #   continue
+        # if not region['GID_2'] == 'BGD.1.5_1':
+        #    continue
 
-    #     create_sites_layer(country, regional_level, region[gid_id], region['geometry'])
+        create_sites_layer(country, regional_level, region[gid_id], region['geometry'])
 
     return
 
@@ -762,7 +762,7 @@ def process_regional_flooding_layers(country, region):
         #    continue
         
         if 'inuncoast' in scenario and region not in coastal_lut:
-            print('if inuncoast in scenario and region not in coastal_lut:')
+            print('Not a coastal region: {}'.format(region))
             continue
 
         filename = os.path.basename(scenario).replace('.tif','')
@@ -771,7 +771,7 @@ def process_regional_flooding_layers(country, region):
         if not os.path.exists(path_in):
             continue
 
-        folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional', scenario)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional')
         # folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional2', scenario)
         if not os.path.exists(folder):
             os.makedirs(folder)
@@ -1004,23 +1004,23 @@ def convert_to_gpd_df(data):
 
 if __name__ == "__main__":
 
-    # args = sys.argv
-    # iso3 = args[1]
-    # print('Running site processing for {}'.format(iso3))
-    # run_preprocessing(iso3)
+    args = sys.argv
+    iso3 = args[1]
+    print('Running site processing for {}'.format(iso3))
+    run_preprocessing(iso3)
 
-    countries = get_countries()
+    # countries = get_countries()
 
-    failures = []
-    for country in countries:
+    # failures = []
+    # for country in countries:
 
-    #     #if not country['iso3'] == 'TJK':
-    #     #    continue
+    # #     #if not country['iso3'] == 'TJK':
+    # #     #    continue
 
-        try:
-            run_preprocessing(country['iso3'])
+    #     try:
+    #         run_preprocessing(country['iso3'])
 
-        except:
-            failures.append(
-            (country['iso3'],country['country']))
-        print(failures)
+    #     except:
+    #         failures.append(
+    #         (country['iso3'],country['country']))
+    #     print(failures)

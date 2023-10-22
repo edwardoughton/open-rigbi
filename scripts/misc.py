@@ -137,8 +137,8 @@ def get_scenarios():
                 #if 'historical' in scenario:
                 #    if '2030' or '2050' or '2080' in scenario:
                 #    continue
-                # if not 'perc' in scenario:
-                #     continue
+                if 'perc' in scenario:
+                    continue
                 if not 'hist' in scenario:
                     output.add(scenario)
 
@@ -176,7 +176,7 @@ def get_scenarios():
     # print(output)
     #output = ['inuncoast_rcp4p5_wtsub_2030_rp0250_0']
 
-    return output #['inuncoast_rcp4p5_wtsub_2080_rp0100_0']
+    return ['inuncoast_rcp4p5_wtsub_2080_rp0100_0']
 
 
 def get_tropical_storm_scenarios():
