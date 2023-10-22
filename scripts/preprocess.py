@@ -1011,7 +1011,7 @@ if __name__ == "__main__":
 
     countries = get_countries()
 
-    # failures = []
+    failures = []
     for country in countries:
 
     #     #if not country['iso3'] == 'TJK':
