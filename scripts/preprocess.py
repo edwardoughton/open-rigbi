@@ -92,29 +92,29 @@ def run_preprocessing(iso3):
     #         #print('Working on create_regional_sites_layer')
     #         create_regional_sites_layer(iso3, 2, region)
 
-    regions = get_regions(country, regional_level)#[:1]#[::-1]
+    # regions = get_regions(country, regional_level)#[:1]#[::-1]
 
-    print('Working on process_regional_flooding_layers')
-    for region in regions:
+    # print('Working on process_regional_flooding_layers')
+    # for region in regions:
 
-        # if not region['GID_2'] == 'BGD.1.5_1':
-        #    continue
+    #     # if not region['GID_2'] == 'BGD.1.5_1':
+    #     #    continue
 
-        region = region['GID_{}'.format(regional_level)]
-        process_regional_flooding_layers(country, region)
+    #     region = region['GID_{}'.format(regional_level)]
+    #     process_regional_flooding_layers(country, region)
 
-    print('Convert cell estimates to site estimates')
-    gid_id = "GID_{}".format(regional_level)
+    # print('Convert cell estimates to site estimates')
+    # gid_id = "GID_{}".format(regional_level)
 
-    for region in regions:
+    # for region in regions:
 
-        # if not len(polygon) > 0:
-        #     continue
+    #     # if not len(polygon) > 0:
+    #     #     continue
 
-        # if not region['GID_2'] == 'BGD.1.5_1':
-        #    continue
+    #     # if not region['GID_2'] == 'BGD.1.5_1':
+    #     #    continue
 
-        create_sites_layer(country, regional_level, region[gid_id], region['geometry'])
+    #     create_sites_layer(country, regional_level, region[gid_id], region['geometry'])
 
     return
 
