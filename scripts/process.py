@@ -50,8 +50,8 @@ def run_site_processing(region_id):
         if not region[gid_level] == region_id:
            continue
 
-        # print('Working on process_flooding_extent_stats')
-        # process_flooding_extent_stats(country, region, scenarios, regional_level)
+        print('Working on process_flooding_extent_stats')
+        process_flooding_extent_stats(country, region, scenarios, regional_level)
 
         print('Working on query_hazard_layers')
         query_hazard_layers(country, region, scenarios, regional_level)
@@ -537,15 +537,15 @@ def convert_to_regional_results(country, region, scenarios, regional_level):
 
 if __name__ == "__main__":
 
-    args = sys.argv
+    # args = sys.argv
 
-    region_id = args[1]
+    # region_id = args[1]
 
-    run_site_processing(region_id)
+    # run_site_processing(region_id)
 
-    # regions = get_regions({'iso3':'BGD'}, 2)#[:1]#[::-1]
+    regions = get_regions({'iso3':'BGD'}, 2)#[:1]#[::-1]
 
-    # print('Working on process_regional_flooding_layers')
-    # for region in regions:
+    print('Working on process_regional_flooding_layers')
+    for region in regions:
 
-    #     run_site_processing(region['GID_2'])
+        run_site_processing(region['GID_2'])
