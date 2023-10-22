@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
-    # #countries = countries[countries['iso3'] == 'USA']
+    countries = countries[countries['iso3'] == 'USA']
     # countries = countries[countries['iso3'].isin(['ARG','USA'])]
     # countries = countries['iso3']
     # countries.tolist()
