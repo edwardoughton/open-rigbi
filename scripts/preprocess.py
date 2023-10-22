@@ -1004,23 +1004,23 @@ def convert_to_gpd_df(data):
 
 if __name__ == "__main__":
 
-    args = sys.argv
-    iso3 = args[1]
-    print('Running site processing for {}'.format(iso3))
-    run_preprocessing(iso3)
+    # args = sys.argv
+    # iso3 = args[1]
+    # print('Running site processing for {}'.format(iso3))
+    # run_preprocessing(iso3)
 
-    # countries = get_countries()
+    countries = get_countries()
 
     # failures = []
-    # for idx, country in countries.iterrows():
+    for country in countries:
 
     #     #if not country['iso3'] == 'TJK':
     #     #    continue
 
-    #     try:
-    #         run_preprocessing(country['iso3'])
+        try:
+            run_preprocessing(country['iso3'])
 
-    #     except:
-    #         failures.append(
-    #         (country['iso3'],country['country']))
-    #     print(failures)
+        except:
+            failures.append(
+            (country['iso3'],country['country']))
+        print(failures)
