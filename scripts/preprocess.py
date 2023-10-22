@@ -55,8 +55,8 @@ def run_preprocessing(iso3):
     # print('Working on create_national_sites_shp')
     # create_national_sites_shp(iso3)
 
-    # print('Working on process_flooding_layers')
-    # process_flooding_layers(country)
+    print('Working on process_flooding_layers')
+    process_flooding_layers(country)
 
     # regions = get_regions(country, regional_level)#[:1]#[::-1]
 
@@ -278,8 +278,8 @@ def process_flooding_layers(country):
             os.makedirs(folder)
         path_out = os.path.join(folder, filename + '.tif')
 
-        if os.path.exists(path_out):
-            continue
+        # if os.path.exists(path_out):
+        #     continue
 
         print('--{}: {}'.format(name, filename))
 
@@ -771,7 +771,8 @@ def process_regional_flooding_layers(country, region):
         if not os.path.exists(path_in):
             continue
 
-        folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional2', scenario)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional', scenario)
+        # folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional2', scenario)
         if not os.path.exists(folder):
             os.makedirs(folder)
         path_out = os.path.join(folder, region + '_' + filename + '.tif')
