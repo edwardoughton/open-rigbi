@@ -176,7 +176,7 @@ def get_scenarios():
     # print(output)
     #output = ['inuncoast_rcp4p5_wtsub_2030_rp0250_0']
 
-    return ['inuncoast_rcp4p5_wtsub_2080_rp0100_0']
+    return output #['inuncoast_rcp4p5_wtsub_2080_rp0100_0']
 
 
 def get_tropical_storm_scenarios():
