@@ -48,48 +48,29 @@ def collect_regional_results(scenario):
         collect_country_regional_results(country, scenario, regions)
 
         folder_in = os.path.join(DATA_PROCESSED, country['iso3'],
-            'results', 'regional_aggregated', 'regions')
+            'results', 'regional_aggregated')
 
         if not os.path.exists(folder_in):
             # print('folder does not exist: {}'.format(folder_in))
             continue
 
-        all_regional_results = os.listdir(folder_in)#[:1]
-        if len(all_regional_results) == 0:
-            print('len of all_regional_results = 0 for {} and {}'.format(
-                country['iso3'], scenario
-                )
-            )
+        filename = "{}_unique.csv".format(scenario_name)
+        path_in = os.path.join(folder_in, filename)
+
+        if not os.path.exists(path_in):
             continue
-
-        for filename in all_regional_results:
-
-            filename = filename.replace('.csv','')
-
-            if not scenario_name in filename:
-                continue
-
-            if not 'unique' in filename:
-                continue
-
-            # if not 'STORM' in filename:
-            #     continue
-
-            path_in = os.path.join(folder_in, filename + '.csv')
-            if not os.path.exists(path_in):
-                continue
-            try:
-                data = pd.read_csv(path_in)
-                data = data.to_dict('records')
-                output = output + data
-            except:
-                print('failed on {})'.format(path_in))
+        try:
+            data = pd.read_csv(path_in)
+            data = data.to_dict('records')
+            output = output + data
+        except:
+            print('failed on {})'.format(path_in))
 
     if len(output) == 0:
         return
 
     output = pd.DataFrame(output)
-    # print('writing: {}'.format(path_out))
+
     output.to_csv(path_out, index=False)
 
     return
