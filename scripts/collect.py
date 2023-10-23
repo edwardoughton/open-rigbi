@@ -105,7 +105,8 @@ def collect_country_regional_results(country, scenario, regions):
 
     for region in regions:
 
-        if not region[gid_level] in coastal_lut:
+        if 'inuncoast' in scenario and region[gid_level] not in coastal_lut:
+            print('Not coastal: {} in {}'.format(region, scenario))
             continue
 
         filename = "{}_{}_unique.csv".format(region[gid_level], scenario)
