@@ -55,51 +55,49 @@ def run_preprocessing(iso3):
     # print('Working on create_national_sites_shp')
     # create_national_sites_shp(iso3)
 
-    # # print('Working on process_flooding_layers')
-    # # process_flooding_layers(country)
+    # print('Working on process_flooding_layers')
+    # process_flooding_layers(country)
 
-    regions_df = get_regions(country, regional_level)#[:1]#[::-1]
-    regions = regions_df.to_dict('records')
+    # regions = get_regions(country, regional_level)#[:1]#[::-1]
 
-    print('Working on regional disaggregation')
-    for region in regions:
+    # print('Working on regional disaggregation')
+    # for region in regions:
 
-        # if not region['GID_2'] == 'BGD.1.4_1': #'BGD.1.1_1':
-        #   continue
+    #     # if not region['GID_2'] == 'BGD.1.4_1': #'BGD.1.1_1':
+    #     #   continue
 
-        region = region['GID_{}'.format(regional_level)]
+    #     region = region['GID_{}'.format(regional_level)]
 
-        if regional_level == 1:
+    #     if regional_level == 1:
 
-            #print('Working on segment_by_gid_1')
-            segment_by_gid_1(iso3, 1, region)
+    #         #print('Working on segment_by_gid_1')
+    #         segment_by_gid_1(iso3, 1, region)
 
-            #print('Working on create_regional_sites_layer')
-            create_regional_sites_layer(iso3, 1, region)
+    #         #print('Working on create_regional_sites_layer')
+    #         create_regional_sites_layer(iso3, 1, region)
 
-        if regional_level == 2:
+    #     if regional_level == 2:
 
-            gid_1 = get_gid_1(region)
+    #         gid_1 = get_gid_1(region)
 
-            #print('Working on segment_by_gid_1')
-            segment_by_gid_1(iso3, 1, gid_1)
+    #         #print('Working on segment_by_gid_1')
+    #         segment_by_gid_1(iso3, 1, gid_1)
 
-            #print('Working on create_regional_sites_layer')
-            create_regional_sites_layer(iso3, 1, gid_1)
+    #         #print('Working on create_regional_sites_layer')
+    #         create_regional_sites_layer(iso3, 1, gid_1)
 
-            #print('Working on segment_by_gid_2')
-            segment_by_gid_2(iso3, 2, region, gid_1)
+    #         #print('Working on segment_by_gid_2')
+    #         segment_by_gid_2(iso3, 2, region, gid_1)
 
-            #print('Working on create_regional_sites_layer')
-            create_regional_sites_layer(iso3, 2, region)
+    #         #print('Working on create_regional_sites_layer')
+    #         create_regional_sites_layer(iso3, 2, region)
 
-    regions_df = get_regions(country, regional_level)#[:1]#[::-1]
-    regions = regions_df.to_dict('records')
+    regions = get_regions(country, regional_level)#[:1]#[::-1]
 
     print('Working on process_regional_flooding_layers')
     for region in regions:
 
-        # if not region['GID_2'] == 'BGD.1.4_1':
+        # if not region['GID_2'] == 'BGD.1.5_1':
         #    continue
 
         region = region['GID_{}'.format(regional_level)]
@@ -113,8 +111,8 @@ def run_preprocessing(iso3):
         # if not len(polygon) > 0:
         #     continue
 
-        # if not region['GID_2'] == 'BGD.1.4_1':
-        #   continue
+        # if not region['GID_2'] == 'BGD.1.5_1':
+        #    continue
 
         create_sites_layer(country, regional_level, region[gid_id], region['geometry'])
 
@@ -280,8 +278,8 @@ def process_flooding_layers(country):
             os.makedirs(folder)
         path_out = os.path.join(folder, filename + '.tif')
 
-        if os.path.exists(path_out):
-            continue
+        # if os.path.exists(path_out):
+        #     continue
 
         print('--{}: {}'.format(name, filename))
 
@@ -744,15 +742,28 @@ def process_regional_flooding_layers(country, region):
     iso3 = country['iso3']
     name = country['country']
 
+    filename = 'coastal_lookup.csv'
+    folder = os.path.join(DATA_PROCESSED, iso3, 'coastal')
+    path_coastal = os.path.join(folder, filename)
+    if not os.path.exists(path_coastal):
+        coastal_lut = []
+    else:
+        coastal_lut = pd.read_csv(path_coastal)
+        coastal_lut = list(coastal_lut['gid_id'])
+
     hazard_dir = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding')
 
     for scenario in scenarios:
-        # print(scenario)
+
         #if 'river' in scenario:
         #    continue
 
         #if not os.path.basename(scenario) == 'inuncoast_rcp8p5_wtsub_2080_rp1000_0.tif':
         #    continue
+        
+        if 'inuncoast' in scenario and region not in coastal_lut:
+            print('Not a coastal region: {}'.format(region))
+            continue
 
         filename = os.path.basename(scenario).replace('.tif','')
         path_in = os.path.join(hazard_dir, filename + '.tif')
@@ -761,6 +772,7 @@ def process_regional_flooding_layers(country, region):
             continue
 
         folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional')
+        # folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding', 'regional2', scenario)
         if not os.path.exists(folder):
             os.makedirs(folder)
         path_out = os.path.join(folder, region + '_' + filename + '.tif')
@@ -770,14 +782,11 @@ def process_regional_flooding_layers(country, region):
 
         print('--{}: {}'.format(region, filename))
 
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-
-        # try:
-        process_regional_flood_layer(country, region, path_in, path_out)
-        # except:
-        #     print('{} failed: {}'.format(country['iso3'], scenario))
-        #     continue
+        try:
+            process_regional_flood_layer(country, region, path_in, path_out)
+        except:
+            print('{} failed: {}'.format(region, scenario))
+            continue
 
     return
 
@@ -1003,10 +1012,10 @@ if __name__ == "__main__":
     # countries = get_countries()
 
     # failures = []
-    # for idx, country in countries.iterrows():
+    # for country in countries:
 
-    #     #if not country['iso3'] == 'TJK':
-    #     #    continue
+    # #     #if not country['iso3'] == 'TJK':
+    # #     #    continue
 
     #     try:
     #         run_preprocessing(country['iso3'])

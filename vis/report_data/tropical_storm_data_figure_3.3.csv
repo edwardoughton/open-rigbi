@@ -1,0 +1,61 @@
+interaction,continent,low,mean,high
+0.01% 2050,Africa,0.7581,1.0489,1.3049
+0.01% 2050,Asia,37.5003,42.699,46.1119
+0.01% 2050,Europe,3.3177,5.1293,6.0747
+0.01% 2050,North America,27.0366,30.8246,33.6597
+0.01% 2050,Oceania,0.3802,0.929,1.3361
+0.01% 2050,South America,0.615,0.7947,1.0708
+0.1% 2050,Africa,0.3383,0.3629,0.3787
+0.1% 2050,Asia,12.1817,18.6149,25.8618
+0.1% 2050,Europe,0.465,1.1087,1.4409
+0.1% 2050,North America,8.9364,9.6459,10.1248
+0.1% 2050,Oceania,0.1664,0.2257,0.2823
+0.1% 2050,South America,0.1236,0.1403,0.1498
+0.2% 2050,Africa,0.0851,0.1166,0.1951
+0.2% 2050,Asia,10.1822,12.7596,17.7141
+0.2% 2050,Europe,0.0244,0.1802,0.3763
+0.2% 2050,North America,5.9454,6.6039,7.0683
+0.2% 2050,Oceania,0.0506,0.1573,0.196
+0.2% 2050,South America,0.0815,0.0862,0.0923
+0.5% 2050,Africa,0.0196,0.0257,0.0324
+0.5% 2050,Asia,7.9762,8.7783,9.3263
+0.5% 2050,Europe,1e-4,0.0018,0.0033
+0.5% 2050,North America,1.9826,2.2464,2.5011
+0.5% 2050,Oceania,0.0258,0.0454,0.0588
+0.5% 2050,South America,0.0038,0.0046,0.0063
+1% 2050,Africa,0.0187,0.019,0.0191
+1% 2050,Asia,6.4582,6.9751,7.2861
+1% 2050,Europe,0,0,1e-4
+1% 2050,North America,0.8099,1.0778,1.3004
+1% 2050,Oceania,0,0.0129,0.0223
+1% 2050,South America,0,0,1e-4
+0.01% Historical,Africa,NA,0.525718829,NA
+0.1% Historical,Africa,NA,0.063962918,NA
+0.2% Historical,Africa,NA,0.020797814,NA
+0.5% Historical,Africa,NA,0.018941484,NA
+1% Historical,Africa,NA,0.01827505,NA
+0.01% Historical,Asia,NA,32.207237818,NA
+0.1% Historical,Asia,NA,17.976471496,NA
+0.2% Historical,Asia,NA,11.398898502,NA
+0.5% Historical,Asia,NA,6.341133773,NA
+1% Historical,Asia,NA,1.453527144,NA
+0.01% Historical,Europe,NA,3.373546558,NA
+0.1% Historical,Europe,NA,0.00109535,NA
+0.2% Historical,Europe,NA,0,NA
+0.5% Historical,Europe,NA,0,NA
+1% Historical,Europe,NA,0,NA
+0.01% Historical,North America,NA,22.389742411,NA
+0.1% Historical,North America,NA,7.629289802,NA
+0.2% Historical,North America,NA,4.642680149,NA
+0.5% Historical,North America,NA,1.906634286,NA
+1% Historical,North America,NA,0.936713342,NA
+0.01% Historical,Oceania,NA,0.248513959,NA
+0.1% Historical,Oceania,NA,0.044178348,NA
+0.2% Historical,Oceania,NA,0.014617734,NA
+0.5% Historical,Oceania,NA,0.002492786,NA
+1% Historical,Oceania,NA,0,NA
+0.01% Historical,South America,NA,0.582466245,NA
+0.1% Historical,South America,NA,0.117183937,NA
+0.2% Historical,South America,NA,0.076300928,NA
+0.5% Historical,South America,NA,0.005882606,NA
+1% Historical,South America,NA,6.918e-6,NA

@@ -92,7 +92,8 @@ def get_regions(country, region_type):
         return []
 
     regions = gpd.read_file(path, crs='epsg:4326')#[:1]
-
+    regions = regions.to_dict('records')
+    
     return regions
 
 
@@ -102,10 +103,11 @@ def get_scenarios():
     """
     output = set()
 
-    # hazard_dir = os.path.join(DATA_PROCESSED, country['iso3'], 'hazards', 'flooding')
     hazard_dir = os.path.join(DATA_RAW,  'flood_hazard')
-
-    scenarios = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:20]
+    scenarios = os.listdir(os.path.join(hazard_dir))#[:20]
+    scenarios = [i.replace('.tif','') for i in scenarios]
+    scenarios = [i.replace('.aux','') for i in scenarios]
+    scenarios = [i.replace('.xml','') for i in scenarios]
 
     return_periods = [
         'rp0100',
@@ -118,19 +120,12 @@ def get_scenarios():
         'rp01000'
     ]
 
-    #mean_scenarios = generate_mean_scenarios(scenarios, return_periods)
-
-    scenarios = scenarios #+ mean_scenarios
-
     for scenario in scenarios:
-
-        #if not 'inuncoast_rcp4p5_wtsub_2030_rp0250' in scenario:
-        #    continue
 
         if any(x in scenario for x in return_periods): #specify return periods
 
-            #if 'inunriver' in scenario:
-            #    continue
+            if 'inunriver' in scenario:
+               continue
 
             #if '2030' in scenario or '2050' in scenario:
             #    continue 
@@ -142,8 +137,8 @@ def get_scenarios():
                 #if 'historical' in scenario:
                 #    if '2030' or '2050' or '2080' in scenario:
                 #    continue
-                #if not 'perc' in scenario:
-                #     continue
+                if 'perc' in scenario:
+                    continue
                 if not 'hist' in scenario:
                     output.add(scenario)
 
@@ -168,13 +163,19 @@ def get_scenarios():
 
     output = list(output)
     output.sort()
-    #output = [#'inuncoast_rcp4p5_wtsub_2050_rp1000_0',
-    #'inuncoast_rcp4p5_wtsub_2080_rp0100_0',
-    #'inuncoast_rcp4p5_wtsub_2080_rp1000_0',
-    #'inuncoast_rcp4p5_wtsub_2030_rp0500_0',
-    #'inuncoast_rcp4p5_wtsub_2050_rp0100_0',
-    #'inuncoast_rcp8p5_wtsub_2080_rp0500_0',
-    #]
+    # output = [#'inuncoast_rcp4p5_wtsub_2050_rp1000_0',
+    # 'inuncoast_rcp8p5_wtsub_2080_rp1000_0_perc_05',
+    # 'inuncoast_rcp4p5_wtsub_2050_rp0500_0',
+    # 'inuncoast_rcp8p5_wtsub_2050_rp0500_0',
+    # 'inuncoast_rcp8p5_wtsub_2080_rp0500_0',
+    # 'inuncoast_rcp4p5_wtsub_2080_rp0500_0'
+    # 'inuncoast_rcp8p5_wtsub_2080_rp0250_0_perc_05',
+    # 'inuncoast_rcp8p5_wtsub_2080_rp0100_0_perc_05',
+    # 'inuncoast_rcp8p5_wtsub_2050_rp1000_0_perc_05',
+    # 'inuncoast_rcp8p5_wtsub_2050_rp0500_0_perc_05',
+    # 'inuncoast_rcp8p5_wtsub_2050_rp0250_0_perc_05',
+    # 'inuncoast_rcp8p5_wtsub_2050_rp0100_0_perc_05',
+    # ]
     # print(output)
     #output = ['inuncoast_rcp4p5_wtsub_2030_rp0250_0']
 
@@ -189,7 +190,8 @@ def get_tropical_storm_scenarios():
 
     hazard_dir = os.path.join(DATA_RAW,  'storm_data')
 
-    scenarios = glob.glob(os.path.join(hazard_dir, "*.tif"))#[:20]
+    scenarios = os.listdir(os.path.join(hazard_dir))#[:20]
+    scenarios = [i.replace('.tif', '') for i in scenarios]
 
     return_periods = [
         "10_YR_RP",
@@ -203,13 +205,16 @@ def get_tropical_storm_scenarios():
 
     for scenario in scenarios:
 
+        # if not 'HadGEM' in scenario:
+        #     continue
+
         if any(x in scenario for x in return_periods): #specify return periods
 
             output.add(scenario)
 
     output = list(output)
     output.sort()
-
+    # print(output)
     return output#[:1]
 
 
@@ -394,8 +399,8 @@ if __name__ == '__main__':
     for scenario in scenarios:
         print(scenario)
 
-    #tropical_storm_scenarios = get_tropical_storm_scenarios()
-    #for scenario in tropical_storm_scenarios:
+    # tropical_storm_scenarios = get_tropical_storm_scenarios()
+    # for scenario in tropical_storm_scenarios:
     #    print(scenario)
 
 

@@ -37,25 +37,30 @@ def count_cells(country):
 
     output = []
 
-    for idx, region in regions_df.iterrows():
+    for region in regions_df:
 
         region = region["GID_{}".format(regional_level)]
         
-        filename = "{}.csv".format(region)
+        filename = "{}_unique.csv".format(region)
         path_in = os.path.join(folder, filename)
         
         if not os.path.exists(path_in):
             print("path_in did not exist: {}".format(path_in))
             continue
-
-        data = pd.read_csv(path_in)
+        try:
+            data = pd.read_csv(path_in)
+        except:
+            print('Failed to read in: {}'.format(path_in))
+            continue
+        
+        data = data.to_dict('records')
 
         cells_2g = 0
         cells_3g = 0
         cells_4g = 0
         cells_5g = 0
 
-        for idx, row in data.iterrows():
+        for row in data:
             
             if row['radio'] == 'GSM':
                 cells_2g += 1
@@ -96,7 +101,7 @@ def collect_cells(countries):
     """
     output = []
 
-    for idx, country in countries.iterrows():
+    for country in countries:
 
         filename = "cell_count.csv"
         folder_in = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
@@ -128,7 +133,7 @@ if __name__ == "__main__":
 
     countries = get_countries()
 
-    for idx, country in countries.iterrows():
+    for country in countries:
         
         # if not country['iso3'] == 'RWA':
         #     continue

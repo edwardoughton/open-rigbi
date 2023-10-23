@@ -149,9 +149,9 @@ def plot_cells_per_region(country, regions, path):
     path_outline = os.path.join(DATA_PROCESSED, iso3, filename)
     national_outline = gpd.read_file(path_outline, crs='epsg:4326')
 
-    filename = 'surface_water.shp'
-    path_water = os.path.join(DATA_PROCESSED, iso3, 'surface_water', filename)
-    surface_water = gpd.read_file(path_water, crs='epsg:4326')
+    # filename = 'surface_water.shp'
+    # path_water = os.path.join(DATA_PROCESSED, iso3, 'surface_water', filename)
+    # surface_water = gpd.read_file(path_water, crs='epsg:4326')
 
     filename = '{}.csv'.format(iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
@@ -456,12 +456,12 @@ def single_extreme_plot(country, regions, outline, path):
     iso3 = country['iso3']
     name = country['country']
 
-    filename = 'sites_{}.csv'.format(iso3)
-    path_data = os.path.join(RESULTS, filename)
+    filename = '{}.csv'.format(iso3)
+    path_data = os.path.join(DATA_PROCESSED, 'GHA', 'sites', filename)
     data = pd.read_csv(path_data)
 
-    unique_scenarios = data['scenario'].unique()#[:4]
-    num_scenarios = len(unique_scenarios)
+    # unique_scenarios = data['scenario'].unique()#[:4]
+    # num_scenarios = len(unique_scenarios)
     unique_scenarios = [
         'inunriver_rcp8p5_MIROC-ESM-CHEM_2080_rp01000.tif',
         'inuncoast_rcp8p5_wtsub_2080_rp1000_0_perc_50.tif'
@@ -471,11 +471,11 @@ def single_extreme_plot(country, regions, outline, path):
     fig.subplots_adjust(hspace=.4, wspace=.4)
     fig.set_facecolor('gainsboro')
 
-    riverine = data.loc[data['scenario'] == unique_scenarios[0]]
-    riverine = riverine.loc[riverine['fragility'] > 0]
+    # riverine = data.loc[data['scenario'] == unique_scenarios[0]]
+    # riverine = riverine.loc[riverine['fragility'] > 0]
 
-    coastal = data.loc[data['scenario'] == unique_scenarios[1]]
-    coastal = coastal.loc[coastal['fragility'] > 0]
+    # coastal = data.loc[data['scenario'] == unique_scenarios[1]]
+    # coastal = coastal.loc[coastal['fragility'] > 0]
 
     regions.plot(facecolor="none", edgecolor="lightgrey", lw=1, ax=axes)
     outline.plot(facecolor="none", edgecolor="black", lw=1, ax=axes)
@@ -488,31 +488,31 @@ def single_extreme_plot(country, regions, outline, path):
 
     cx.add_basemap(axes, crs=regions.crs)
 
-    if len(riverine) > 0:
-        sites = gpd.GeoDataFrame(
-            riverine,
-            geometry=gpd.points_from_xy(
-                riverine.lon,
-                riverine.lat
-            ), crs='epsg:4326'
-        )
-        sites.plot(color='red', markersize=2, marker="o", ax=axes)
-        buffers_red = sites
-        buffers_red['geometry'] = buffers_red['geometry'].buffer(0.05)
-        buffers_red.plot(color='red', alpha=.08, ax=axes)
+    # if len(riverine) > 0:
+    #     sites = gpd.GeoDataFrame(
+    #         riverine,
+    #         geometry=gpd.points_from_xy(
+    #             riverine.lon,
+    #             riverine.lat
+    #         ), crs='epsg:4326'
+    #     )
+    #     sites.plot(color='red', markersize=2, marker="o", ax=axes)
+    #     buffers_red = sites
+    #     buffers_red['geometry'] = buffers_red['geometry'].buffer(0.05)
+    #     buffers_red.plot(color='red', alpha=.08, ax=axes)
 
-    if len(coastal) > 0:
-        sites = gpd.GeoDataFrame(
-            coastal,
-            geometry=gpd.points_from_xy(
-                coastal.lon,
-                coastal.lat
-            ), crs='epsg:4326'
-        )
-        sites.plot(color='blue', markersize=2, marker="*", ax=axes)
-        buffers_blue = sites
-        buffers_blue['geometry'] = buffers_blue['geometry'].buffer(0.05)
-        buffers_blue.plot(color='blue', alpha=.08, ax=axes)
+    # if len(coastal) > 0:
+    #     sites = gpd.GeoDataFrame(
+    #         coastal,
+    #         geometry=gpd.points_from_xy(
+    #             coastal.lon,
+    #             coastal.lat
+    #         ), crs='epsg:4326'
+    #     )
+    #     sites.plot(color='blue', markersize=2, marker="*", ax=axes)
+    #     buffers_blue = sites
+    #     buffers_blue['geometry'] = buffers_blue['geometry'].buffer(0.05)
+    #     buffers_blue.plot(color='blue', alpha=.08, ax=axes)
 
     axes.legend(["Fiber Network","Riverine Flooding", "Coastal Flooding"], loc="lower right")
 
@@ -540,7 +540,7 @@ if __name__ == '__main__':
 
     for idx, country in countries.iterrows():
 
-        if not country['iso3'] in ['MWI']: #['MWI','GHA']
+        if not country['iso3'] in ['GHA']: #['MWI','']
             continue
 
         iso3 = country['iso3']
@@ -556,10 +556,12 @@ if __name__ == '__main__':
         if not os.path.exists(folder_vis):
             os.makedirs(folder_vis)
 
-        filename = 'regions_{}_{}.shp'.format(country['lowest'], iso3)
+        print('Loading region shapes')
+        filename = 'regions_{}_{}.shp'.format(int(country['lowest']), iso3)
         path = os.path.join(DATA_PROCESSED, iso3, 'regions', filename)
         shapes = gpd.read_file(path, crs='epsg:4326')
 
+        print('Loading national outline')
         filename = 'national_outline.shp'
         path = os.path.join(DATA_PROCESSED, iso3, filename)
         outline = gpd.read_file(path, crs='epsg:4326')
@@ -568,9 +570,10 @@ if __name__ == '__main__':
         # if not os.path.exists(path):
         #     plot_regions_by_geotype(country, shapes, path)
 
-        path = os.path.join(folder_vis, '{}_cells_by_region.tiff'.format(iso3))
-        # if not os.path.exists(path):
-        plot_cells_per_region(country, shapes, path)
+        # print('Plotting cells per region')
+        # path = os.path.join(folder_vis, '{}_cells_by_region.tiff'.format(iso3))
+        # # if not os.path.exists(path):
+        # plot_cells_per_region(country, shapes, path)
 
         # path = os.path.join(folder_vis, '{}_covered_by_region.png'.format(iso3))
         # if not os.path.exists(path):
@@ -580,8 +583,9 @@ if __name__ == '__main__':
         # # if not os.path.exists(path):
         # plot_uncovered_pop_by_region(country, outline, path)
 
-        # path = os.path.join(folder_vis, '{}_single_extreme_plot.png'.format(iso3))
-        # # if not os.path.exists(path):
-        # single_extreme_plot(country, shapes, outline, path)
+        print('Plotting single extreme plot')
+        path = os.path.join(folder_vis, '{}_single_extreme_plot.png'.format(iso3))
+        # if not os.path.exists(path):
+        single_extreme_plot(country, shapes, outline, path)
 
         print('Complete')

@@ -26,7 +26,7 @@ def collect(countries, scenarios):
     folder_in = os.path.join(DATA_PROCESSED, 'results', 'validation', 'country_data')
     #folder_out = os.path.join(DATA_PROCESSED, 'results', 'validation')
 
-    for idx, country in countries.iterrows():
+    for country in countries:
         
         #if not country['iso3'] in ['ARG']:
         #    continue
@@ -54,11 +54,10 @@ def collect(countries, scenarios):
             if os.path.exists(country_folder):
                 file_paths = os.listdir(country_folder)
                 for filename in file_paths:
-                    #print(filename, scenario) 
+
                     if not scenario in os.path.basename(filename).replace('.tif',''):
                         continue
-                    #print('here')
-                    # print('Working on {}'.format(filename))
+
                     path = os.path.join(country_folder, filename)
                     if not os.path.exists(path):
                         continue
@@ -72,7 +71,7 @@ def collect(countries, scenarios):
                         mean_depth.append(data[0]['mean_depth'])
                         max_depth.append(data[0]['max_depth'])
                         flooded_area_km2.append(data[0]['flooded_area_km2'])
-                #print(len(flooded_area_km2), sum(flooded_area_km2))
+
                 if len(flooded_area_km2) > 0:
                     min_depth = min(min_depth)
                     mean_depth = sum(mean_depth) / len(mean_depth)
@@ -106,12 +105,12 @@ def collect(countries, scenarios):
                 year = scenario.split('_')[3]
                 return_period = scenario.split('_')[4]
                 remaining_portion = scenario.split('_')[5]
-                #print(remaining_portion, scenario)
+
                 if not len(scenario.split('_')) > 6:
                     percentile = 0
                 else:
                     percentile = scenario.split('_')[7]#[:-4]
-                #print(percentile)
+
             output.append({
                 'iso3': country['iso3'],
                 'hazard': hazard,
@@ -144,7 +143,7 @@ def collect_all(countries):
 
     output = []
 
-    for idx, country in countries.iterrows():
+    for country in countries:
         
         #if not country['iso3'] == 'USA':
         #    continue
@@ -172,7 +171,7 @@ if __name__ == "__main__":
     scenarios = get_scenarios()
     #scenarios_tropical = get_tropical_storm_scenarios()
 
-    scenarios = scenarios
+    # scenarios = scenarios
 
     collect(countries, scenarios)
 

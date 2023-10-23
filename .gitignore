@@ -141,7 +141,9 @@ vis/results_v3/*
 vis/results_v4/*
 vis/results_v5/*
 vis/figures/*
-vis/results/*
+vis/results_flooding_final/*
+vis/results_tropical_storm/*
+vis/interim/*
 data/raw/*
 vis/wb_maps/*
 vis/data/*
