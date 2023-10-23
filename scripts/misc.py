@@ -137,7 +137,7 @@ def get_scenarios():
                 #if 'historical' in scenario:
                 #    if '2030' or '2050' or '2080' in scenario:
                 #    continue
-                if 'perc' in scenario:
+                if not 'perc' in scenario:
                     continue
                 if not 'hist' in scenario:
                     output.add(scenario)
