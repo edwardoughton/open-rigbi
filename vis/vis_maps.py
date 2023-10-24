@@ -456,26 +456,17 @@ def single_extreme_plot(country, regions, outline, path):
     iso3 = country['iso3']
     name = country['country']
 
-    filename = '{}.csv'.format(iso3)
-    path_data = os.path.join(DATA_PROCESSED, 'GHA', 'sites', filename)
-    data = pd.read_csv(path_data)
+    filename = 'inunriver_rcp8p5_MIROC-ESM-CHEM_2080_rp01000.csv'
+    path_data = os.path.join(VIS, '..', 'report_data', filename)
+    riverine = pd.read_csv(path_data)
 
-    # unique_scenarios = data['scenario'].unique()#[:4]
-    # num_scenarios = len(unique_scenarios)
-    unique_scenarios = [
-        'inunriver_rcp8p5_MIROC-ESM-CHEM_2080_rp01000.tif',
-        'inuncoast_rcp8p5_wtsub_2080_rp1000_0_perc_50.tif'
-    ]
+    filename = 'inuncoast_rcp8p5_wtsub_2080_rp1000_0.csv'
+    path_data = os.path.join(VIS, '..', 'report_data', filename)
+    coastal = pd.read_csv(path_data)
 
     fig, axes = plt.subplots(figsize=(10,10))
     fig.subplots_adjust(hspace=.4, wspace=.4)
     fig.set_facecolor('gainsboro')
-
-    # riverine = data.loc[data['scenario'] == unique_scenarios[0]]
-    # riverine = riverine.loc[riverine['fragility'] > 0]
-
-    # coastal = data.loc[data['scenario'] == unique_scenarios[1]]
-    # coastal = coastal.loc[coastal['fragility'] > 0]
 
     regions.plot(facecolor="none", edgecolor="lightgrey", lw=1, ax=axes)
     outline.plot(facecolor="none", edgecolor="black", lw=1, ax=axes)
@@ -486,35 +477,35 @@ def single_extreme_plot(country, regions, outline, path):
     fiber = gpd.read_file(path_fiber, crs='epsg:4326')
     fiber.plot(color='orange', lw=0.5, ax=axes)
 
-    cx.add_basemap(axes, crs=regions.crs)
+    cx.add_basemap(axes, crs=regions.crs,source=cx.providers.OpenStreetMap.Mapnik)
 
-    # if len(riverine) > 0:
-    #     sites = gpd.GeoDataFrame(
-    #         riverine,
-    #         geometry=gpd.points_from_xy(
-    #             riverine.lon,
-    #             riverine.lat
-    #         ), crs='epsg:4326'
-    #     )
-    #     sites.plot(color='red', markersize=2, marker="o", ax=axes)
-    #     buffers_red = sites
-    #     buffers_red['geometry'] = buffers_red['geometry'].buffer(0.05)
-    #     buffers_red.plot(color='red', alpha=.08, ax=axes)
+    if len(riverine) > 0:
+        sites = gpd.GeoDataFrame(
+            riverine,
+            geometry=gpd.points_from_xy(
+                riverine.longitude,
+                riverine.latitude
+            ), crs='epsg:4326'
+        )
+        sites.plot(color='red', markersize=2, marker="o", ax=axes)
+        buffers_red = sites
+        buffers_red['geometry'] = buffers_red['geometry'].buffer(0.05)
+        buffers_red.plot(color='red', alpha=.08, ax=axes)
 
-    # if len(coastal) > 0:
-    #     sites = gpd.GeoDataFrame(
-    #         coastal,
-    #         geometry=gpd.points_from_xy(
-    #             coastal.lon,
-    #             coastal.lat
-    #         ), crs='epsg:4326'
-    #     )
-    #     sites.plot(color='blue', markersize=2, marker="*", ax=axes)
-    #     buffers_blue = sites
-    #     buffers_blue['geometry'] = buffers_blue['geometry'].buffer(0.05)
-    #     buffers_blue.plot(color='blue', alpha=.08, ax=axes)
+    if len(coastal) > 0:
+        sites = gpd.GeoDataFrame(
+            coastal,
+            geometry=gpd.points_from_xy(
+                coastal.longitude,
+                coastal.latitude
+            ), crs='epsg:4326'
+        )
+        sites.plot(color='blue', markersize=2, marker="*", ax=axes)
+        buffers_blue = sites
+        buffers_blue['geometry'] = buffers_blue['geometry'].buffer(0.05)
+        buffers_blue.plot(color='blue', alpha=.08, ax=axes)
 
-    axes.legend(["Fiber Network","Riverine Flooding", "Coastal Flooding"], loc="lower right")
+    axes.legend(["Fiber network","Riverine flooding", "Coastal flooding"], loc="lower right")
 
     fig.tight_layout()
 
