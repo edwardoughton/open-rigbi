@@ -55,7 +55,7 @@ def get_regional_id_information(countries):
             regions = regions[gid_level]
             regions = regions.tolist()
             output = output + regions
-    print(len(output))
+
     return output
 
 
