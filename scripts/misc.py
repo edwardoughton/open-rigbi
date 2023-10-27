@@ -124,23 +124,20 @@ def get_scenarios():
 
         if any(x in scenario for x in return_periods): #specify return periods
 
-            if 'inunriver' in scenario:
-               continue
-
-            #if '2030' in scenario or '2050' in scenario:
-            #    continue 
-
-            #if 'rcp8p5' in scenario:
+            # if 'inunriver' in scenario:
             #    continue
 
-            if 'inuncoast' and 'wtsub' in scenario:
-                #if 'historical' in scenario:
-                #    if '2030' or '2050' or '2080' in scenario:
-                #    continue
-                if not 'perc' in scenario:
-                    continue
-                if not 'hist' in scenario:
-                    output.add(scenario)
+            if 'inuncoast' in scenario:
+               continue
+            
+            # if 'inuncoast' and 'wtsub' in scenario:
+            #     #if 'historical' in scenario:
+            #     #    if '2030' or '2050' or '2080' in scenario:
+            #     #    continue
+            #     if not 'perc' in scenario:
+            #         continue
+            #     if not 'hist' in scenario:
+            #         output.add(scenario)
 
             if 'inunriver' in scenario: # and 'MIROC-ESM-CHEM' in scenario:
                 if not 'historical' in scenario:
