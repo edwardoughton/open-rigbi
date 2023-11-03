@@ -86,7 +86,7 @@ def count_cells(country):
 
     output = pd.DataFrame(output)
 
-    filename = "cell_count.csv"
+    filename = "cell_count_unique.csv"
     folder_out = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
     path_out = os.path.join(folder_out, filename)
     output.to_csv(path_out, index=False)
@@ -103,7 +103,7 @@ def collect_cells(countries):
 
     for country in countries:
 
-        filename = "cell_count.csv"
+        filename = "cell_count_unique.csv"
         folder_in = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
         path_in = os.path.join(folder_in, filename)
 
@@ -121,7 +121,7 @@ def collect_cells(countries):
 
     output = pd.DataFrame(output)
 
-    filename = "cell_count_regional.csv"
+    filename = "cell_count_regional_unique.csv"
     folder_out = os.path.join(DATA_PROCESSED, 'results', 'sites')
     if not os.path.exists(folder_out):
         os.makedirs(folder_out)
