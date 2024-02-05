@@ -9,9 +9,11 @@ infrastructure.
 
 The recommended approach to using `open-rigbi` is via conda.
 
+This fork has a YAML environemnt that will work on Linux. IT WILL NOT WORK ON WINDOWS. Use the official build for that.
+
 First, create a conda environment as follows:
 
-    conda create --name rigbi-env python=3.7
+    conda create --name rigbi-env
 
 Then activate it:
 
@@ -19,7 +21,7 @@ Then activate it:
 
 Finally, install the necessary packages, such as `geopandas`:
 
-    conda install --file requirements.txt
+    conda env update --file environment_linux.yaml
 
 
 ## Overview of scripts
