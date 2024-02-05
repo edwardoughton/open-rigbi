@@ -9,8 +9,6 @@ infrastructure.
 
 The recommended approach to using `open-rigbi` is via conda.
 
-This fork has a YAML environemnt that will work on Linux. IT WILL NOT WORK ON WINDOWS. Use the official build for that.
-
 First, create a conda environment as follows:
 
     conda create --name rigbi-env
@@ -21,8 +19,10 @@ Then activate it:
 
 Finally, install the necessary packages, such as `geopandas`:
 
-    conda env update --file environment_linux.yaml
+    conda env update --file environment_linux.yaml # If on Linux
+    conda env update --file environment_windows.yaml # If on Windows
 
+If you add a `python=` argument to either of the two commands above, you can constrain the version of Python that Anaconda uses. This is helpful and should be done. This project has no strictly enforced version of Python but Dr. Oughton's original env scripts use Python 3.9.
 
 ## Overview of scripts
 
