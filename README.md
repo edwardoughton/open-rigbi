@@ -27,7 +27,7 @@ Finally, install the necessary packages, such as `geopandas`:
 The scripts involved can be broadly summarized as follows:
 
 - `dl.py` downloads all necessary scenario hazard data layers.
-- `flood_hazards.py` preprocesses the flood hazard layers for each country.
-- `pop.py` preprocesses all population datalayers.
-- `distances.py` calculates the distance lookup from cells to grid tiles.
-- `econ.py` calculates the economic impacts of infrastructure damage.
+- `preprocess.py` preprocesses all boundaries, cell data and flood hazard layers for each country.
+- `coastal_lut.py` generates a lookup table of coastal regions. 
+- `process.py` processes all results. 
+
