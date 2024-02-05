@@ -28,7 +28,6 @@ The scripts involved can be broadly summarized as follows:
 
 - `dl.py` downloads all necessary scenario hazard data layers.
 - `flood_hazards.py` preprocesses the flood hazard layers for each country.
-- `sites.py` preprocesses all cell site data.
 - `pop.py` preprocesses all population datalayers.
 - `distances.py` calculates the distance lookup from cells to grid tiles.
 - `econ.py` calculates the economic impacts of infrastructure damage.
