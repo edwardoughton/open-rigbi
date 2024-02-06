@@ -151,4 +151,6 @@ vis/regional_results/*
 validation/*
 
 rigbi-env/*
+open-rigbi_data/*
+.idea/*
 personal_access_token.txt
