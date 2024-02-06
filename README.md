@@ -22,7 +22,7 @@ Finally, install the necessary packages, such as `geopandas`:
     conda env update --file environment_linux.yaml # If on Linux
     conda env update --file environment_windows.yaml # If on Windows
 
-If you add a `python=` argument to either of the two commands above, you can constrain the version of Python that Anaconda uses. This is helpful and should be done. This project has no strictly enforced version of Python but Dr. Oughton's original env scripts use Python 3.9.
+If you add a `python=` argument to either of the two commands above, you can constrain the version of Python that Anaconda uses. By default, this project requires Python 3.9 and that is the version installed by running the env update command.
 
 ## Overview of scripts
 
