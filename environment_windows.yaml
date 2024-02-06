@@ -1,6 +1,7 @@
 name: rigbi-env
 channels:
   - defaults
+  - conda-forge
 dependencies:
   - affine
   - attrs
