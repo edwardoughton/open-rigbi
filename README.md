@@ -11,7 +11,7 @@ The recommended approach to using `open-rigbi` is via conda.
 
 First, create a conda environment as follows:
 
-    conda create --name rigbi-env python=3.7
+    conda create --name rigbi-env
 
 Then activate it:
 
@@ -19,8 +19,10 @@ Then activate it:
 
 Finally, install the necessary packages, such as `geopandas`:
 
-    conda install --file requirements.txt
+    conda env update --file environment_linux.yaml # If on Linux
+    conda env update --file environment_windows.yaml # If on Windows
 
+If you add a `python=` argument to either of the two commands above, you can constrain the version of Python that Anaconda uses. By default, this project requires Python 3.9 and that is the version installed by running the env update command.
 
 ## Overview of scripts
 
