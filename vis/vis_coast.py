@@ -40,7 +40,7 @@ def get_country_outlines(countries):
 
     """
     path = os.path.join(VIS, '..', 'data', 'simplified_outputs.shp')
-
+    
     if os.path.exists(path):
 
         countries = gpd.read_file(path, crs='epsg:4326')
@@ -51,7 +51,7 @@ def get_country_outlines(countries):
 
         iso3_codes = []
 
-        for idx, item in countries.iterrows():
+        for item in countries:
             iso3_codes.append(item['iso3'])
 
         path_in = os.path.join(DATA_RAW, 'gadm36_levels_shp', 'gadm36_0.shp')
@@ -131,18 +131,20 @@ def collect_results(countries):
     folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data')
     path_out = os.path.join(folder_out, filename)
 
-    if os.path.exists(path_out):
-        output = pd.read_csv(path_out)
-        # output = output.to_dict('records')
-        return output
+    # if os.path.exists(path_out):
+    #     output = pd.read_csv(path_out)
+    #     # output = output.to_dict('records')
+    #     return output
 
     filename = 'inuncoast_rcp85_regions.csv'
     folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data')
+    if not os.path.exists(folder_out):
+        os.mkdir(folder_out)
     path = os.path.join(folder_out, filename)
 
     if not os.path.exists(path):
 
-        folder_in = os.path.join(VIS, '..', 'regional_results')
+        folder_in = os.path.join(VIS, '..', 'regional_results_coastal_flooding_final')
 
         all_data = []
 
@@ -151,10 +153,12 @@ def collect_results(countries):
             if not 'inuncoast_rcp8p5_wtsub' in filename:
                 continue
 
-            if not '2080_rp1000_0.csv' in filename:
+            if not '2080_rp1000_0_unique.csv' in filename:
                 continue
 
             data = pd.read_csv(os.path.join(folder_in, filename))
+            data['gid_id'].replace('', np.nan, inplace=True)
+            data.dropna(subset=['gid_id'], inplace=True)
             data = data.to_dict('records')
             all_data = all_data + data
 
@@ -186,7 +190,7 @@ def get_regional_shapes(countries):
 
         output = []
 
-        for idx, country in countries.iterrows():#[:10]:
+        for country in countries:#[:10]:
 
             # if not country['iso3'] == 'AFG':
             #     continue
@@ -250,44 +254,31 @@ def plot_regional_results(regions, path, countries):
     regions['cost'] = regions['cost_usd_b'].fillna(0)
     # regions.to_file(os.path.join(VIS,'..','data','test4.shp'))
     regions['cost'] = round(regions['cost'] / 1e6,0) #_b short for baseline, not billions
-    # regions.to_file(os.path.join(VIS,'..','data','test5.shp'))
 
-    # satellite = regions[regions['GID_0'].isna()]
-
-    # regions = regions.dropna()
-    # zeros = regions[regions['cost'] == 0]
-    # regions = regions[regions['cost'] != 0]
-
-    bins = [-10,1,2,3,4,5,6,7,8,9, 1e12]
-    labels = ['<$1m','$2m','$3m','$4m','$5m','$6m','$7m','$8m','$9m','>$10m']
+    bins = [-10,.2,.3,.4,.5,.6,.7,.8,.9,1,1e12]
+    labels = ['$<0.2m','$.3m','$.4m','$.5m','$.6m','$.7m','$.8m','$.9m','$1m','>$1m']
 
     regions['bin'] = pd.cut(
         regions[metric],
         bins=bins,
         labels=labels
-    )#.astype(str)
+    )
 
-    # regions.to_file(os.path.join(VIS,'..','data','test5.shp'))
     sns.set(font_scale=0.9)
     fig, ax = plt.subplots(1, 1, figsize=(10, 4.5))
 
     minx, miny, maxx, maxy = regions.total_bounds
-    # ax.set_xlim(minx+20, maxx+10)
     ax.set_xlim(-170, 190)
     ax.set_ylim(miny-5, maxy)
 
     base = regions.plot(column='bin', ax=ax, cmap='viridis', linewidth=0, #inferno_r
         legend=True, antialiased=False)
     countries.plot(ax=base, facecolor="none", edgecolor='grey', linewidth=0.15)
-    # zeros = zeros.plot(ax=base, color='dimgray', edgecolor='dimgray', linewidth=0)
-    # non_imf.plot(ax=base, color='lightgrey', edgecolor='lightgrey', linewidth=0)
 
     handles, labels = ax.get_legend_handles_labels()
 
     fig.legend(handles[::-1], labels[::-1])
 
-    # ctx.add_basemap(ax, crs=regions.crs, source=ctx.providers.CartoDB.Voyager)
-    # inunriver_rcp8p5_00000NorESM1-M_2030_rp00100
     n = len(regions)
     name = 'Direct Damage Cost From Coastal Flooding (2080, RCP8.5, 1-in-1000, 95% CI) (n={})'.format(n)
     fig.suptitle(name)
@@ -302,21 +293,21 @@ if __name__ == "__main__":
 
     countries = get_countries()#[:2]
 
+    print('get_country_outlines')
     countries_shps = get_country_outlines(countries)
 
+    print('collect_results')
     results = collect_results(countries)#[:300]
-    # #### out = pd.DataFrame(results)
-    # #### out.to_csv(os.path.join(VIS, '..', 'data.csv'))
 
+    print('get_regional_shapes...')
     regions = get_regional_shapes(countries)#[:1000]
-    regions = combine_data(results, regions)
-    # regions = pd.DataFrame(regions)
 
-    # #### regions = regions[['GID_id', 'cost', 'decile']]
-    # #### regions.to_csv(os.path.join(VIS, '..', 'test.csv'))
+    print('combine_data...')
+    regions = combine_data(results, regions)
 
     path_in_shp = os.path.join(VIS,'..','data','country_data_coast.shp')
     regions = gpd.read_file(path_in_shp, crs='epsg:4326')#[:1000]
 
     path_in = os.path.join(VIS, 'regions_by_cost_coast.png')
+    print('plot_regional_results...')
     plot_regional_results(regions, path_in, countries_shps)

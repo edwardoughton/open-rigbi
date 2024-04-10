@@ -50,7 +50,7 @@ def get_country_outlines(countries):
 
         iso3_codes = []
 
-        for idx, item in countries.iterrows():
+        for item in countries:
             iso3_codes.append(item['iso3'])
 
         path_in = os.path.join(DATA_RAW, 'gadm36_levels_shp', 'gadm36_0.shp')
@@ -141,7 +141,7 @@ def collect_results(countries):
 
     if not os.path.exists(path):
 
-        folder_in = os.path.join(VIS, '..', 'regional_results')
+        folder_in = os.path.join(VIS, '..', 'regional_results_riv_flooding_final')
 
         all_data = []
 
@@ -164,7 +164,7 @@ def collect_results(countries):
 
         all_data = pd.read_csv(path)#[:10]
 
-    for idx, country in countries.iterrows():
+    for country in countries:
 
         interim = []
 
@@ -183,6 +183,9 @@ def collect_results(countries):
                     cost_usd_baseline.append(row['cost_usd_baseline'])
 
             items = country_data[country_data['gid_id'] == gid_id][:1]
+            
+            if len(items) == 0:
+                continue
 
             if len(cell_count_baseline) == 0:
                 cell_count_baseline = 0
@@ -215,7 +218,7 @@ def collect_results(countries):
 
     output = []
 
-    for idx, country in countries.iterrows():
+    for country in countries:
 
         print('Working on {}'.format(country['iso3']))
 
@@ -260,7 +263,7 @@ def get_regional_shapes(countries):
 
         output = []
 
-        for idx, country in countries.iterrows():#[:10]:
+        for country in countries:#[:10]:
 
             # if not country['iso3'] == 'AFG':
             #     continue
@@ -328,8 +331,10 @@ def plot_regional_results(regions, path, countries):
     # zeros = regions[regions['cost'] == 0]
     # regions = regions[regions['cost'] != 0]
 
-    bins = [-10,10,20,30,40,50,60,70,80,90, 1e12]
-    labels = ['<$10m','$20m','$30m','$40m','$50m','$60m','$70m','$80m','$90m','>$100m']
+    # bins = [-10,10,20,30,40,50,60,70,80,90, 1e12]
+    # labels = ['<$10m','$20m','$30m','$40m','$50m','$60m','$70m','$80m','$90m','>$100m']
+    bins = [-10,2,3,4,5,6,7,8,9,10,1e12]
+    labels = ['$<2m','$3m','$4m','$5m','$6m','$7m','$8m','$9m','$1m','>$1m']
 
     regions['bin'] = pd.cut(
         regions[metric],
@@ -378,12 +383,12 @@ if __name__ == "__main__":
     # #### out = pd.DataFrame(results)
     # #### out.to_csv(os.path.join(VIS, '..', 'data.csv'))
 
-    regions = get_regional_shapes(countries)#[:1000]
-    regions = combine_data(results, regions)
-    regions = pd.DataFrame(regions)
+    # regions = get_regional_shapes(countries)#[:1000]
+    # regions = combine_data(results, regions)
+    # regions = pd.DataFrame(regions)
 
-    #### regions = regions[['GID_id', 'cost', 'decile']]
-    #### regions.to_csv(os.path.join(VIS, '..', 'test.csv'))
+    # #### regions = regions[['GID_id', 'cost', 'decile']]
+    # #### regions.to_csv(os.path.join(VIS, '..', 'test.csv'))
 
     path_in_shp = os.path.join(VIS,'..','data','country_data_riverine.shp')
     regions = gpd.read_file(path_in_shp, crs='epsg:4326')#[:1000]
