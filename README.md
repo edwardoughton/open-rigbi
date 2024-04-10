@@ -1,8 +1,15 @@
 # open-rigbi
-Open-data Risk Analysis of Global Broadband Infrastructure
+Open-data Risk Analysis of Global Mobile Broadband Infrastructure
 
-This repository contains a codebase for assessing the global vulnerability of broadband
-infrastructure.
+This repository contains a codebase for assessing the global vulnerability of 
+mobile infrastructure via OpenCelliD data. 
+
+Paper citation
+--------------
+
+- Oughton, E.J., Russell, T., Oh, J., Ballan, S., Hall, J.W., 2023. Global 
+vulnerability assessment of mobile telecommunications infrastructure to 
+climate hazards using crowdsourced open data. https://doi.org/10.48550/arXiv.2311.04392
 
 
 ## Using the code

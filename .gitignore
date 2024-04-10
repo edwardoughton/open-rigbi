@@ -135,16 +135,18 @@ data/raw/hazard_scenarios/*
 data/test/
 
 results/*
-vis/results_v1/*
-vis/results_v2/*
-vis/results_v3/*
-vis/results_v4/*
-vis/results_v5/*
+vis/data/*
 vis/figures/*
-vis/results_flooding_final/*
+vis/interim/*
+vis/old/*
+vis/regional_results_coastal_flooding_final/*
+vis/regional_results_riv_flooding_final/*
+vis/regional_results_tropical_storm/*
+vis/report_data/*
+vis/results_coastal_flooding_final/*
 vis/results_riv_flooding_final/*
 vis/results_tropical_storm/*
-vis/interim/*
+
 data/raw/*
 vis/wb_maps/*
 vis/data/*

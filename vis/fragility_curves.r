@@ -5,7 +5,7 @@ library(ggpubr)
 library(viridis)
 
 ###################
-##### Coastal flooding
+##### 
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
 data_directory = file.path(folder, '..', 'data', 'raw')
 setwd(data_directory)
@@ -17,7 +17,7 @@ data$category = factor(data$category,
                       "microwave_misalignment",
                       "loss_of_cell_antenna",
                       "loss_of_off_site_power",
-                      "loss of on-site power",
+                      "loss_of_onsite_power",
                       "structural_failure",
                       "foundation_failure"
                     ),

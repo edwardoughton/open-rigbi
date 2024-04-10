@@ -38,7 +38,7 @@ def count_cells(country):
     output = []
 
     for region in regions_df:
-
+        
         region = region["GID_{}".format(regional_level)]
         
         filename = "{}_unique.csv".format(region)

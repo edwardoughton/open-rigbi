@@ -36,7 +36,7 @@ def process_existing_fiber(country):
     # if os.path.exists(path_output):
     #     return print('Existing fiber already processed')
 
-    path = os.path.join(DATA_RAW, 'afterfiber', 'afterfiber.shp')
+    path = os.path.join(DATA_RAW, 'afterfiber', 'new', 'cartodb-query.shp')
 
     shapes = fiona.open(path)
 
@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     for country in countries:
 
-        if not country['iso3'] in ['GHA']: #'GHA',
+        if not country['iso3'] in ['KEN']: #'GHA',
             continue
 
         process_existing_fiber(country)
