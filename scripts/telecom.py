@@ -1,6 +1,5 @@
-"""
-Telecom file. This is heavily in progress. Last updated 21/04/2024
-"""
+import os
+from typing import Any, Dict, List, Union
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -8,9 +7,6 @@ import numpy as np
 import osmnx as ox
 import pandas as pd
 from shapely.geometry import Polygon, MultiPolygon, Point
-
-import os
-from typing import Any, Dict, List, Union
 
 class GIDTwo:
     """
