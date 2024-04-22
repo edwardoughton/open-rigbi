@@ -12,7 +12,6 @@ import osmnx as ox
 import pandas as pd
 import pyproj
 import rasterio
-from rasterstats import zonal_stats
 from shapely.geometry import Polygon, MultiPolygon, Point
 
 class GIDTwo:
@@ -133,6 +132,9 @@ class GIDTwo:
     def area_of_polygon(geom: Polygon) -> float:
         """
         Calulate the area of a given polygon, assuming WSG84 as the CRS.
+
+        This code is adapted from the PyTal library written by
+        Dr. Edward John Oughton and Tom Russel.
 
         Returns:
             float: A float representing the area of the polygon.
