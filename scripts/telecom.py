@@ -6,43 +6,54 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 import osmnx as ox
+import pandas as pd
 from shapely.geometry import Polygon, MultiPolygon, Point
 
+import os
+from typing import Any, Dict, List, Union
+
 class GIDTwo:
-    """Class for handling geographic information and plotting buffers."""
+    """
+    Class representing a geographical area of interest and associated telecom infrastructure.
 
-    def __init__(self, region, buffer_distance=1, telecom=None):
+    Attributes:
+        region (GeoDataFrame): A GeoDataFrame representing the geographical region of interest.
+        telecom (GeoDataFrame): A GeoDataFrame representing the existing telecom infrastructure.
+        buffer_distance (float): The distance in units to buffer the region.
+        centroids (list): A list to store centroid points of buffered geometries.
+        buffer_index (int): Index used for buffering operations.
+    """
+
+    def __init__(self, region: gpd.GeoDataFrame, buffer_distance: float = 1, telecom: gpd.GeoDataFrame = None) -> None:
         """
-        Initialize GIDTwo object.
+        Initialize GIDTwo object with given region and optional telecom infrastructure.
 
-        Parameters:
-        - region (shapely.geometry.Polygon or shapely.geometry.MultiPolygon): The region of interest.
-        - buffer_distance (float): The buffer distance around the region.
-        - telecom (optional): Telecommunications data.
+        Args:
+            region (GeoDataFrame): A GeoDataFrame representing the geographical region of interest.
+            buffer_distance (float, optional): The distance in units to buffer the region. Defaults to 1.
+            telecom (GeoDataFrame, optional): A GeoDataFrame representing the existing telecom infrastructure. Defaults to None.
         """
         self.region = region
         self.telecom = telecom
         self.buffer_distance = buffer_distance
         self.centroids = []
         self.buffer_index = 0
-        
-    def convert_region_to_polygon(self):
-        """
-        Convert region to Polygon.
 
-        This function converts the region to a Polygon.
+    def convert_region_to_polygon(self) -> None:
+        """
+        Convert the region to a Polygon if it's not already in Polygon format.
         """
         coordinate_list = []
         for geom in self.region.geometry:
             coordinate_list.extend(list(geom.exterior.coords))
         self.region = Polygon(coordinate_list)
-    
-    def calculate_and_buffer(self):
+
+    def calculate_and_buffer(self) -> List[Union[Polygon, MultiPolygon, Point]]:
         """
-        Calculate and buffer the region.
+        Calculate buffer geometries for the region.
 
         Returns:
-        - list: List of buffered geometries.
+            list: A list of buffered geometries.
         """
         buffer_geometries = []
         self.centroids = []
@@ -69,15 +80,23 @@ class GIDTwo:
                     self.centroids.append(geom)
         
         return buffer_geometries
-    
-    def get_communications_towers(self, state=None, country=None):
+
+    def get_communications_towers(self, state: str = None, country: str = None) -> gpd.GeoDataFrame:
         """
-        Return the communications towers data for a given country.
-        This method is bugged due to the methods requiring pyproj3 but
-        only pyproj2 being available currently within the project environment.
-        
-        The code within this method is heavily based upon work done by 
-        Dennies Kiprono Bor at George Mason University.
+        Retrieve communications towers within the specified region.
+
+        Args:
+            state (str, optional): The state within the country. Defaults to None.
+            country (str, optional): The country of interest. Defaults to None.
+
+        Returns:
+            GeoDataFrame: A GeoDataFrame containing communications towers.
+
+        Note:
+            This method is bugged due to the methods requiring pyproj3 but 
+            only pyproj2 being available currently within the project environment.
+            The code within this method is heavily based upon work done by 
+            Dennies Kiprono Bor at George Mason University.
         """
         raise NotImplementedError
     
@@ -94,13 +113,63 @@ class GIDTwo:
 
         return towers
 
-    def intersect(self):
-        """Return the set of points within intersection boundaries of the given regions."""
+    def intersect(self) -> gpd.GeoDataFrame:
+        """
+        Perform intersection between the telecom infrastructure and the region.
+
+        Returns:
+            GeoDataFrame: A GeoDataFrame representing the intersection.
+        """
         subset = self.telecom.overlay(self.region, how='intersection')
         return subset
 
-    def plot_buffers(self):
-        """Plot the region and its buffers."""
+    @staticmethod
+    def get_regional_data(country: Dict[str, Any]) -> List[Dict[str, Union[str, int, float]]]:
+        """
+        Retrieve regional data for a given country.
+
+        Args:
+            country (dict): Dictionary containing country information.
+
+        Returns:
+            list: A list of dictionaries containing regional data.
+
+        Note:
+            This method requires iso3 codes and magic constants representing data paths.
+            As this script has not fully been implemented into open-rigbi, those magic constants
+            and codes are not implemented into the parsing of this script.
+        """
+
+        raise NotImplementedError
+    
+        iso3 = country['iso3']
+
+        path_input = os.path.join(DATA_INTERMEDIATE, iso3, 'regional_data.csv')
+
+        regions = pd.read_csv(path_input)
+
+        regions = regions.sort_values(by=['population_km2'], ascending=False)
+
+        results = []
+
+        for _, region in regions.iterrows():
+            results.append({
+                'GID_0': region['GID_0'],
+                'GID_id': region['GID_id'],
+                'GID_level': region['GID_level'],
+                'population': region['population'],
+                'area_km2': region['area_km2'],
+                'population_km2': region['population_km2'],
+            })
+
+        return results
+
+    def plot_buffers(self) -> None:
+        """
+        Plot the region and its buffered geometries.
+
+        This method plots the original region along with its buffered geometries on a Matplotlib plot.
+        """
         fig, ax = plt.subplots(figsize=(10, 10))
         
         region_series = gpd.GeoSeries(self.region)
@@ -165,4 +234,3 @@ inter = gid.intersect()
 inter.plot(alpha=0.5, edgecolor='k')
 plt.show()
 """
-
