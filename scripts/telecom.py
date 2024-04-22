@@ -99,6 +99,8 @@ class GIDTwo:
             This method is bugged due to the methods requiring pyproj3 but 
             only pyproj2 being available currently within the project environment.
 
+            Until this is fixed, this method is unusable and will throw an exception.
+
             The code within this method is heavily based upon work done by 
             Dennies Kiprono Bor at George Mason University.
         """
@@ -127,13 +129,13 @@ class GIDTwo:
         subset: gpd.GeoDataFrame = self.telecom.overlay(self.region, how='intersection')
         return subset
 
-    
     @staticmethod
     def area_of_polygon(geom: Polygon) -> float:
         """
-        Calulate the area of a given polygon.
+        Calulate the area of a given polygon, assuming WSG84 as the CRS.
 
-        Returns the area of a polygon. Assume WGS84 as crs.
+        Returns:
+            float: A float representing the area of the polygon.
         """
         geod: pyproj.Geod = pyproj.Geod(ellps="WGS84")
 
@@ -160,7 +162,7 @@ class GIDTwo:
             This function will also require a manual rewrite of the zonal_stats() method
             from rasterstats due to numpy's np.asscalar() being removed.
 
-            Unil this is complete, this method is unusable and will throw an exception.
+            Until this is fixed, this method is unusable and will throw an exception.
 
             The code within this method is adapted from the PyTal library, 
             which was written by Dr. Edward John Oughton and Tom Russel.
