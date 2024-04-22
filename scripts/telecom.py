@@ -76,7 +76,7 @@ class GIDTwo:
         This method is bugged due to the methods requiring pyproj3 but
         only pyproj2 being available currently within the project environment.
         
-        The code within this section is heavily based upon work done by 
+        The code within this method is heavily based upon work done by 
         Dennies Kiprono Bor at George Mason University.
         """
         raise NotImplementedError
