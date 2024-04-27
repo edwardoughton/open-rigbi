@@ -145,7 +145,7 @@ class GIDTwo:
         return subset
     
     @staticmethod
-    def download__and_intersect_flood_data(country_iso, data_folder):
+    def download_and_intersect_flood_data(country_iso, data_folder):
         """
         Download, prepare, and intersect flood data with a given regional layer.
 
