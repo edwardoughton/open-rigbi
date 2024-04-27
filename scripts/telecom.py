@@ -330,20 +330,15 @@ class GIDTwo:
         """
         fig, ax = plt.subplots(figsize=(10, 10))
         
-        # Get boundary points
         boundary_points = np.array(self.region.boundary.coords)
 
-        # Plot country boundary points
         ax.plot(boundary_points[:, 0], boundary_points[:, 1], color='gray', alpha=0.7, label='Country Boundary')
 
-        # Plot original region
         region_series: gpd.GeoSeries = gpd.GeoSeries(self.region)
         region_series.plot(ax=ax, color='blue', alpha=0.5, label='Region')
 
-        # Buffer region
         buffer_geometries = self.calculate_and_buffer()
 
-        # Set fixed colors for each buffer
         buffer_colors = ['red', 'green', 'orange', 'purple']
         buffer_labels = []
 
@@ -367,24 +362,19 @@ class GIDTwo:
         plt.grid(True)
         plt.axis('equal')
 
-        # Create custom legend
         custom_legend = [Line2D([0], [0], marker='o', color='w', markerfacecolor=color, markersize=10, label=label)
                         for color, label in zip(buffer_colors, buffer_labels)]
-
-        # Add country boundary to legend
+        
         custom_legend.append(Line2D([0], [0], color='gray', lw=2, label='Country Boundary'))
 
-        # Display legend
         ax.legend(handles=custom_legend, loc='upper right')
 
-        # Annotation setup
         text_annotation = ax.annotate('', xy=(0.5, 0.5), xytext=(0, 10),
                                     textcoords='offset points', ha='center',
                                     bbox=dict(boxstyle='round,pad=0.5', fc='yellow', alpha=0.5),
                                     fontsize=10)
         text_annotation.set_visible(False)
 
-        # Hover event setup
         def hover(event):
             if event.inaxes == ax:
                 x, y = event.xdata, event.ydata
