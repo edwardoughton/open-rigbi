@@ -1,17 +1,33 @@
-"""
-Telecom file. This is heavily in progress. Last updated 21/04/2024
-"""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# telecom.py file for OpenRigbi, designed to visalize risk to telecom
+# infrastructure due to natural disasters
+#
+# SPDX-FileCopyrightText: 2024 Aryaman Rajaputra <arajaput@gmu.edu>
+# SPDX-License-Identifier: MIT
+#
+# Note: The programs and configurations used by this script may not be under the same license.
+# Please check the LICENSING file in the root directory of this repository for more information.
+#
+# This script was created by Aryaman Rajaputra
 
-from typing import Dict, List, Union, Optional
 import os
+from pathlib import Path
+import time
+from typing import Dict, List, Union, Optional
 
 import geopandas as gpd
+import irv_autopkg_client
 import matplotlib.pyplot as plt
 import numpy as np
 import osmnx as ox
 import pandas as pd
 import pyproj
 import rasterio
+from ..rasterstats.src.rasterstats.main import zonal_stats
+import snail.intersection
+import snail.io
 from shapely.geometry import Polygon, MultiPolygon, Point
 
 class GIDTwo:
@@ -127,6 +143,67 @@ class GIDTwo:
         """
         subset: gpd.GeoDataFrame = self.telecom.overlay(self.region, how='intersection')
         return subset
+    
+    @staticmethod
+    def download__and_intersect_flood_data(country_iso, data_folder):
+        """
+        Download, prepare, and intersect flood data with a given regional layer.
+
+        Args:
+            country_iso (str): A string representing the 3 letter iso code of the country
+            data_folder (str): A string representing the name of the data folder.
+
+        Note:
+            This code is mostly adapetd from code provided by Mr. Tom Russel from Oxford University.
+        """
+
+        client = irv_autopkg_client.Client()
+        job_id = client.job_submit(country_iso, ["wri_aqueduct.version_2"])
+        while not client.job_complete(job_id):
+            print("Processing...")
+            time.sleep(1)
+
+        client.extract_download(
+        country_iso,
+        data_folder / "flood_layer",
+        dataset_filter=["wri_aqueduct.version_2"],
+        overwrite=True,
+        )
+
+        flood_path = Path(
+            data_folder,
+            "flood_layer",
+            country_iso,
+            "wri_aqueduct_version_2",
+            f"inunriver_historical_000000000WATCH_1980_rp00100-{country_iso}.tif",
+        )
+
+        output_path = Path(
+            data_folder,
+            "results",
+            "inunriver_historical_000000000WATCH_1980_rp00100__roads_exposure.gpkg",
+        )
+
+        roads = gpd.read_file(data_folder / f"{country_iso.upper()}_OSM_roads.gpkg", layer="edges")
+
+        grid, _ = snail.io.read_raster_metadata(flood_path)
+
+        prepared = snail.intersection.prepare_linestrings(roads)
+        flood_intersections = snail.intersection.split_linestrings(prepared, grid)
+        flood_intersections = snail.intersection.apply_indices(
+            flood_intersections, grid
+        )
+        flood_data = snail.io.read_raster_band_data(flood_path)
+        flood_intersections[
+            "inunriver__epoch_historical__rcp_baseline__rp_100"
+        ] = snail.intersection.get_raster_values_for_splits(
+            flood_intersections, flood_data
+        )
+
+        geod: pyproj.Geod = pyproj.Geod(ellps="WGS84")
+        flood_intersections["flood_length_m"] = flood_intersections.geometry.apply(
+            geod.geometry_length
+        )
 
     @staticmethod
     def area_of_polygon(geom: Polygon) -> float:
@@ -161,16 +238,9 @@ class GIDTwo:
             As this script has not been fully implemented into open-rigbi, those magic constants
             and codes are placeholders and not implemented into the parsing of this script.
 
-            This function will also require a manual rewrite of the zonal_stats() method
-            from rasterstats due to numpy's np.asscalar() being removed.
-
-            Until this is fixed, this method is unusable and will throw an exception.
-
             The code within this method is adapted from the PyTal library, 
             which was written by Dr. Edward John Oughton and Tom Russel.
         """
-
-        raise NotImplementedError
 
         iso3: str = country['iso3']
         level: str = country['regional_level']
@@ -279,8 +349,8 @@ if __name__ == "__main__":
     region: gpd.GeoDataFrame = gpd.read_file('~/Downloads/gadm41_LIE_shp/gadm41_LIE_0.shp', crs='epsg:4326')
     gid_two: GIDTwo = GIDTwo(region)
     # gid_two.get_communications_towers(country="Liechtenstein")
-    gid_two.region.plot(alpha=0.5, edgecolor='k')
     # inter = gid_two.intersect()
     # inter.plot(alpha=0.5, edgecolor='k')
+    gid_two.plot_buffers()
     plt.show()
 
