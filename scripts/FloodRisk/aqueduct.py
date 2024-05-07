@@ -10,7 +10,7 @@
 # Note: The programs and configurations used by this script may not be under the same license.
 # Please check the LICENSING file in the root directory of this repository for more information.
 #
-# This script was created by Thomas Russel and lightly modified by Aryaman Rajaputra
+# This script was created by Tom Russel and lightly modified by Aryaman Rajaputra
 
 
 import irv_autopkg_client
