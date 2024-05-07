@@ -12,7 +12,6 @@
 #
 # This script was created by Tom Russel and lightly modified by Aryaman Rajaputra
 
-
 import irv_autopkg_client
 
 import time
