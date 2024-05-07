@@ -12,7 +12,6 @@
 #
 # This script was created by Aryaman Rajaputra
 
-
 import geopandas as gpd
 from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
