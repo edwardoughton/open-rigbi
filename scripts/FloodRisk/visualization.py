@@ -37,6 +37,9 @@ def haversine(lon1, lat1, lon2, lat2):
     return c * r
 
 def plot_shapefile(shapefile_path):
+    """
+    Plot the shapefile via matplotlib
+    """
     gdf = gpd.read_file(shapefile_path)
 
     if gdf.crs is None:

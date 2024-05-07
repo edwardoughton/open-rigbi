@@ -4,13 +4,13 @@
 # aqueduct.py file for FloodRisk, designed to visalize risk to telecom
 # infrastructure due to flooding. This file downloads the aqueduct repository data.
 #
-# SPDX-FileCopyrightText: Thomas Russel <tom.russel@ouce.ox.ac.uk>
+# SPDX-FileCopyrightText: Tom Russel <tom.russel@ouce.ox.ac.uk>
 # SPDX-License-Identifier: MIT
 #
 # Note: The programs and configurations used by this script may not be under the same license.
 # Please check the LICENSING file in the root directory of this repository for more information.
 #
-# This script was created by name
+# This script was created by Thomas Russel and lightly modified by Aryaman Rajaputra
 
 
 import irv_autopkg_client

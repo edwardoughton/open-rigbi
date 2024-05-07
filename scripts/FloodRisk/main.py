@@ -149,7 +149,7 @@ def process(country_code: str) -> None:
         country_code (str): ISO 3166-1 alpha-2 country code.
 
     Note:
-        The code is this section is mainly based on code written by Mr. Russel
+        The code is this section is mainly based on code written by Mr. Tom Russel
         at Oxford University as part of the nismod-snail library.
 
         The nismod-snail library is released under the MIT license.
