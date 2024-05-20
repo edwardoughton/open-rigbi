@@ -158,3 +158,4 @@ open-rigbi_data/*
 .idea/*
 cache/*
 personal_access_token.txt
+scripts/FloodRisk/data/*

@@ -226,7 +226,7 @@ def process(country_code: str) -> None:
 
     exposed_1m = flood_intersections[
     flood_intersections.inunriver__epoch_historical__rcp_baseline__rp_100 >= 1
-]
+    ]
     exposed_length_km = exposed_1m.flood_length_m.sum() * 1e-3
 
     proportion = exposed_length_km / len(telecom_features['geometry'])
