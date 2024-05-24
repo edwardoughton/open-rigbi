@@ -1,3 +1,17 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# osm.py file for FloodRisk, designed to visalize risk to telecom
+# infrastructure due to flooding. This file downloads the OSM repository data.
+#
+# SPDX-FileCopyrightText: 2024 Aryaman Rajaputra <arajaput@gmu.edu>
+# SPDX-License-Identifier: MIT
+#
+# Note: The programs and configurations used by this script may not be under the same license.
+# Please check the LICENSING file in the root directory of this repository for more information.
+#
+# This script was created by Aryaman Rajaputra
+
 import geopandas as gpd
 import requests
 from shapely import Point

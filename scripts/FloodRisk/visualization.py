@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # visualization.py file for FloodRisk, designed to visalize risk to telecom
-# infrastructure due to flooding
+# infrastructure due to flooding. This file visualizes buffer zones and affected telecom stations.
 #
 # SPDX-FileCopyrightText: 2024 Aryaman Rajaputra <arajaput@gmu.edu>
 # SPDX-License-Identifier: MIT

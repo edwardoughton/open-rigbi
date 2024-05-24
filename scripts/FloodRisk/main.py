@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# telecom.py file for OpenRigbi, designed to visalize risk to telecom
+# main.py file for OpenRigbi, designed to visalize risk to telecom
 # infrastructure due to natural disasters
 #
 # SPDX-FileCopyrightText: 2024 Aryaman Rajaputra <arajaput@gmu.edu>
