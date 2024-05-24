@@ -41,30 +41,38 @@ def plot_shapefile(shapefile_path):
     """
     gdf = gpd.read_file(shapefile_path)
 
-    if gdf.crs is None:
-        gdf.crs = "EPSG:4326"
+    # Set the CRS of the geodataframe
+    gdf.to_crs(crs=4326)
 
+    # Create the subplot graph window for the display
     fig, ax = plt.subplots(figsize=(10, 8))
 
+    # Set the buffer distance
     buffer_distance_km = 10
-    avg_latitude = gdf.geometry.centroid.y.mean()
-    km_to_deg_lon = buffer_distance_km / (haversine(0, avg_latitude, 1, avg_latitude))
-    km_to_deg_lat = buffer_distance_km / (haversine(0, avg_latitude, 0, avg_latitude + 1))
 
-    buffers_deg = gdf.geometry.buffer(km_to_deg_lon)
-    buffers_deg = buffers_deg.buffer(km_to_deg_lat)
+    # Get the centroid latitude and longitude, using the haversine formula to convert to km
+    avg_latitude = gdf.geometry.centroid.y.mean()
+    lon_deg_per_km = 1 / haversine(0, avg_latitude, 1, avg_latitude)
+    lat_deg_per_km = 1 / haversine(0, avg_latitude, 0, avg_latitude + 1)
+
+    # Get the lat lon calculation in the buffer
+    buffers_deg = gdf.geometry.buffer(buffer_distance_km * lon_deg_per_km)
+    buffers_deg = buffers_deg.buffer(buffer_distance_km * lat_deg_per_km)
     buffers_plot = buffers_deg.plot(ax=ax, facecolor='none', edgecolor='red', linewidth=2, label='Buffers (10 km)')
 
+    # Plot this to the screen
     gdf_plot = gdf.plot(ax=ax, color='blue', alpha=0.5, label='Telecom Features')
 
+    # Create the legend with the buffers
     legend_handles = [Patch(facecolor='none', edgecolor='red', label='Buffers (10 km)'),
                       plt.Rectangle((0, 0), 1, 1, fc='blue', alpha=0.5, label='Telecom Features')]
+    ax.legend(handles=legend_handles, loc='upper right')
 
-    ax.legend(handles=legend_handles)
+    # Create axes and plot labels
+    plt.title('Telecom Infrastructure and Buffers')
+    plt.xlabel('Longitude')
+    plt.ylabel('Latitude')
 
-    plt.title('Telecom Lines')
-    plt.xlabel('Longitude (degrees)')
-    plt.ylabel('Latitude (degrees)')
     plt.show()
 
 if __name__ == "__main__":
