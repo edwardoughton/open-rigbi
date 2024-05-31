@@ -21,11 +21,10 @@ from shapely.geometry import Polygon, Point
 import snail.intersection
 import snail.io
 
+import math
 import os
 from pathlib import Path
 from typing import Dict, List, Optional
-
-from osm import get_telecom_features
 
 BASE_PATH: str = './data'
 DATA_FOLDER: Path = Path('./data')
@@ -45,7 +44,7 @@ class GID:
 
     """
 
-    def __init__(self, iso2: str, iso3: str, flood_path: str, flood_depth: str, buffer_distance: float = 10) -> None:
+    def __init__(self, iso2: str, iso3: str, flood_path: str, buffer_distance: float = 10) -> None:
         """
         Initialize GIDTwo object with given region and optional telecom infrastructure.
 
@@ -57,7 +56,6 @@ class GID:
         self.iso2: str = iso2
         self.iso3: str = iso3
         self.flood_path = flood_path
-        self.flood_depth = flood_depth
         self.buffer_distance = buffer_distance
 
     def save_as_shapefile(self, gdf: gpd.GeoDataFrame, filename: str, crs: str = 'EPSG:4326') -> None:
@@ -80,6 +78,34 @@ class GID:
             print("Telecom features data saved as:", filepath)
         else:
             print("No telecom features found for the provided country code.")
+
+    def preprocess(self):
+        path = f"../data/processed/{self.iso3.upper()}/regions"
+        features = []
+        total_rows = sum(1 for _ in open("../data/raw/cell_towers_2022-12-24.csv")) - 1  # Subtract 1 for the header row
+        chunksize = 1000
+
+        total_chunks = math.ceil(total_rows / chunksize)
+        chunk_count = 0
+
+        for chunk in pd.read_csv("../data/raw/cell_towers_2022-12-24.csv", chunksize=chunksize):
+            
+            # Filter rows by MCC codes using bitwise operators
+            chunk = chunk[chunk["mcc"] == 204]
+            
+            if not chunk.empty:
+                chunk['geometry'] = [Point(row.lon, row.lat) for row in chunk.itertuples()]
+                gdf_chunk = gpd.GeoDataFrame(chunk, geometry='geometry')
+                features.append(gdf_chunk)
+                chunk_count += 1
+                print(f"Created chunk {chunk_count}/{total_chunks}")
+
+        all_features = pd.concat(features, ignore_index=True)
+        
+        output_path = f"{path}/processed_cell_towers_{self.iso3.upper()}.shp"
+        all_features.to_file(output_path)
+
+        return all_features
 
     @staticmethod
     def create_buffers(telecom_points: gpd.GeoDataFrame, buffer_distance_km: float) -> Optional[gpd.GeoDataFrame]:
@@ -173,6 +199,11 @@ class GID:
                 array = src.read(1)
                 array[array <= 0] = 0
 
+                """
+                Get a lat, lon, id for each cell site
+                Utilize this line to get population summation
+                Replace region['geometry'] with my buffered zones
+                """
                 population_summation = [d['sum'] for d in zonal_stats(
                     region['geometry'], array, stats=['sum'], affine=affine)][0]
 
@@ -193,6 +224,7 @@ class GID:
                 'population_km2': population_km2,
             })
 
+        """Possibly export as a CSV file or add as a tag to one of the sites"""
         results_df: pd.DataFrame = pd.DataFrame(results)
         return results_df
 
@@ -204,47 +236,40 @@ class GID:
         Note:
             This code is mostly adapted from code provided by Mr. Tom Russel from Oxford University.
         """
-        telecom_features = get_telecom_features()
+        telecom_features = self.preprocess()
         if telecom_features is not None:
-            self.save_as_shapefile(telecom_features, f"telecom_features_{self.iso2}.shp")
-            print("Saving telecom points...")
             telecom_features.to_file(
                 EXPORTS_FOLDER / f"{self.iso2.lower()}_OSM_tele.gpkg",
                 layer="nodes",
                 driver="GPKG",
             )
 
+            print(f"Number of telecom points before buffering: {len(telecom_features)}")  # Debug print
+
             buffer_distance_km = self.buffer_distance
             telecom_buffers = GID.create_buffers(telecom_features, buffer_distance_km)
             if telecom_buffers is not None:
+                print(f"Number of buffered telecom points: {len(telecom_buffers)}")  # Debug print
+
                 self.save_as_shapefile(telecom_buffers, f"telecom_buffers_{self.iso2}.shp")
-                print(f"Number of telecom points buffered: {len(telecom_features)}")
+                print(f"Number of telecom points after saving shapefile: {len(telecom_features)}")  # Debug print
 
                 flood_path = Path(
                     DATA_FOLDER,
                     "flood_layer",
-                    f"{self.iso3}",
+                    f"{self.iso3.lower()}",
                     "wri_aqueduct_version_2",
                     f"{self.flood_path.lower()}"
                 )
 
                 # Read in the geopkg
-                # Read the raster data from the flood .tif file
-                # Prepare the points for splitting (explode any multi-geometries into single geometries)
-                # Split the points (this is a no-op on points)
-                # Apply the i and j indices to the points
-                # Read in the band data from the tif file from earlier
-                # Look up the raster values from intersecting the flood data and store it to the "inun" column
-
                 tele_re_read = gpd.read_file(EXPORTS_FOLDER / f"{self.iso2}_OSM_tele.gpkg", layer="nodes")
                 grid, _ = snail.io.read_raster_metadata(flood_path)
                 prepared = snail.intersection.prepare_points(tele_re_read)
                 flood_intersections = snail.intersection.split_points(prepared, grid)
                 flood_intersections = snail.intersection.apply_indices(flood_intersections, grid)
                 flood_data = snail.io.read_raster_band_data(flood_path)
-                flood_intersections[
-                    "inun"
-                ] = snail.intersection.get_raster_values_for_splits(
+                flood_intersections["inun"] = snail.intersection.get_raster_values_for_splits(
                     flood_intersections, flood_data
                 )
 
@@ -252,27 +277,11 @@ class GID:
                 print(flood_intersections.tail(5))
                 print(flood_intersections.columns)
 
-                # Convert the intersections into their own data frame
-                flood_intersections_gdf = gpd.GeoDataFrame(flood_intersections, geometry='geometry', crs='EPSG:4326')
-
-                # Create a frame of the telecom features intersected with the flood intersections frame
-                telecom_with_flood = gpd.sjoin(telecom_features, flood_intersections_gdf, how="left", op="intersects")
-
-                # If the flooding depth at a given station or within the buffer of that station is >= to the value we defined:
-                # save that to the affected stations list, else continue
-                affected_stations = telecom_with_flood.dropna(subset=['index_right'])[telecom_with_flood['inun'] >= self.flood_depth]
-
-                overlaid_shapefile_path = f"telecom_with_flood_{self.iso2}.shp"
-                self.save_as_shapefile(affected_stations, overlaid_shapefile_path)
-
-                # Get the number and proportion of affected stations
-                intersected_count = len(affected_stations)
-                total_count = len(telecom_features)
-                proportion_intersected = intersected_count / total_count if total_count > 0 else 0
+                overlaid_csv_path = f"telecom_with_flood_{self.iso2}.csv"
+                flood_intersections.to_csv(EXPORTS_FOLDER / overlaid_csv_path, columns=['tags', 'geometry', 'inun'])
 
                 # Print all of this to the screen
-                print(f"Telecom features with flood intersections saved as shapefile: {overlaid_shapefile_path}")
-                print(f"{proportion_intersected:.1%} of telecom stations in this dataset are exposed to flood depths of >= 1m in this flood simulation.")
+                print(f"Telecom features with flood intersections saved as CSV: {overlaid_csv_path}")
             else:
                 print("No buffers created around telecom points.")
         else:
@@ -282,7 +291,13 @@ if __name__ == "__main__":
     country_code = input("Enter the ISO 3166-1 alpha-2 country code: ").upper().strip()
     country_code_3 = input("Enter the ISO 3166-1 alpha-3 country code: ").upper().strip()
     flood_scenario = input("Enter the *name* of the scenario you wish to run (not the full path): ")
-    flood_depth = float(input("Enter the flood depth you would like to test the scenario with (in metres): "))
     print("Country code entered:", country_code)
-    g = GID(country_code, country_code_3, flood_scenario, flood_depth)
+    g = GID(country_code, country_code_3, flood_scenario)
     g.process()
+
+"""
+TODO: 2024-05-24
+Download all OSM cell ID data for the world
+
+TODO: Get flood depth/wind speed for each station
+"""

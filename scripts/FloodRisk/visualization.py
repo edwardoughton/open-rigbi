@@ -39,10 +39,7 @@ def plot_shapefile(shapefile_path):
     """
     Plot the shapefile via matplotlib
     """
-    gdf = gpd.read_file(shapefile_path)
-
-    # Set the CRS of the geodataframe
-    gdf.to_crs(crs=4326)
+    gdf = gpd.read_file(shapefile_path, crs=4326)
 
     # Create the subplot graph window for the display
     fig, ax = plt.subplots(figsize=(10, 8))

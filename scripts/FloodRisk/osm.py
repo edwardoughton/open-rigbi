@@ -18,18 +18,18 @@ from shapely import Point
 
 from typing import Optional
 
-def get_telecom_features(self) -> Optional[gpd.GeoDataFrame]:
+def get_telecom_features(iso2) -> Optional[gpd.GeoDataFrame]:
     """
     Fetch telecom features data for the specified country from the Overpass API.
 
     Returns:
         Optional[gpd.GeoDataFrame]: GeoDataFrame containing telecom features or None if the request fails.
     """
-    print(f"Fetching telecom features data for country: {self.iso2}")
+    print(f"Fetching telecom features data for country: {iso2}")
     overpass_url = "http://overpass-api.de/api/interpreter"
     overpass_query = f"""
     [out:json];
-    area["ISO3166-1"="{self.iso2}"]->.searchArea;
+    area["ISO3166-1"="{iso2}"]->.searchArea;
     (
     nwr["telecom"](area.searchArea);
     );
