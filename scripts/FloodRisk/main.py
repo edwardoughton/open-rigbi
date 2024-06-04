@@ -13,6 +13,7 @@
 # This script was created by Aryaman Rajaputra
 
 import geopandas as gpd
+import numpy as np
 import pandas as pd
 import pyproj
 import rasterio
@@ -20,8 +21,10 @@ from rasterstats import zonal_stats
 from shapely.geometry import Polygon, Point
 import snail.intersection
 import snail.io
+import tqdm
 
 import math
+import re
 import os
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -88,11 +91,11 @@ class GID:
         total_chunks = math.ceil(total_rows / chunksize)
         chunk_count = 0
 
-        for chunk in pd.read_csv("../data/raw/cell_towers_2022-12-24.csv", chunksize=chunksize):
-            
-            # Filter rows by MCC codes using bitwise operators
+        for chunk in tqdm(pd.read_csv("../data/raw/cell_towers_2022-12-24.csv", chunksize=chunksize), total=total_chunks, desc="Processing chunks"):
+
+            # Filter rows by MCC codes
             chunk = chunk[chunk["mcc"] == 204]
-            
+
             if not chunk.empty:
                 chunk['geometry'] = [Point(row.lon, row.lat) for row in chunk.itertuples()]
                 gdf_chunk = gpd.GeoDataFrame(chunk, geometry='geometry')
@@ -101,11 +104,60 @@ class GID:
                 print(f"Created chunk {chunk_count}/{total_chunks}")
 
         all_features = pd.concat(features, ignore_index=True)
-        
+
         output_path = f"{path}/processed_cell_towers_{self.iso3.upper()}.shp"
         all_features.to_file(output_path)
 
         return all_features
+    
+    @staticmethod
+    def convert_to_stations(data):
+        data['bs_id_float'] = data['cell'] / 256
+        data['bs_id_int'] = np.round(data['bs_id_float'], 0)
+        data['sector_id'] = data['bs_id_float'] - data['bs_id_int']
+        data['sector_id'] = np.round(data['sector_id'].abs() * 256)
+
+    def dms_to_decimal(dms):
+        """
+        https://stackoverflow.com/questions/33997361/how-to-convert-degree-minute-second-to-degree-decimal
+        """
+        deg, minutes, seconds, direction =  re.split('[°\'"]', dms)
+        decimal = (float(deg) + float(minutes)/60 + float(seconds)/(60*60)) * (-1 if direction in ['W', 'S'] else 1)
+        return decimal
+
+    def convert_csv_dms_to_decimal(self, df, dms_columns):
+        for col in dms_columns:
+            df[col] = df[col].apply(self.dms_to_decimal)
+        return df
+
+    def compare_data(self, ocid, radio):
+        ocid = gpd.read_file(ocid)
+        radio = pd.read_csv(radio, skiprows=[0, 1, 2, 3, 4])
+
+        # Finding latitude and longitude columns in the CSV DataFrame
+        for col in radio.columns:
+            if 'coördinaten noorderbreedte' in col.lower():
+                radio_lat_col = col
+            elif 'coördinaten oosterlengte' in col.lower():
+                radio_lon_col = col
+
+        if not (radio_lat_col and radio_lon_col):
+            raise ValueError("Latitude or Longitude columns not found in the CSV")
+
+        # Converting DMS coordinates in CSV to decimal
+        radio = self.convert_csv_dms_to_decimal(radio, [radio_lat_col, radio_lon_col])
+
+        ocid_points = ocid['geometry']
+        radio_points = [Point(lon, lat) for lon, lat in zip(radio[radio_lon_col], radio[radio_lat_col])]
+
+        missing_entries = []
+        for idx, point in tqdm(enumerate(radio_points), total=len(radio_points), desc="Comparing coordinates"):
+            if point not in ocid_points:
+                missing_entries.append(radio.iloc[idx])
+
+        missing_df = pd.DataFrame(missing_entries)
+        missing_df['Source'] = 'OCID'
+        return missing_df
 
     @staticmethod
     def create_buffers(telecom_points: gpd.GeoDataFrame, buffer_distance_km: float) -> Optional[gpd.GeoDataFrame]:
@@ -238,12 +290,6 @@ class GID:
         """
         telecom_features = self.preprocess()
         if telecom_features is not None:
-            telecom_features.to_file(
-                EXPORTS_FOLDER / f"{self.iso2.lower()}_OSM_tele.gpkg",
-                layer="nodes",
-                driver="GPKG",
-            )
-
             print(f"Number of telecom points before buffering: {len(telecom_features)}")  # Debug print
 
             buffer_distance_km = self.buffer_distance
@@ -252,7 +298,7 @@ class GID:
                 print(f"Number of buffered telecom points: {len(telecom_buffers)}")  # Debug print
 
                 self.save_as_shapefile(telecom_buffers, f"telecom_buffers_{self.iso2}.shp")
-                print(f"Number of telecom points after saving shapefile: {len(telecom_features)}")  # Debug print
+                print(f"Number of telecom points after saving shapefile: {len(telecom_features)}")  # Debug print 
 
                 flood_path = Path(
                     DATA_FOLDER,
@@ -262,11 +308,10 @@ class GID:
                     f"{self.flood_path.lower()}"
                 )
 
-                # Read in the geopkg
-                tele_re_read = gpd.read_file(EXPORTS_FOLDER / f"{self.iso2}_OSM_tele.gpkg", layer="nodes")
                 grid, _ = snail.io.read_raster_metadata(flood_path)
-                prepared = snail.intersection.prepare_points(tele_re_read)
+                prepared = snail.intersection.prepare_points(telecom_features)
                 flood_intersections = snail.intersection.split_points(prepared, grid)
+
                 flood_intersections = snail.intersection.apply_indices(flood_intersections, grid)
                 flood_data = snail.io.read_raster_band_data(flood_path)
                 flood_intersections["inun"] = snail.intersection.get_raster_values_for_splits(
@@ -277,8 +322,9 @@ class GID:
                 print(flood_intersections.tail(5))
                 print(flood_intersections.columns)
 
+                print(len(flood_intersections))
                 overlaid_csv_path = f"telecom_with_flood_{self.iso2}.csv"
-                flood_intersections.to_csv(EXPORTS_FOLDER / overlaid_csv_path, columns=['tags', 'geometry', 'inun'])
+                flood_intersections.to_csv(EXPORTS_FOLDER / overlaid_csv_path, columns=['geometry', 'inun'])
 
                 # Print all of this to the screen
                 print(f"Telecom features with flood intersections saved as CSV: {overlaid_csv_path}")
@@ -297,7 +343,11 @@ if __name__ == "__main__":
 
 """
 TODO: 2024-05-24
-Download all OSM cell ID data for the world
+Download all OSM cell ID data for the world.
 
-TODO: Get flood depth/wind speed for each station
+TODO: Get flood depth/wind speed for each station.
+
+TODO: Break file into components for preprocessing and post processing.
+TODO: Implement checks for if a country's data already exists, then don't re-run the script.
+TODO: Create centroids for the bands and then divide by 256.
 """
