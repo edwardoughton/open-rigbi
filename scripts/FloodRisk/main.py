@@ -21,7 +21,6 @@ from rasterstats import zonal_stats
 from shapely.geometry import Polygon, Point
 import snail.intersection
 import snail.io
-import tqdm
 
 import math
 import re
@@ -91,7 +90,7 @@ class GID:
         total_chunks = math.ceil(total_rows / chunksize)
         chunk_count = 0
 
-        for chunk in tqdm(pd.read_csv("../data/raw/cell_towers_2022-12-24.csv", chunksize=chunksize), total=total_chunks, desc="Processing chunks"):
+        for chunk in pd.read_csv("../data/raw/cell_towers_2022-12-24.csv", chunksize=chunksize):
 
             # Filter rows by MCC codes
             chunk = chunk[chunk["mcc"] == 204]
@@ -117,13 +116,27 @@ class GID:
         data['sector_id'] = data['bs_id_float'] - data['bs_id_int']
         data['sector_id'] = np.round(data['sector_id'].abs() * 256)
 
-    def dms_to_decimal(dms):
-        """
-        https://stackoverflow.com/questions/33997361/how-to-convert-degree-minute-second-to-degree-decimal
-        """
-        deg, minutes, seconds, direction =  re.split('[°\'"]', dms)
-        decimal = (float(deg) + float(minutes)/60 + float(seconds)/(60*60)) * (-1 if direction in ['W', 'S'] else 1)
-        return decimal
+    def dms_to_decimal(dms, *args):
+        # Regular expression pattern to match degrees, minutes, and seconds
+        pattern = r"(\d+)°\s*(\d+)'\s*([\d\.]+)\""
+
+        # Function to convert a single DMS string to decimal degrees
+        def convert_dms(dms_str):
+            match = re.match(pattern, dms_str)
+            if match:
+                degrees = float(match.group(1))
+                minutes = float(match.group(2))
+                seconds = float(match.group(3))
+                return degrees + minutes / 60 + seconds / 3600
+            else:
+                raise ValueError(f"Invalid DMS coordinate format: {dms_str}")
+
+        # Update the specified columns
+        for col in args:
+            dms[col] = dms[col].apply(convert_dms)
+
+        return dms
+
 
     def convert_csv_dms_to_decimal(self, df, dms_columns):
         for col in dms_columns:
@@ -151,7 +164,7 @@ class GID:
         radio_points = [Point(lon, lat) for lon, lat in zip(radio[radio_lon_col], radio[radio_lat_col])]
 
         missing_entries = []
-        for idx, point in tqdm(enumerate(radio_points), total=len(radio_points), desc="Comparing coordinates"):
+        for idx, point in enumerate(radio_points):
             if point not in ocid_points:
                 missing_entries.append(radio.iloc[idx])
 
@@ -289,6 +302,10 @@ class GID:
             This code is mostly adapted from code provided by Mr. Tom Russel from Oxford University.
         """
         telecom_features = self.preprocess()
+        self.convert_to_stations(telecom_features)
+        telecom_features = telecom_features.dropna(subset=['bs_id_int'])
+        telecom_features = telecom_features[telecom_features['bs_id_int'] != 0]
+
         if telecom_features is not None:
             print(f"Number of telecom points before buffering: {len(telecom_features)}")  # Debug print
 
@@ -319,6 +336,7 @@ class GID:
                 )
 
                 # Debug printing
+                flood_intersections = flood_intersections[['bs_id_int', 'sector_id']]
                 print(flood_intersections.tail(5))
                 print(flood_intersections.columns)
 
@@ -339,15 +357,21 @@ if __name__ == "__main__":
     flood_scenario = input("Enter the *name* of the scenario you wish to run (not the full path): ")
     print("Country code entered:", country_code)
     g = GID(country_code, country_code_3, flood_scenario)
-    g.process()
+    ocid = g.preprocess()
+    radio = pd.read_csv("../data/raw/Antennetotalen+jaaroverzicht+2023.csv")
+    frame = g.compare_data(ocid, radio)
+    print(frame.tail(10))
+
+
 
 """
 TODO: 2024-05-24
-Download all OSM cell ID data for the world.
+Download all OSM cell ID data for the world. -Done
 
-TODO: Get flood depth/wind speed for each station.
+TODO: Get flood depth/wind speed for each station. -Done
 
-TODO: Break file into components for preprocessing and post processing.
+TODO: Break file into components for preprocessing and post processing. -Done
+
 TODO: Implement checks for if a country's data already exists, then don't re-run the script.
 TODO: Create centroids for the bands and then divide by 256.
 """
