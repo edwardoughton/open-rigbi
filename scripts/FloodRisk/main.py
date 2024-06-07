@@ -15,9 +15,11 @@
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import pyproj
 import rasterio
 from rasterstats import zonal_stats
+from sklearn.cluster import DBSCAN
 from shapely.geometry import Polygon, Point
 import snail.intersection
 import snail.io
@@ -109,25 +111,43 @@ class GID:
 
         return all_features
     
-    @staticmethod
-    def convert_to_stations(data):
+    def convert_to_stations(self, radio_len, data):
+        print(data.head(10))
         data['bs_id_float'] = data['cell'] / 256
         data['bs_id_int'] = np.round(data['bs_id_float'], 0)
         data['sector_id'] = data['bs_id_float'] - data['bs_id_int']
         data['sector_id'] = np.round(data['sector_id'].abs() * 256)
 
-    def dms_to_decimal(dms, *args):
+        data.to_csv(f"../data/processed/{self.iso3.upper()}/radio_sectors.csv")
+
+        lengths = {
+            'Verzicht CSV Length': radio_len,
+            'BS ID Int Length': len(data['bs_id_int']),
+            'Sector ID Length': len(data['sector_id'])
+        }
+
+        # Creating the bar graph
+        plt.figure(figsize=(10, 6))
+        plt.bar(lengths.keys(), lengths.values(), color=['blue', 'green', 'red'])
+        plt.xlabel('Data Types')
+        plt.ylabel('Length')
+        plt.title('Comparison of Data Lengths')
+        plt.xticks(rotation=45)
+        plt.show()
+
+    def dms_to_decimal(self, dms, *args):
         # Regular expression pattern to match degrees, minutes, and seconds
-        pattern = r"(\d+)°\s*(\d+)'\s*([\d\.]+)\""
+        pattern = r"(\d+)º\s*(\d+)'\s*([\d.]+)\""
 
         # Function to convert a single DMS string to decimal degrees
         def convert_dms(dms_str):
+            match = pattern.search(dms_str.replace(',', ''))  # Remove commas before searching
             match = re.match(pattern, dms_str)
             if match:
                 degrees = float(match.group(1))
                 minutes = float(match.group(2))
                 seconds = float(match.group(3))
-                return degrees + minutes / 60 + seconds / 3600
+                return degrees + (minutes / 60 ) + (seconds / 3600)
             else:
                 raise ValueError(f"Invalid DMS coordinate format: {dms_str}")
 
@@ -137,17 +157,21 @@ class GID:
 
         return dms
 
-
-    def convert_csv_dms_to_decimal(self, df, dms_columns):
+    def convert_csv_dms_to_decimal(self, df, *dms_columns):
         for col in dms_columns:
-            df[col] = df[col].apply(self.dms_to_decimal)
+            if col in df.columns:
+                df[col].apply(self.dms_to_decimal)
+            else:
+                print(f"Column {col} not found in DataFrame")
         return df
 
     def compare_data(self, ocid, radio):
-        ocid = gpd.read_file(ocid)
-        radio = pd.read_csv(radio, skiprows=[0, 1, 2, 3, 4])
-
         # Finding latitude and longitude columns in the CSV DataFrame
+        radio_lat_col = None
+        radio_lon_col = None
+
+        print(radio.columns)
+
         for col in radio.columns:
             if 'coördinaten noorderbreedte' in col.lower():
                 radio_lat_col = col
@@ -158,7 +182,7 @@ class GID:
             raise ValueError("Latitude or Longitude columns not found in the CSV")
 
         # Converting DMS coordinates in CSV to decimal
-        radio = self.convert_csv_dms_to_decimal(radio, [radio_lat_col, radio_lon_col])
+        radio = self.convert_csv_dms_to_decimal(radio, radio_lat_col, radio_lon_col)
 
         ocid_points = ocid['geometry']
         radio_points = [Point(lon, lat) for lon, lat in zip(radio[radio_lon_col], radio[radio_lat_col])]
@@ -171,6 +195,7 @@ class GID:
         missing_df = pd.DataFrame(missing_entries)
         missing_df['Source'] = 'OCID'
         return missing_df
+
 
     @staticmethod
     def create_buffers(telecom_points: gpd.GeoDataFrame, buffer_distance_km: float) -> Optional[gpd.GeoDataFrame]:
@@ -358,9 +383,10 @@ if __name__ == "__main__":
     print("Country code entered:", country_code)
     g = GID(country_code, country_code_3, flood_scenario)
     ocid = g.preprocess()
-    radio = pd.read_csv("../data/raw/Antennetotalen+jaaroverzicht+2023.csv")
-    frame = g.compare_data(ocid, radio)
-    print(frame.tail(10))
+    radio = pd.read_csv("../data/raw/Antennetotalen+jaaroverzicht+2023.csv", skiprows=1)
+    radio_len = len(radio)
+    # frame = g.compare_data(ocid, radio)
+    g.convert_to_stations(radio_len, ocid)
 
 
 
