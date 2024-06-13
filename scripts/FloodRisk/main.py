@@ -19,7 +19,6 @@ import matplotlib.pyplot as plt
 import pyproj
 import rasterio
 from rasterstats import zonal_stats
-from sklearn.cluster import DBSCAN
 from shapely.geometry import Polygon, Point
 import snail.intersection
 import snail.io
@@ -109,26 +108,44 @@ class GID:
         output_path = f"{path}/processed_cell_towers_{self.iso3.upper()}.shp"
         all_features.to_file(output_path)
 
+        print(all_features.columns)
+        print(all_features.head(10))
+
         return all_features
     
     def convert_to_stations(self, radio_len, data):
+        data = data[data['radio'] == 'LTE']
         print(data.head(10))
         data['bs_id_float'] = data['cell'] / 256
         data['bs_id_int'] = np.round(data['bs_id_float'], 0)
         data['sector_id'] = data['bs_id_float'] - data['bs_id_int']
         data['sector_id'] = np.round(data['sector_id'].abs() * 256)
 
+        data.to_file(f"../data/processed/{self.iso3.upper()}/radio_sectors.shp")
         data.to_csv(f"../data/processed/{self.iso3.upper()}/radio_sectors.csv")
 
         lengths = {
             'Verzicht CSV Length': radio_len,
+            'BS ID Float Length': len(data['bs_id_float']),
             'BS ID Int Length': len(data['bs_id_int']),
             'Sector ID Length': len(data['sector_id'])
         }
 
+        unique_bs_id_int = data['bs_id_int'].drop_duplicates()
+        unique_bs_id_float = data['bs_id_float'].drop_duplicates()
+        unique_sector_id_int = data['sector_id'].drop_duplicates()
+
+        new_lengths = {
+            'Unique 4G Stations in the Dutch Register': radio_len,
+            'Unique BS ID Int Length': len(unique_bs_id_int),
+            'Unique BS ID Float Length': len(unique_bs_id_float),
+            'Unique Sector ID Int Length': len(unique_sector_id_int)
+        }
+        print(new_lengths)
+
         # Creating the bar graph
         plt.figure(figsize=(10, 6))
-        plt.bar(lengths.keys(), lengths.values(), color=['blue', 'green', 'red'])
+        plt.bar(new_lengths.keys(), new_lengths.values(), color=['blue', 'green', 'red'])
         plt.xlabel('Data Types')
         plt.ylabel('Length')
         plt.title('Comparison of Data Lengths')
@@ -384,6 +401,7 @@ if __name__ == "__main__":
     g = GID(country_code, country_code_3, flood_scenario)
     ocid = g.preprocess()
     radio = pd.read_csv("../data/raw/Antennetotalen+jaaroverzicht+2023.csv", skiprows=1)
+    radio = radio[radio['Toepassing'] == 'LTE']
     radio_len = len(radio)
     # frame = g.compare_data(ocid, radio)
     g.convert_to_stations(radio_len, ocid)
@@ -399,5 +417,8 @@ TODO: Get flood depth/wind speed for each station. -Done
 TODO: Break file into components for preprocessing and post processing. -Done
 
 TODO: Implement checks for if a country's data already exists, then don't re-run the script.
-TODO: Create centroids for the bands and then divide by 256.
+TODO: Filter by 4G beforehand - Done
+TODO: Create centroids for the bands and then divide by 256. - Done
+
+TODO: Let Geopandas handle the conversion of DMS to decimal degrees.
 """
