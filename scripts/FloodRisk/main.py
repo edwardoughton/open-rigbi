@@ -18,7 +18,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pyproj
 import rasterio
-from rasterstats import zonal_stats
+# from rasterstats import zonal_stats
 from shapely.geometry import Polygon, Point
 import snail.intersection
 import snail.io
@@ -83,15 +83,21 @@ class GID:
             print("No telecom features found for the provided country code.")
 
     def preprocess(self):
-        path = f"../data/processed/{self.iso3.upper()}/regions"
+        if not os.path.exists(f"{DATA_PROCESSED}/{self.iso3.upper()}") and not os.path.isdir(f"{DATA_PROCESSED}/{self.iso3.upper()}/regions"):
+            os.makedirs(f"{DATA_PROCESSED}/{self.iso3.upper()}/regions")
+            print(f"Created directory {DATA_PROCESSED}/{self.iso3.upper()}")
+        else:
+            print(f"Directory {DATA_PROCESSED}/{self.iso3.upper()} already exists")
+
+        path = f"{DATA_PROCESSED}/{self.iso3.upper()}/regions"
         features = []
-        total_rows = sum(1 for _ in open("../data/raw/cell_towers_2022-12-24.csv")) - 1  # Subtract 1 for the header row
+        total_rows = sum(1 for _ in open(f"{DATA_RAW}/cell_towers_2022-12-24.csv")) - 1  # Subtract 1 for the header row
         chunksize = 1000
 
         total_chunks = math.ceil(total_rows / chunksize)
         chunk_count = 0
 
-        for chunk in pd.read_csv("../data/raw/cell_towers_2022-12-24.csv", chunksize=chunksize):
+        for chunk in pd.read_csv(f"{DATA_RAW}/cell_towers_2022-12-24.csv", chunksize=chunksize):
 
             # Filter rows by MCC codes
             chunk = chunk[chunk["mcc"] == 204]
@@ -126,7 +132,6 @@ class GID:
 
         lengths = {
             'Verzicht CSV Length': radio_len,
-            'BS ID Float Length': len(data['bs_id_float']),
             'BS ID Int Length': len(data['bs_id_int']),
             'Sector ID Length': len(data['sector_id'])
         }
@@ -138,7 +143,6 @@ class GID:
         new_lengths = {
             'Unique 4G Stations in the Dutch Register': radio_len,
             'Unique BS ID Int Length': len(unique_bs_id_int),
-            'Unique BS ID Float Length': len(unique_bs_id_float),
             'Unique Sector ID Int Length': len(unique_sector_id_int)
         }
         print(new_lengths)
@@ -266,8 +270,7 @@ class GID:
 
         return abs(poly_area)
 
-    def get_pop_data(self, country: Dict) -> pd.DataFrame:
-        """
+    """def get_pop_data(self, country: Dict) -> pd.DataFrame:
         Retrieve regional population and luminosity data for a given country.
 
         Args:
@@ -279,7 +282,6 @@ class GID:
         Note:
             The code within this method is adapted from the PyTal library, 
             which was written by Dr. Edward John Oughton and Tom Russel.
-        """
 
         iso3: str = country['iso3']
         level: str = country['regional_level']
@@ -306,11 +308,10 @@ class GID:
                 array = src.read(1)
                 array[array <= 0] = 0
 
-                """
                 Get a lat, lon, id for each cell site
                 Utilize this line to get population summation
                 Replace region['geometry'] with my buffered zones
-                """
+
                 population_summation = [d['sum'] for d in zonal_stats(
                     region['geometry'], array, stats=['sum'], affine=affine)][0]
 
@@ -331,10 +332,10 @@ class GID:
                 'population_km2': population_km2,
             })
 
-        """Possibly export as a CSV file or add as a tag to one of the sites"""
+        # Possibly export as a CSV file or add as a tag to one of the sites
         results_df: pd.DataFrame = pd.DataFrame(results)
         return results_df
-
+        """
     
     def process(self) -> None:
         """
@@ -396,11 +397,11 @@ class GID:
 if __name__ == "__main__":
     country_code = input("Enter the ISO 3166-1 alpha-2 country code: ").upper().strip()
     country_code_3 = input("Enter the ISO 3166-1 alpha-3 country code: ").upper().strip()
-    flood_scenario = input("Enter the *name* of the scenario you wish to run (not the full path): ")
+    # flood_scenario = input("Enter the *name* of the scenario you wish to run (not the full path): ")
     print("Country code entered:", country_code)
-    g = GID(country_code, country_code_3, flood_scenario)
+    g = GID(country_code, country_code_3, None)
     ocid = g.preprocess()
-    radio = pd.read_csv("../data/raw/Antennetotalen+jaaroverzicht+2023.csv", skiprows=1)
+    radio = pd.read_csv(f"{DATA_RAW}/Antennetotalen+jaaroverzicht+2023.csv", skiprows=1)
     radio = radio[radio['Toepassing'] == 'LTE']
     radio_len = len(radio)
     # frame = g.compare_data(ocid, radio)
