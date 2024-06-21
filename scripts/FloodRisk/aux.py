@@ -113,7 +113,6 @@ if __name__ == "__main__":
     data_dict = fr.preprocess(276, 505, 302, 712, 234, 639, 204, 530, 608)
     print(data_dict.keys())
     convert_to_stations(data_dict)
-    alb_radio = pd.DataFrame({'Country': 'ALB', 'Stations': 0}, index=[0])
     
     alb_radio = pd.read_csv(f"../data/raw/countries_data/ALB/lte_cells.csv", encoding="latin1")
     aus_radio = pd.read_csv(f"../data/raw/countries_data/AUS/spectra_rrl/site.csv")
