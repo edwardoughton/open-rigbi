@@ -1,3 +1,17 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# aux_old.py file for OpenRigbi, designed to visualize risk to telecom
+# infrastructure due to natural disasters
+#
+# SPDX-FileCopyrightText: 2024 Aryaman Rajaputra <arajaput@gmu.edu>
+# SPDX-License-Identifier: MIT
+#
+# Note: The programs and configurations used by this script may not be under the same license.
+# Please check the LICENSING file in the root directory of this repository for more information.
+#
+# This script was created by Aryaman Rajaputra
+
 import geopandas as gpd
 import numpy as np
 import pandas as pd
@@ -16,6 +30,7 @@ DATA_PROCESSED: str = os.path.join(BASE_PATH, 'processed')
 EXPORTS_FOLDER: Path = DATA_FOLDER / 'exports'
 EXPORTS_FOLDER.mkdir(parents=True, exist_ok=True)
 
+"""
 MCC_TO_COUNTRY = {
     276: 'ALB',
     505: 'AUS',
@@ -27,7 +42,7 @@ MCC_TO_COUNTRY = {
     204: 'NLD',
     530: 'NZL',
     608: 'SEN'
-}
+}"""
 
 class FloodRisk:
     def __init__(self, iso3):
@@ -108,7 +123,7 @@ def plot(lengths, radio_len):
     r3 = [x + bar_width for x in r2]
     r4 = [x + bar_width for x in r3]
 
-    country_names = [MCC_TO_COUNTRY[mcc] for mcc in countries]
+    # country_names = [MCC_TO_COUNTRY[mcc] for mcc in countries]
 
     # Adjusted plotting values
     plt.bar(r1, [y / 10 for y in unique_stations], color='blue', width=bar_width, label='Unique 4G Stations')
@@ -119,7 +134,7 @@ def plot(lengths, radio_len):
     plt.xlabel('Country')
     plt.ylabel('Count')
     plt.title('Comparison of Data Lengths by Country')
-    plt.xticks([r + bar_width for r in range(len(country_names))], country_names, rotation=45)
+    # plt.xticks([r + bar_width for r in range(len(country_names))], country_names, rotation=45)
     plt.legend()
 
     plt.tight_layout()
@@ -127,11 +142,14 @@ def plot(lengths, radio_len):
 
 
 if __name__ == "__main__":
+    mobile_codes = pd.read_csv(f"{DATA_RAW}/mobile_codes.csv")
+    mcc = mobile_codes['mcc'].drop_duplicates().to_list()
     fr = FloodRisk('NA')
-    data_dict = fr.preprocess(276, 505, 302, 712, 234, 607, 639, 204, 530, 608)
-    print(data_dict.keys())
+    data_dict = fr.preprocess(*mcc)
+
+    """print(data_dict.keys())
     convert_to_stations(data_dict)
-    
+    pd.DataFrame.from_dict(all_new_lengths).to_csv(f"{EXPORTS_FOLDER}/data_lengths.csv", index=False)
     alb_radio = pd.read_csv(f"../data/raw/countries_data/ALB/lte_cells.csv", encoding='latin-1') # This is already LTE
     aus_radio = gpd.read_file(f"../data/raw/countries_data/AUS/spectra_rrl/site.csv") # Australian data has no distinction between different -G's
     can_radio = gpd.read_file(f"../data/raw/countries_data/CAN/sites/sites_all.shp")
@@ -158,14 +176,13 @@ if __name__ == "__main__":
              len(nld_radio), 
              len(nzl_radio), 
              len(sen_radio)]
-
+    
     for i in all_new_lengths:
         print(i)
     print(radio)
     
     plot(all_new_lengths, radio)
 
-    """
     MCC: OCID - Radio
     -----------------
     276: 657 - 4875

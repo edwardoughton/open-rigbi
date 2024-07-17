@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# main.py file for OpenRigbi, designed to visalize risk to telecom
+# main.py file for OpenRigbi, designed to viusalize risk to telecom
 # infrastructure due to natural disasters
 #
 # SPDX-FileCopyrightText: 2024 Aryaman Rajaputra <arajaput@gmu.edu>
@@ -82,80 +82,6 @@ class GID:
         else:
             print("No telecom features found for the provided country code.")
 
-    def preprocess(self):
-        if not os.path.exists(f"{DATA_PROCESSED}/{self.iso3.upper()}") and not os.path.isdir(f"{DATA_PROCESSED}/{self.iso3.upper()}/regions"):
-            os.makedirs(f"{DATA_PROCESSED}/{self.iso3.upper()}/regions")
-            print(f"Created directory {DATA_PROCESSED}/{self.iso3.upper()}")
-        else:
-            print(f"Directory {DATA_PROCESSED}/{self.iso3.upper()} already exists")
-
-        path = f"{DATA_PROCESSED}/{self.iso3.upper()}/regions"
-        features = []
-        total_rows = sum(1 for _ in open(f"{DATA_RAW}/cell_towers_2022-12-24.csv")) - 1  # Subtract 1 for the header row
-        chunksize = 1000
-
-        total_chunks = math.ceil(total_rows / chunksize)
-        chunk_count = 0
-
-        for chunk in pd.read_csv(f"{DATA_RAW}/cell_towers_2022-12-24.csv", chunksize=chunksize):
-
-            # Filter rows by MCC codes
-            chunk = chunk[chunk["mcc"] == 204]
-
-            if not chunk.empty:
-                chunk['geometry'] = [Point(row.lon, row.lat) for row in chunk.itertuples()]
-                gdf_chunk = gpd.GeoDataFrame(chunk, geometry='geometry')
-                features.append(gdf_chunk)
-                chunk_count += 1
-                print(f"Created chunk {chunk_count}/{total_chunks}")
-
-        all_features = pd.concat(features, ignore_index=True)
-
-        output_path = f"{path}/processed_cell_towers_{self.iso3.upper()}.shp"
-        all_features.to_file(output_path)
-
-        print(all_features.columns)
-        print(all_features.head(10))
-
-        return all_features
-    
-    def convert_to_stations(self, radio_len, data):
-        data = data[data['radio'] == 'LTE']
-        print(data.head(10))
-        data['bs_id_float'] = data['cell'] / 256
-        data['bs_id_int'] = np.round(data['bs_id_float'], 0)
-        data['sector_id'] = data['bs_id_float'] - data['bs_id_int']
-        data['sector_id'] = np.round(data['sector_id'].abs() * 256)
-
-        data.to_file(f"../data/processed/{self.iso3.upper()}/radio_sectors.shp")
-        data.to_csv(f"../data/processed/{self.iso3.upper()}/radio_sectors.csv")
-
-        lengths = {
-            'Verzicht CSV Length': radio_len,
-            'BS ID Int Length': len(data['bs_id_int']),
-            'Sector ID Length': len(data['sector_id'])
-        }
-
-        unique_bs_id_int = data['bs_id_int'].drop_duplicates()
-        unique_bs_id_float = data['bs_id_float'].drop_duplicates()
-        unique_sector_id_int = data['sector_id'].drop_duplicates()
-
-        new_lengths = {
-            'Unique 4G Stations in the Dutch Register': radio_len,
-            'Unique BS ID Int Length': len(unique_bs_id_int),
-            'Unique Sector ID Int Length': len(unique_sector_id_int)
-        }
-        print(new_lengths)
-
-        # Creating the bar graph
-        plt.figure(figsize=(10, 6))
-        plt.bar(new_lengths.keys(), new_lengths.values(), color=['blue', 'green', 'red'])
-        plt.xlabel('Data Types')
-        plt.ylabel('Length')
-        plt.title('Comparison of Data Lengths')
-        plt.xticks(rotation=45)
-        plt.show()
-
     def dms_to_decimal(self, dms, *args):
         # Regular expression pattern to match degrees, minutes, and seconds
         pattern = r"(\d+)º\s*(\d+)'\s*([\d.]+)\""
@@ -179,44 +105,22 @@ class GID:
         return dms
 
     def convert_csv_dms_to_decimal(self, df, *dms_columns):
+        """
+        Convert columns containing DMS coordinates to decimal degrees.
+
+        Args:
+            df (pd.DataFrame): DataFrame containing DMS coordinates.
+            dms_columns (List[str]): List of column names containing DMS coordinates.
+
+        Returns:
+            pd.DataFrame: DataFrame with DMS coordinates converted to decimal degrees.
+        """
         for col in dms_columns:
             if col in df.columns:
                 df[col].apply(self.dms_to_decimal)
             else:
                 print(f"Column {col} not found in DataFrame")
         return df
-
-    def compare_data(self, ocid, radio):
-        # Finding latitude and longitude columns in the CSV DataFrame
-        radio_lat_col = None
-        radio_lon_col = None
-
-        print(radio.columns)
-
-        for col in radio.columns:
-            if 'coördinaten noorderbreedte' in col.lower():
-                radio_lat_col = col
-            elif 'coördinaten oosterlengte' in col.lower():
-                radio_lon_col = col
-
-        if not (radio_lat_col and radio_lon_col):
-            raise ValueError("Latitude or Longitude columns not found in the CSV")
-
-        # Converting DMS coordinates in CSV to decimal
-        radio = self.convert_csv_dms_to_decimal(radio, radio_lat_col, radio_lon_col)
-
-        ocid_points = ocid['geometry']
-        radio_points = [Point(lon, lat) for lon, lat in zip(radio[radio_lon_col], radio[radio_lat_col])]
-
-        missing_entries = []
-        for idx, point in enumerate(radio_points):
-            if point not in ocid_points:
-                missing_entries.append(radio.iloc[idx])
-
-        missing_df = pd.DataFrame(missing_entries)
-        missing_df['Source'] = 'OCID'
-        return missing_df
-
 
     @staticmethod
     def create_buffers(telecom_points: gpd.GeoDataFrame, buffer_distance_km: float) -> Optional[gpd.GeoDataFrame]:
@@ -394,32 +298,3 @@ class GID:
         else:
             print("No telecom features found for the provided country code.")
 
-if __name__ == "__main__":
-    country_code = input("Enter the ISO 3166-1 alpha-2 country code: ").upper().strip()
-    country_code_3 = input("Enter the ISO 3166-1 alpha-3 country code: ").upper().strip()
-    # flood_scenario = input("Enter the *name* of the scenario you wish to run (not the full path): ")
-    print("Country code entered:", country_code)
-    g = GID(country_code, country_code_3, None)
-    ocid = g.preprocess()
-    radio = pd.read_csv(f"{DATA_RAW}/Antennetotalen+jaaroverzicht+2023.csv", skiprows=1)
-    radio = radio[radio['Toepassing'] == 'LTE']
-    radio_len = len(radio)
-    # frame = g.compare_data(ocid, radio)
-    g.convert_to_stations(radio_len, ocid)
-
-
-
-"""
-TODO: 2024-05-24
-Download all OSM cell ID data for the world. -Done
-
-TODO: Get flood depth/wind speed for each station. -Done
-
-TODO: Break file into components for preprocessing and post processing. -Done
-
-TODO: Implement checks for if a country's data already exists, then don't re-run the script.
-TODO: Filter by 4G beforehand - Done
-TODO: Create centroids for the bands and then divide by 256. - Done
-
-TODO: Let Geopandas handle the conversion of DMS to decimal degrees.
-"""

@@ -17,6 +17,19 @@ from matplotlib.patches import Patch
 import matplotlib.pyplot as plt
 import numpy as np
 
+MCC_TO_COUNTRY = {
+    276: 'ALB',
+    505: 'AUS',
+    302: 'CAN',
+    712: 'CRI',
+    234: 'GBR',
+    607: 'GMB',
+    639: 'KEN',
+    204: 'NLD',
+    530: 'NZL',
+    608: 'SEN'
+}
+
 def haversine(lon1, lat1, lon2, lat2):
     """
     Calculate the great circle distance between two points 
@@ -70,6 +83,36 @@ def plot_shapefile(shapefile_path):
     plt.xlabel('Longitude')
     plt.ylabel('Latitude')
 
+    plt.show()
+
+def plot_bar(lengths, radio_len):
+    fig, ax = plt.subplots(figsize=(10, 6))
+    countries = [x['Country'] for x in lengths]
+    unique_stations = [x['Unique 4G Stations'] for x in lengths]
+    unique_bs_id_int = [x['Unique BS ID Int'] for x in lengths]
+    unique_sector_id_int = [x['Unique Sector ID Int'] for x in lengths]
+
+    bar_width = 0.25
+    r1 = np.arange(len(countries))
+    r2 = [x + bar_width for x in r1]
+    r3 = [x + bar_width for x in r2]
+    r4 = [x + bar_width for x in r3]
+
+    country_names = [MCC_TO_COUNTRY[mcc] for mcc in countries]
+
+    # Adjusted plotting values
+    plt.bar(r1, [y / 10 for y in unique_stations], color='blue', width=bar_width, label='Unique 4G Stations')
+    plt.bar(r2, [y / 10 for y in unique_bs_id_int], color='green', width=bar_width, label='Unique BS ID Int')
+    plt.bar(r3, [y / 10 for y in unique_sector_id_int], color='red', width=bar_width, label='Unique Sector ID Int')
+    plt.bar(r4, radio_len, color='yellow', width=bar_width, label='Radio Data Length')
+
+    plt.xlabel('Country')
+    plt.ylabel('Count')
+    plt.title('Comparison of Data Lengths by Country')
+    plt.xticks([r + bar_width for r in range(len(country_names))], country_names, rotation=45)
+    plt.legend()
+
+    plt.tight_layout()
     plt.show()
 
 if __name__ == "__main__":
