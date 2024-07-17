@@ -33,13 +33,13 @@ class FloodRisk:
         else:
             print(f"Directory {DATA_PROCESSED}/{self.iso3.upper()} already exists")
 
-        path = f"{DATA_PROCESSED}/{self.iso3.upper()}/regions"
+        path = Path(DATA_PROCESSED / f"{self.iso3.upper()}/regions")
         mcc_data = {}  # Dictionary to store GeoDataFrames for each MCC code
         total_rows = sum(1 for _ in open(f"{DATA_RAW}/cell_towers_2022-12-24.csv")) - 1  # Subtract 1 for the header row
         chunksize = 1000
 
         for code in codes:  # Loop over each MCC code
-            output_path = f"{path}/processed_cell_towers_{self.iso3.upper()}_{code}.shp"
+            output_path = Path(path / f"processed_cell_towers_{self.iso3.upper()}_{code}.shp")
             if os.path.exists(output_path):
                 print(f"{output_path} already exists")
                 continue
