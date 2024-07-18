@@ -11,31 +11,21 @@
 # Please check the LICENSING file in the root directory of this repository for more information.
 #
 # This script was created by Aryaman Rajaputra
+from constants import *
 
 import geopandas as gpd
 import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import pyproj
-import rasterio
+# import rasterio
 # from rasterstats import zonal_stats
 from shapely.geometry import Polygon, Point
 import snail.intersection
 import snail.io
 
-import math
-import re
 import os
+import re
 from pathlib import Path
-from typing import Dict, List, Optional
-
-BASE_PATH: str = './data'
-DATA_FOLDER: Path = Path('./data')
-DATA_RAW: str = os.path.join(BASE_PATH, 'raw')
-DATA_INTERMEDIATE: str = os.path.join(BASE_PATH, 'intermediate')
-DATA_PROCESSED: str = os.path.join(BASE_PATH, 'processed')
-EXPORTS_FOLDER: Path = DATA_FOLDER / 'exports'
-EXPORTS_FOLDER.mkdir(parents=True, exist_ok=True)
+from typing import Optional
 
 class GID:
     """
@@ -47,7 +37,7 @@ class GID:
 
     """
 
-    def __init__(self, iso2: str, iso3: str, flood_path: str, buffer_distance: float = 10) -> None:
+    def __init__(self, iso2: str, iso3: str, flood_path: str = None, buffer_distance: float = 10) -> None:
         """
         Initialize GIDTwo object with given region and optional telecom infrastructure.
 
@@ -241,14 +231,25 @@ class GID:
         return results_df
         """
     
-    def process(self) -> None:
+    global all_new_lengths
+    all_new_lengths = []
+    @staticmethod
+    def convert_to_stations(data):
+        data['bs_id_float'] = data['cell'] / 256
+        data['bs_id_int'] = np.round(data['bs_id_float'], 0)
+        data['sector_id'] = data['bs_id_float'] - data['bs_id_int']
+        data['sector_id'] = np.round(data['sector_id'].abs() * 256)
+
+        data = data.drop_duplicates(subset=['bs_id_int', 'sector_id'])
+        return data
+
+    def process(self, telecom_features, scenario_path, feature_name, scenario_name) -> None:
         """
         Download, prepare, and intersect flood data with a given regional layer.
 
         Note:
             This code is mostly adapted from code provided by Mr. Tom Russel from Oxford University.
         """
-        telecom_features = self.preprocess()
         self.convert_to_stations(telecom_features)
         telecom_features = telecom_features.dropna(subset=['bs_id_int'])
         telecom_features = telecom_features[telecom_features['bs_id_int'] != 0]
@@ -264,13 +265,7 @@ class GID:
                 self.save_as_shapefile(telecom_buffers, f"telecom_buffers_{self.iso2}.shp")
                 print(f"Number of telecom points after saving shapefile: {len(telecom_features)}")  # Debug print 
 
-                flood_path = Path(
-                    DATA_FOLDER,
-                    "flood_layer",
-                    f"{self.iso3.lower()}",
-                    "wri_aqueduct_version_2",
-                    f"{self.flood_path.lower()}"
-                )
+                flood_path = scenario_path
 
                 grid, _ = snail.io.read_raster_metadata(flood_path)
                 prepared = snail.intersection.prepare_points(telecom_features)
@@ -289,7 +284,7 @@ class GID:
 
                 print(len(flood_intersections))
                 overlaid_csv_path = f"telecom_with_flood_{self.iso2}.csv"
-                flood_intersections.to_csv(EXPORTS_FOLDER / overlaid_csv_path, columns=['geometry', 'inun'])
+                flood_intersections.to_csv(EXPORTS_FOLDER / f"{self.iso3}" / f"{overlaid_csv_path}_{feature_name}_{scenario_name}")
 
                 # Print all of this to the screen
                 print(f"Telecom features with flood intersections saved as CSV: {overlaid_csv_path}")
@@ -297,4 +292,3 @@ class GID:
                 print("No buffers created around telecom points.")
         else:
             print("No telecom features found for the provided country code.")
-

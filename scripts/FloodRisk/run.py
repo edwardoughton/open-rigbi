@@ -11,28 +11,41 @@
 # Please check the LICENSING file in the root directory of this repository for more information.
 #
 # This script was created by Aryaman Rajaputra
+from constants import *
+from preprocess import FloodRisk
+from process import GID
 
-from preprocess import FloodRisk, convert_to_stations, all_new_lengths
-from constants import DATA_RAW, EXPORTS_FOLDER
+import geopandas as gpd
 
-import pandas as pd
+import os
 
 if __name__ == "__main__":
     country_code = input("Enter the ISO 3166-1 alpha-2 country code: ").upper().strip()
     country_code_3 = input("Enter the ISO 3166-1 alpha-3 country code: ").upper().strip()
-    flood_scenario = input("Enter the *name* of the scenario you wish to run (not the full path): ")
     print("Country code entered:", country_code)
-    g = FloodRisk(country_code, country_code_3, flood_scenario)
-    ocid = g.preprocess()
+    fr = FloodRisk(country_code, country_code_3)
+    _ = fr.preprocess(204)
+    g = GID(country_code, country_code_3)
+    for feature in os.listdir(f"./{DATA_PROCESSED}/{country_code_3.upper()}/regions"):
+        if feature.endswith(".shp"):
+            feature_name = Path(feature).stem
+            feature = gpd.read_file(f"./{DATA_PROCESSED}/{country_code_3.upper()}/regions/{feature}")
+            for scenario in os.listdir(f"./{DATA_FOLDER}/flood_layer/{country_code_3.lower()}/wri_aqueduct_version_2"):
+                scenario_path = f"./{DATA_FOLDER}/flood_layer/{country_code_3.lower()}/wri_aqueduct_version_2/{scenario}"
+                scenario_name = Path(scenario).stem
+                g.process(feature, scenario_path, feature_name, scenario_name)
 
-    mobile_codes = pd.read_csv(f"{DATA_RAW}/mobile_codes.csv")
+    """fr = FloodRisk(country_code, country_code_3)
+    ocid = fr.preprocess(204)"""
+            
+    """mobile_codes = pd.read_csv(f"{DATA_RAW}/mobile_codes.csv")
     mcc = mobile_codes['mcc'].drop_duplicates().to_list()
     fr = FloodRisk('NA')
     data_dict = fr.preprocess(*mcc)
     print(data_dict.keys())
     convert_to_stations(data_dict)
     pd.DataFrame.from_dict(all_new_lengths).to_csv(f"{EXPORTS_FOLDER}/data_lengths.csv", index=False)
-    
+    """
     """
     alb_radio = pd.read_csv(f"../data/raw/countries_data/ALB/lte_cells.csv", encoding='latin-1') # This is already LTE
     aus_radio = gpd.read_file(f"../data/raw/countries_data/AUS/spectra_rrl/site.csv") # Australian data has no distinction between different -G's

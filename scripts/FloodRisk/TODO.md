@@ -10,3 +10,6 @@ TODO: Filter by 4G beforehand - Done
 TODO: Create centroids for the bands and then divide by 256. - Done
 
 TODO: Let Geopandas handle the conversion of DMS to decimal degrees.
+
+
+TODO: finish processing by the end of the week

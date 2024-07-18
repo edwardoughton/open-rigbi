@@ -17,29 +17,30 @@ from constants import *
 import math
 import os
 
-import numpy as np
 import geopandas as gpd
 import pandas as pd
 from shapely import Point
 
 class FloodRisk:
-    def __init__(self, iso3):
+    def __init__(self, iso2, iso3):
+        self.iso2 = iso2
         self.iso3 = iso3
 
     def preprocess(self, *codes):
+        county_list = []
         if not os.path.exists(f"{DATA_PROCESSED}/{self.iso3.upper()}") and not os.path.isdir(f"{DATA_PROCESSED}/{self.iso3.upper()}/regions"):
             os.makedirs(f"{DATA_PROCESSED}/{self.iso3.upper()}/regions")
             print(f"Created directory {DATA_PROCESSED}/{self.iso3.upper()}")
         else:
             print(f"Directory {DATA_PROCESSED}/{self.iso3.upper()} already exists")
 
-        path = Path(DATA_PROCESSED / f"{self.iso3.upper()}/regions")
+        path = f"./{DATA_PROCESSED}/{self.iso3.upper()}/regions"
         mcc_data = {}  # Dictionary to store GeoDataFrames for each MCC code
         total_rows = sum(1 for _ in open(f"{DATA_RAW}/cell_towers_2022-12-24.csv")) - 1  # Subtract 1 for the header row
         chunksize = 1000
 
         for code in codes:  # Loop over each MCC code
-            output_path = Path(path / f"processed_cell_towers_{self.iso3.upper()}_{code}.shp")
+            output_path = f"{path}/processed_cell_towers_{self.iso3.upper()}_{code}.shp"
             if os.path.exists(output_path):
                 print(f"{output_path} already exists")
                 continue
@@ -60,33 +61,14 @@ class FloodRisk:
 
             if features:  # If there are features for the current MCC code
                 all_features = pd.concat(features, ignore_index=True)
-                all_features.to_file(output_path)
                 print(f"Saved {code} data to {output_path}")
+                gid = gpd.read_file(f"./{DATA_RAW}/NLD/regions/regions_2_NLD.shp")
+                gid = gid.to_crs("EPSG:4326")
+                all_features = gpd.sjoin(all_features, gid, how="inner", op="intersects")
+                county_list = all_features['NAME_2'].drop_duplicates().to_list()
+                for county in county_list:
+                    county_df = all_features[all_features['NAME_2'] == county]
+                    county_df.to_file(f"{path}/processed_cell_towers_county_{county}.shp")
                 mcc_data[code] = all_features  # Store the GeoDataFrame in the dictionary
-
+                        
         return mcc_data
-
-all_new_lengths = []
-def convert_to_stations(data_dict):
-    for country_code, data in data_dict.items():
-        print(f"Processing {country_code}")
-        print(data.head(10))
-
-        data['bs_id_float'] = data['cell'] / 256
-        data['bs_id_int'] = np.round(data['bs_id_float'], 0)
-        data['sector_id'] = data['bs_id_float'] - data['bs_id_int']
-        data['sector_id'] = np.round(data['sector_id'].abs() * 256)
-
-        unique_bs_id_int = data['bs_id_int'].drop_duplicates()
-        unique_sector_id_int = data['sector_id'].drop_duplicates()
-
-        new_lengths = {
-            'Country': country_code,
-            'Unique 4G Stations': len(data),
-            'Unique BS ID Int': len(unique_bs_id_int),
-            'Unique Sector ID Int': len(unique_sector_id_int)
-        }
-        all_new_lengths.append(new_lengths)
-
-    global all_new_lengths
-    return all_new_lengths
