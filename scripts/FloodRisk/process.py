@@ -278,13 +278,15 @@ class GID:
                 )
 
                 # Debug printing
-                flood_intersections = flood_intersections[['bs_id_int', 'sector_id']]
+                flood_intersections = flood_intersections[['inun', 'bs_id_int', 'sector_id', 'geometry']]
                 print(flood_intersections.tail(5))
                 print(flood_intersections.columns)
 
                 print(len(flood_intersections))
                 overlaid_csv_path = f"telecom_with_flood_{self.iso2}.csv"
-                flood_intersections.to_csv(EXPORTS_FOLDER / f"{self.iso3}" / f"{overlaid_csv_path}_{feature_name}_{scenario_name}")
+                if not os.path.exists(EXPORTS_FOLDER / f"{self.iso3}" / feature_name):
+                    os.makedirs(EXPORTS_FOLDER / f"{self.iso3}" / feature_name)
+                gpd.GeoDataFrame.to_file(flood_intersections, EXPORTS_FOLDER / f"{self.iso3}" / feature_name / f"{overlaid_csv_path}_{feature_name}_{scenario_name}")
 
                 # Print all of this to the screen
                 print(f"Telecom features with flood intersections saved as CSV: {overlaid_csv_path}")
