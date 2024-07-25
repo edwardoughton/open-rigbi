@@ -15,7 +15,6 @@
 from constants import *
 from misc import process_country_shapes, process_regions
 
-
 import math
 import os
 from typing import Optional
@@ -80,7 +79,7 @@ class FloodRisk:
 
         path = f"./{DATA_PROCESSED}/{self.iso3.upper()}/regions"
         mcc_data = {}  # Dictionary to store GeoDataFrames for each MCC code
-        total_rows = sum(1 for _ in open(f"{DATA_RAW}/cell_towers_2022-12-24.csv")) - 1  # Subtract 1 for the header row
+        total_rows = sum(1 for _ in open("/home/cisc/projects/open-rigbi/scripts/FloodRisk/data/cell_towers_2022-12-24.csv")) - 1  # Subtract 1 for the header row
         chunksize = 1000
 
         for code in codes:  # Loop over each MCC code
@@ -92,7 +91,7 @@ class FloodRisk:
             chunk_count = 0
             total_chunks = math.ceil(total_rows / chunksize)
 
-            for chunk in pd.read_csv(f"{DATA_RAW}/cell_towers_2022-12-24.csv", chunksize=1000):
+            for chunk in pd.read_csv(f"/home/cisc/projects/open-rigbi/scripts/FloodRisk/data/cell_towers_2022-12-24.csv", chunksize=1000):
                 #  Filter rows by the current MCC code and LTE radio type
                 filtered_chunk = chunk[chunk['mcc'] == code]
                 new_filtered_chunk = filtered_chunk[filtered_chunk['radio'] == 'LTE']
