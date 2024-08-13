@@ -2,10 +2,6 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from shapely.geometry import Point
-import math
-import os
-from pathlib import Path
 
 MCC_TO_COUNTRY = {
     276: 'ALB',
@@ -22,69 +18,6 @@ MCC_TO_COUNTRY = {
 
 DATA_RAW = "../data/raw"
 DATA_PROCESSED = "./data/exports"
-
-def preprocess(iso3, *codes):
-    iso3_upper = iso3.upper()
-    output_dir = f"{DATA_PROCESSED}/{iso3_upper}/regions"
-    
-    if not os.path.exists(output_dir) and not os.path.isdir(output_dir):
-        os.makedirs(output_dir)
-        print(f"Created directory {output_dir}")
-    else:
-        print(f"Directory {output_dir} already exists")
-
-    mcc_data = {}  # Dictionary to store GeoDataFrames for each MCC code
-    total_rows = sum(1 for _ in open(f"{DATA_RAW}/cell_towers_2022-12-24.csv")) - 1  # Subtract 1 for the header row
-    chunksize = 1000
-
-    for code in codes:
-        features = []
-        chunk_count = 0
-        total_chunks = math.ceil(total_rows / chunksize)
-
-        for chunk in pd.read_csv(f"{DATA_RAW}/cell_towers_2022-12-24.csv", chunksize=chunksize):
-            # Filter rows by the current MCC code and LTE radio type
-            filtered_chunk = chunk[chunk['mcc'] == code]
-            new_filtered_chunk = filtered_chunk[filtered_chunk['radio'] == 'LTE']
-            if not new_filtered_chunk.empty:
-                new_filtered_chunk['geometry'] = [Point(row.lon, row.lat) for row in new_filtered_chunk.itertuples()]
-                gdf_chunk = gpd.GeoDataFrame(new_filtered_chunk, geometry='geometry')
-                features.append(gdf_chunk)
-                chunk_count += 1
-                print(f"Processed chunk {chunk_count}/{total_chunks} for MCC {code}")
-
-        if features:  # If there are features for the current MCC code
-            all_features = pd.concat(features, ignore_index=True)
-            output_path = f"{output_dir}/processed_cell_towers_{iso3_upper}_{code}.shp"
-            all_features.to_file(output_path)
-            print(f"Saved {code} data to {output_path}")
-            mcc_data[code] = all_features  # Store the GeoDataFrame in the dictionary
-
-    return mcc_data
-
-def convert_to_stations(data_dict):
-    all_new_lengths = []
-    for country_code, data in data_dict.items():
-        print(f"Processing {country_code}")
-        print(data.head(10))
-
-        data['bs_id_float'] = data['cell'] / 256
-        data['bs_id_int'] = np.round(data['bs_id_float'], 0)
-        data['sector_id'] = data['bs_id_float'] - data['bs_id_int']
-        data['sector_id'] = np.round(data['sector_id'].abs() * 256)
-
-        unique_bs_id_int = data['bs_id_int'].drop_duplicates()
-        unique_sector_id_int = data['sector_id'].drop_duplicates()
-
-        new_lengths = {
-            'Country': country_code,
-            'Unique 4G Stations': len(data),
-            'Unique BS ID Int': len(unique_bs_id_int),
-            'Unique Sector ID Int': len(unique_sector_id_int)
-        }
-        all_new_lengths.append(new_lengths)
-
-    return all_new_lengths
 
 def plot(lengths, radio_len):
     fig, ax = plt.subplots(figsize=(10, 6))
