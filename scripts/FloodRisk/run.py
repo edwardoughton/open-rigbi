@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
@@ -19,6 +18,7 @@ from pathlib import Path
 from joblib import Parallel, delayed
 import pandas as pd
 from tqdm import tqdm
+from misc import get_regions
 
 if __name__ == "__main__":
     # Load data
@@ -27,28 +27,40 @@ if __name__ == "__main__":
     df = pd.read_csv(f"../{BASE_PATH}/countries.csv", encoding='latin-1')
     df = df[df['Exclude'] != 1]
 
-    def process_country(country_code):
+    error = []
+    def process_country(country_code, country_csv):
         try:
             country_code_2 = df[df['iso3'] == country_code]['iso2'].values[0]
             mcc = mobile_codes[mobile_codes['iso3'] == country_code]['mcc'].values[0]
             print(f"Processing Country code: {country_code}")
+            country = country_csv[country_csv['iso3'] == country_code]
+            country = country.to_records('dicts')[0]
 
             fr = FloodRisk(country_code_2, country_code)
-            main_feature = fr.preprocess(mcc)
-            result_df = fr.process(main_feature, None, None, None)
-
-            return country_code, result_df
+            print("Created FloodRisk object")
+            # main_feature = fr.preprocess(mcc)
+            # result_df = fr.process(main_feature, None, None, None)
+            fr.process_regional_flooding_layers(country)
+            print("Processed FloodRisk object")
+            return country_code, # result_df
         except Exception as e:
             print(f"Error processing country code {country_code}: {e}")
+            error.append(country_code)
             return country_code, pd.DataFrame()
 
-    results = Parallel(n_jobs=-1)(delayed(process_country)(country_code) for country_code in df['iso3'])
+    # results = Parallel(n_jobs=-1)(delayed(process_country)(country_code, df) for country_code in df['iso3'])
 
-    combined_df = pd.concat([result_df for _, result_df in results], ignore_index=True)
+    results = []
+    for country_code in df['iso3']:
+        result = process_country(country_code, df)
+        results.append(result)
+    
 
-    combined_df.to_csv(f"../{BASE_PATH}/combined_output.csv", index=False)
+    # combined_df = pd.concat([result_df for _, result_df in results], ignore_index=True)
 
-    print(f"Length of the combined DataFrame: {len(combined_df)}")
+    # combined_df.to_csv(f"../{BASE_PATH}/combined_output.csv", index=False)
+
+    # print(f"Length of the combined DataFrame: {len(combined_df)}")
     
     """
     for feature in os.listdir(f"./{DATA_PROCESSED}/{country_code.upper()}/regions"):
