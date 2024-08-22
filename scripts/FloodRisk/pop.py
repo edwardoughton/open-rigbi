@@ -2,6 +2,10 @@ import geopandas as gpd
 import pandas as pd
 import rasterio
 import os
+import glob
+from constants import *
+from rasterio.mask import mask
+import json
 
 def create_buffers(gdf, buffer_size):
     gdf['geometry'] = gdf['geometry'].apply(lambda geom: geom.buffer(buffer_size))
@@ -16,7 +20,7 @@ def process_pop(iso3, gid_level):
     settlements = rasterio.open(path_settlements, 'r+')
     settlements.nodata = 255
     settlements.crs.from_epsg(4326)
-    print(settlements)
+
     return
 
 def process_age_sex_structure(country):
@@ -84,6 +88,8 @@ def process_age_sex_structure(country):
 
     return #print('Completed processing of settlement layer')
 
+def create_union(*gdf):
+    return gdf.unary_union(*gdf)
 
 if __name__ == "__main__":
     pass
