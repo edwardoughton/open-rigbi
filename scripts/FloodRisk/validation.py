@@ -1,4 +1,4 @@
-import geopandas as gpd
+"""import geopandas as gpd
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -117,7 +117,6 @@ def main():
 if __name__ == "__main__":
     main()
 
-"""
     MCC: OCID - Radio
     -----------------
     276: 657 - 4875
@@ -131,3 +130,54 @@ if __name__ == "__main__":
     530: 4450 - 4433 this is okay
     608:  604 - 3708 OCID is missing values here 
     """
+
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+import os
+import matplotlib.pyplot as plt
+from misc import get_regions, get_scenarios
+from joblib import Parallel, delayed
+
+errors = []
+successes = []
+
+def get_scenarios():
+    scenarios = []
+    for root, dirs, files in os.walk("/home/cisc/projects/open-rigbi/data/raw/flood_hazard"):
+        for file in files:
+            if file.endswith(".shp"):
+                scenarios.append(os.path.join(root, file))
+    return scenarios
+
+def validate_country(country, scenarios):
+    country_dict = {}
+    mobile_codes = pd.read_csv(f"../{BASE_PATH}/mobile_codes.csv", encoding='latin1')
+    mobile_codes = mobile_codes.drop_duplicates(subset=['mcc'])
+    df = pd.read_csv(f"../{BASE_PATH}/countries.csv", encoding='latin-1')
+    df = df[df['Exclude'] != 1]
+    print("Loaded data")
+    level = df.loc[df['iso3'] == country_code, 'gid_region'].values[0]
+    level = int(level)
+    country_data_path = f"/home/cisc/projects/open-rigbi/data/processed/{country}"
+    regions = get_regions(country, level)
+    for region in regions:
+        region = region['GID_{}'.format(level)]
+        for scenario in scenarios:
+            try:
+                scenario_name = os.path.basename(scenario).split(".")[0]
+                official_path = f"/home/cisc/projects/open-rigbi/data/processed/{country.upper()}/hazards/flooding/regional/{country.upper()}.{region}_{scenario_name}.tif"
+                if not os.path.exists(official_path):
+                    print(f"Missing {official_path}")
+                    errors.append(official_path)
+                else:
+                    print(f"Found {official_path}")
+
+            except Exception as e:
+                print(f"Error processing {scenario}: {e}")
+                errors.append(scenario)
+                    
+
+    
+        
+            
