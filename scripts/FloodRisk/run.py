@@ -18,7 +18,7 @@ from pathlib import Path
 from joblib import Parallel, delayed
 import pandas as pd
 from tqdm import tqdm
-from misc import get_regions
+from misc import get_countries, process_country_shapes, process_regions, get_regions, get_scenarios
 
 if __name__ == "__main__":
     # Load data
@@ -26,29 +26,51 @@ if __name__ == "__main__":
     mobile_codes = mobile_codes.drop_duplicates(subset=['mcc'])
     df = pd.read_csv(f"../{BASE_PATH}/countries.csv", encoding='latin-1')
     df = df[df['Exclude'] != 1]
+    print("Loaded data")
+    
 
     error = []
     def process_country(country_code, country_csv):
         try:
+            level = df.loc[df['iso3'] == country_code, 'gid_region'].values[0]
+            level = int(level)
             country_code_2 = df[df['iso3'] == country_code]['iso2'].values[0]
             mcc = mobile_codes[mobile_codes['iso3'] == country_code]['mcc'].values[0]
-            print(f"Processing Country code: {country_code}")
+            # print(f"Processing Country code: {country_code}")
             country = country_csv[country_csv['iso3'] == country_code]
             country = country.to_records('dicts')[0]
+            print(f"Processing Country code: {country_code}")
 
             fr = FloodRisk(country_code_2, country_code)
-            print("Created FloodRisk object")
+            process_country_shapes(country_code)
+
+            process_regions(country_code, level)
+
+            fr.process_flooding_layers(country)
+
+            regions = get_regions(country_code, level)
+            for region in regions:
+                region = region['GID_{}'.format(level)]
+                fr.process_regional_flooding_layers(country, region)
+            # fr.create_national_sites_shp(country_code)
+            # print("Created FloodRisk object")
             # main_feature = fr.preprocess(mcc)
             # result_df = fr.process(main_feature, None, None, None)
-            fr.process_regional_flooding_layers(country)
-            print("Processed FloodRisk object")
-            return country_code, # result_df
+            # fr.process_regional_flooding_layers(country, int(level))
+            # print("Processed FloodRisk object")
+            gid_id = "GID_{}".format(level)
+
+            for region in regions:
+
+                fr.create_sites_layer(country, level, region[gid_id], region['geometry'])
+
+            return
         except Exception as e:
             print(f"Error processing country code {country_code}: {e}")
             error.append(country_code)
             return country_code, pd.DataFrame()
 
-    # results = Parallel(n_jobs=-1)(delayed(process_country)(country_code, df) for country_code in df['iso3'])
+    results = Parallel(n_jobs=-1)(delayed(process_country)(country_code, df) for country_code in df['iso3'])
 
     results = []
     for country_code in df['iso3']:

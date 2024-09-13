@@ -105,3 +105,5 @@ if __name__ == "__main__":
     results = Parallel(n_jobs=-1)(delayed(process_country)(country_code, df) for country_code in df['iso3'])
     process_settlement_layer(country)
     
+    
+

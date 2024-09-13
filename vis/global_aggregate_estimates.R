@@ -3,8 +3,8 @@ library(tidyverse)
 library(ggpubr)
 # install.packages("viridis")
 # library(viridis)
-install.packages("llply")
-require(llply)
+# install.packages("llply")
+# require(llply)
 library(stringr)
 
 ###################
@@ -37,7 +37,7 @@ import_function = lapply(metric_files, function(x) {
 
 data <- do.call(rbind, import_function)
 
-# # data = data[(data$radio == 'LTE' | data$radio == 'UMTS'),]
+# data = data[(data$radio == 'LTE' | data$radio == 'UMTS'),]
 # data = data[(data$radio == 'GSM'),]
 # data = data[complete.cases(data[ , c('radio')]), ]
 
@@ -800,8 +800,8 @@ data$interaction = factor(data$interaction,
                             "0.5% 2050",
                             "1% Historical",
                             "1% 2050"#,
-
-
+                            
+                            
                           ),
 )
 filename = 'tropical_storm_data_figure_3.3.csv'
@@ -1022,8 +1022,8 @@ data$interaction = factor(data$interaction,
                             "0.5% 2050",
                             "1% Historical",
                             "1% 2050"#,
-
-
+                            
+                            
                           ),
 )
 

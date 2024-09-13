@@ -176,57 +176,255 @@ class FloodRisk:
         telecom_features.to_csv(f"/home/cisc/projects/open-rigbi/scripts/FloodRisk/data/exports/{self.iso3}/towers_{self.iso3}.csv", index=False)
         return telecom_features
 
-        """if telecom_features is not None:
-            print(f"Number of telecom points before buffering: {len(telecom_features)}")  # Debug print
+    def create_sites_layer(country, regional_level, region, polygon):
+        """
+        Process cell estimates into an estimated site layer.
 
-            buffer_distance_km = self.buffer_distance
-            telecom_buffers = self.create_buffers(telecom_features, buffer_distance_km)
+        """
+        gid_level = "gid_{}".format(regional_level)
+        filename = "{}_unique.csv".format(region)
+        folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
+        path_out = os.path.join(folder, filename)
+        
+        # if os.path.exists(path_out):
+        #     return
+
+        filename = "{}.csv".format(region)
+        folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
+        path = os.path.join(folder, filename)
+
+        if not os.path.exists(path):
+            return
+
+        data = pd.read_csv(path)#[:500]
+
+        data = convert_to_gpd_df(data)
+        
+        if polygon.type == 'Polygon':
+            polygon_df = gpd.GeoDataFrame({'geometry': polygon}, index=[0], crs='epsg:4326')
+        elif polygon.type == 'MultiPolygon':
+            polygon_df = gpd.GeoDataFrame({'geometry': polygon.geoms}, crs='epsg:4326')
+
+        data = gpd.overlay(data, polygon_df, how='intersection')
+        
+        data['bs_id_float'] = data['cell'] / 256
+        data['bs_id_int'] = np.round(data['bs_id_float'],0)
+        data['sector_id'] = data['bs_id_float'] - data['bs_id_int']
+        data['sector_id'] = np.round(data['sector_id'].abs() * 256)
+        # data.to_csv(path_out, index=False)
+        
+        unique_operators = data['net'].unique()
+        unique_cell_ids = data['bs_id_int'].unique()
+        unique_radios = data['radio'].unique()
+
+        data = data.to_dict('records')
+        
+        sites = []
+
+        for unique_operator in unique_operators:
+            for unique_cell_id in unique_cell_ids:
+                for unique_radio in unique_radios:
+
+                    latitudes = []
+                    longitudes = []
+
+                    for row in data:
+                        
+                        if not unique_operator == row['net']:
+                            continue 
+
+                        if not unique_cell_id == row['bs_id_int']:
+                            continue
+
+                        if not unique_radio == row['radio']:
+                            continue
+
+                        lon, lat = row['cellid4326'].split("_")
+                        latitudes.append(float(lat))
+                        longitudes.append(float(lon))
+
+                    if len(latitudes) == 0:
+                        continue
+                    latitude = sum(latitudes) / len(latitudes)
+
+                    if len(longitudes) == 0:
+                        continue
+                    longitude = sum(longitudes) / len(longitudes)
+
+                    sites.append({
+                        "radio": unique_radio,
+                        "net": unique_operator,
+                        "cell_id": unique_cell_id,
+                        "latitude": latitude,
+                        "longitude": longitude,
+                        "cellid4326": "{}_{}".format(latitude, longitude)
+                    })
+
+        if len(sites) == 0:
+            return
             
-            if telecom_buffers is not None:
-                print(f"Number of buffered telecom points: {len(telecom_buffers)}")  # Debug print
+        filename = 'regions_{}_{}.shp'.format(regional_level, iso3)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
+        path_regions = os.path.join(folder, filename)
+        regions = gpd.read_file(path_regions, crs='epsg:4326')#[:1]
+        gid_level = "GID_{}".format(regional_level)
+        region_df = regions[regions[gid_level] == region]['geometry'].values[0]
 
-                self.save_as_shapefile(telecom_buffers, f"telecom_buffers_{self.iso2}.shp")
-                print(f"Number of telecom points after saving shapefile: {len(telecom_features)}")  # Debug print 
+        output = []
 
-                flood_path = scenario_path
-                grid, _ = snail.io.read_raster_metadata(flood_path)
-                prepared = snail.intersection.prepare_points(telecom_features)
-                flood_intersections = snail.intersection.split_points(prepared, grid)
+        for site in sites:
 
-                flood_intersections = snail.intersection.apply_indices(flood_intersections, grid)
-                flood_data = snail.io.read_raster_band_data(flood_path)
-                flood_intersections["inun"] = snail.intersection.get_raster_values_for_splits(
-                    flood_intersections, flood_data
-                )
+            geom = Point(site['longitude'], site['latitude'])
 
-                # Debug printing
-                flood_intersections = flood_intersections[['inun', 'bs_id_int', 'sector_id', 'geometry']]
-                print(flood_intersections.tail(5))
-                print(flood_intersections.columns)
-                print(len(flood_intersections))
+            if not region_df.contains(geom):
+                continue
+            
+            output.append({
+                "radio": site['radio'],
+                "net": site['net'],
+                "cell_id": site['cell_id'],
+                "latitude": site['latitude'],
+                "longitude": site['longitude'],
+                "cellid4326": site['cellid4326'],
+            })
 
-                # Ensure the directory exists
-                output_dir = os.path.join(
-                    "/home/cisc/projects/open-rigbi/scripts/FloodRisk/data/exports", 
-                    self.iso3, 
-                    feature_name
-                )
-                if not os.path.exists(output_dir):
-                    os.makedirs(output_dir)
-                    
-                # Save as GeoDataFrame
-                output_path = os.path.join(
-                    output_dir, 
-                    f"telecom_with_flood_{self.iso2}_{feature_name}_{scenario_name}.csv"
-                )
-                gpd.GeoDataFrame.to_file(flood_intersections, output_path)
+        output = pd.DataFrame(output)
 
-                print(f"Telecom features with flood intersections saved as CSV: {output_path}")
-            else:
-                print("No buffers created around telecom points.")
-        else:
-            print("No telecom features found for the provided country code.")
-"""
+        #filename = "{}_unique.csv".format(region)
+        #folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
+        #path_out = os.path.join(folder, filename)
+        output.to_csv(path_out, index=False)
+
+        return
+
+    def create_national_sites_csv(self, country):
+        """
+        Create a national sites csv layer for a selected country.
+
+        """
+        iso3 = country['iso3']#.values[0]
+
+        filename = "mobile_codes.csv"
+        path = os.path.join(DATA_RAW, filename)
+        mobile_codes = pd.read_csv(path)
+        mobile_codes = mobile_codes[['iso3', 'mcc', 'mnc']].drop_duplicates()
+        all_mobile_codes = mobile_codes[mobile_codes['iso3'] == iso3]
+        all_mobile_codes = all_mobile_codes.to_dict('records')
+
+        output = []
+
+        filename = '{}.csv'.format(iso3)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
+        path_csv = os.path.join(folder, filename)
+
+        ### Produce national sites data layers
+        if os.path.exists(path_csv):
+            return
+
+        print('-site.csv data does not exist')
+        print('-Subsetting site data for {}'.format(iso3))
+
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+
+        filename = "cell_towers_2022-12-24.csv"
+        path = os.path.join(DATA_RAW, filename)
+
+        for row in all_mobile_codes:
+
+            # if not row['mnc'] in [10,2,11,33,34,20,94,30,31,32,27,15,91,89]:
+            #     continue
+
+            mcc = row['mcc']
+            seen = set()
+            chunksize = 10 ** 6
+            for idx, chunk in enumerate(pd.read_csv(path, chunksize=chunksize)):
+
+                country_data = chunk.loc[chunk['mcc'] == mcc]#[:1]
+
+                country_data = country_data.to_dict('records')
+
+                for site in country_data:
+
+                    # if not -4 > site['lon'] > -6:
+                    #     continue
+
+                    # if not 49.8 < site['lat'] < 52:
+                    #     continue
+
+                    if site['cell'] in seen:
+                        continue
+
+                    seen.add(site['cell'])
+
+                    output.append({
+                        'radio': site['radio'],
+                        'mcc': site['mcc'],
+                        'net': site['net'],
+                        'area': site['area'],
+                        'cell': site['cell'],
+                        'unit': site['unit'],
+                        'lon': site['lon'],
+                        'lat': site['lat'],
+                        # 'range': site['range'],
+                        # 'samples': site['samples'],
+                        # 'changeable': site['changeable'],
+                        # 'created': site['created'],
+                        # 'updated': site['updated'],
+                        # 'averageSignal': site['averageSignal']
+                    })
+                # if len(output) > 0:
+                #     break
+
+        if len(output) == 0:
+            return
+
+        output = pd.DataFrame(output)
+        output.to_csv(path_csv, index=False)
+
+        return
+
+
+    def create_national_sites_shp(self, iso3):
+        """
+        Create a national sites csv layer for a selected country.
+
+        """
+        filename = '{}.csv'.format(iso3)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
+        path_csv = os.path.join(folder, filename)
+
+        filename = '{}.shp'.format(iso3)
+        path_shp = os.path.join(folder, filename)
+
+        if not os.path.exists(path_shp):
+
+            # print('-Writing site shapefile data for {}'.format(iso3))
+
+            country_data = pd.read_csv(path_csv)#[:10]
+            country_data = country_data.to_dict('records')
+
+            output = []
+
+            for row in country_data:
+                output.append({
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': [row['lon'],row['lat']]
+                    },
+                    'properties': {
+                        'radio': row['radio'],
+                        'mcc': row['mcc'],
+                        'net': row['net'],
+                        'area': row['area'],
+                        'cell': row['cell'],
+                    }
+                })
+
+            output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
+
+            output.to_file(path_shp)
 
     def process_flooding_layers(self, country):
         """
@@ -237,7 +435,7 @@ class FloodRisk:
         iso3 = country['iso3']
         name = country['country']
 
-        hazard_dir = "/home/cisc/projects/open-rigbi/scripts/FloodRisk/data/raw/flood_hazard"
+        hazard_dir = os.path.join(DATA_RAW, 'flood_hazard')
 
         failures = []
 
@@ -252,7 +450,7 @@ class FloodRisk:
             filename = os.path.basename(scenario).replace('.tif','')
             path_in = os.path.join(hazard_dir, filename + '.tif')
 
-            folder = os.path.join(DATA_PROCESSED, self.iso3, 'hazards', 'flooding')
+            folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding')
             if not os.path.exists(folder):
                 os.makedirs(folder)
             path_out = os.path.join(folder, filename + '.tif')
@@ -277,7 +475,49 @@ class FloodRisk:
 
         return
 
-    def process_regional_flood_layer(self, country, path_in, path_out):
+    def create_national_sites_shp(self, iso3):
+        """
+        Create a national sites csv layer for a selected country.
+
+        """
+        filename = '{}.csv'.format(iso3)
+        folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
+        path_csv = os.path.join(folder, filename)
+
+        filename = '{}.shp'.format(iso3)
+        path_shp = os.path.join(folder, filename)
+
+        if not os.path.exists(path_shp):
+
+            # print('-Writing site shapefile data for {}'.format(iso3))
+
+            country_data = pd.read_csv(path_csv)#[:10]
+            country_data = country_data.to_dict('records')
+
+            output = []
+
+            for row in country_data:
+                output.append({
+                    'type': 'Feature',
+                    'geometry': {
+                        'type': 'Point',
+                        'coordinates': [row['lon'],row['lat']]
+                    },
+                    'properties': {
+                        'radio': row['radio'],
+                        'mcc': row['mcc'],
+                        'net': row['net'],
+                        'area': row['area'],
+                        'cell': row['cell'],
+                    }
+                })
+
+            output = gpd.GeoDataFrame.from_features(output, crs='epsg:4326')
+
+            output.to_file(path_shp)
+
+
+    def process_flood_layer(self, country, path_in, path_out):
         """
         Clip the hazard layer to the chosen country boundary
         and place in desired country folder.
@@ -292,8 +532,8 @@ class FloodRisk:
             The path to write the clipped hazard file.
 
         """
-        iso3 = self.iso3
-        regional_level = self.gid
+        iso3 = country['iso3']
+        regional_level = country['gid_region']
 
         hazard = rasterio.open(path_in, 'r+', BIGTIFF='YES')
 
@@ -345,7 +585,7 @@ class FloodRisk:
 
         return
 
-    def process_regional_flooding_layers(self, country):
+    def process_regional_flooding_layers(self, country, region):
         """
         Process each flooding layer at the regional level.
 
@@ -353,7 +593,6 @@ class FloodRisk:
         scenarios = get_scenarios()
         iso3 = country['iso3']
         name = country['country']
-        region = self.gid
 
         filename = 'coastal_lookup.csv'
         folder = os.path.join(DATA_PROCESSED, iso3, 'coastal')
@@ -400,4 +639,71 @@ class FloodRisk:
             except:
                 print('{} failed: {}'.format(region, scenario))
                 continue
+
+        return
+
+
+    def process_regional_flood_layer(self, country, region, path_in, path_out):
+        """
+        Clip the hazard layer to the chosen country boundary
+        and place in desired country folder.
+
+        Parameters
+        ----------
+        country : dict
+            Contains all desired country information.
+        path_in : string
+            The path for the chosen global hazard file to be processed.
+        path_out : string
+            The path to write the clipped hazard file.
+
+        """
+        iso3 = country['iso3']
+        regional_level = int(country['gid_region'])
+        gid_level = 'GID_{}'.format(regional_level)
+
+        hazard = rasterio.open(path_in, 'r+', BIGTIFF='YES')
+        hazard.nodata = 255
+        hazard.crs.from_epsg(4326)
+
+        iso3 = country['iso3']
+        filename = 'regions_{}_{}.shp'.format(regional_level, iso3)
+        path_country = os.path.join(DATA_PROCESSED, iso3, 'regions', filename)
+
+        if os.path.exists(path_country):
+            regions = gpd.read_file(path_country)
+            region = regions[regions[gid_level] == region]
+        else:
+            print('Must generate national_outline.shp first' )
+            return
+
+        geo = gpd.GeoDataFrame()
+        geo = gpd.GeoDataFrame({'geometry': region['geometry']})
+        coords = [json.loads(geo.to_json())['features'][0]['geometry']]
+
+        out_img, out_transform = mask(hazard, coords, crop=True)
+
+        depths = []
+        for idx, row in enumerate(out_img[0]):
+            for idx2, i in enumerate(row):
+                if i > 0.001 and i < 150:
+                    # coords = raster.transform * (idx2, idx)
+                    depths.append(i)
+                else:
+                    continue
+
+        if sum(depths) < 0.01:
+            return
+
+        out_meta = hazard.meta.copy()
+
+        out_meta.update({"driver": "GTiff",
+                        "height": out_img.shape[1],
+                        "width": out_img.shape[2],
+                        "transform": out_transform,
+                        "crs": 'epsg:4326'})
+
+        with rasterio.open(path_out, "w", **out_meta) as dest:
+                dest.write(out_img)
+
         return

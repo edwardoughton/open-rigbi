@@ -128,8 +128,13 @@ def get_scenarios():
             # if 'inunriver' in scenario:
             #    continue
 
-            if 'inuncoast' in scenario:
+            """
+            if not 'inunriver' in scenario:
                continue
+            """
+
+            if not 'inuncoast' in scenario:
+                continue
             
             # if 'inuncoast' and 'wtsub' in scenario:
             #     #if 'historical' in scenario:
@@ -226,7 +231,8 @@ def process_country_shapes(iso3):
         Contains all desired country information.
 
     """
-    path = os.path.join(DATA_PROCESSED, iso3)
+    # path = os.path.join(DATA_PROCESSED, iso3)
+    path = "/home/cisc/projects/open-rigbi/data/processed/{}".format(iso3)
 
     if os.path.exists(os.path.join(path, 'national_outline.shp')):
         return 'Completed national outline processing'
