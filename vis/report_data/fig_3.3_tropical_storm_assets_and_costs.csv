@@ -1,31 +1,3 @@
-interaction,continent,unit,low,mean,high,,,interaction,continent,unit,low,mean,high,
-0.01% 2050,Africa,costs_usd_billions,0.0043,0.0058,0.0076,1,,0.01% Historical,Africa,costs_usd_billions,NA,0.003162085,NA,0
-0.01% 2050,Asia,costs_usd_billions,0.2972,0.3254,0.3684,32,,0.01% Historical,Asia,costs_usd_billions,NA,0.231746212,NA,33
-0.01% 2050,Europe,costs_usd_billions,0.1245,0.1971,0.237,20,,0.01% Historical,Europe,costs_usd_billions,NA,0.136204812,NA,19
-0.01% 2050,North America,costs_usd_billions,0.3378,0.3854,0.4194,38,,0.01% Historical,North America,costs_usd_billions,NA,0.286403745,NA,41
-0.01% 2050,Oceania,costs_usd_billions,0.0278,0.0635,0.091,6,,0.01% Historical,Oceania,costs_usd_billions,NA,0.017563999,NA,3
-0.01% 2050,South America,costs_usd_billions,0.0256,0.0327,0.0422,3,,0.01% Historical,South America,costs_usd_billions,NA,0.02471971,NA,4
-0.1% 2050,Africa,costs_usd_billions,0.0023,0.0025,0.0027,,,0.1% Historical,Africa,costs_usd_billions,NA,0.000540558,NA,
-0.1% 2050,Asia,costs_usd_billions,0.1068,0.163,0.2387,,,0.1% Historical,Asia,costs_usd_billions,NA,0.136261483,NA,
-0.1% 2050,Europe,costs_usd_billions,0.0133,0.0393,0.0527,,,0.1% Historical,Europe,costs_usd_billions,NA,4.98E-05,NA,
-0.1% 2050,North America,costs_usd_billions,0.1137,0.1233,0.1298,,,0.1% Historical,North America,costs_usd_billions,NA,0.098352623,NA,
-0.1% 2050,Oceania,costs_usd_billions,0.0113,0.0159,0.0203,,,0.1% Historical,Oceania,costs_usd_billions,NA,0.003615808,NA,
-0.1% 2050,South America,costs_usd_billions,0.0055,0.0061,0.0065,,,0.1% Historical,South America,costs_usd_billions,NA,0.005109936,NA,
-0.2% 2050,Africa,costs_usd_billions,5.00E-04,8.00E-04,0.0012,,,0.2% Historical,Africa,costs_usd_billions,NA,0.00016315,NA,
-0.2% 2050,Asia,costs_usd_billions,0.0955,0.1212,0.1841,,,0.2% Historical,Asia,costs_usd_billions,NA,0.096544851,NA,
-0.2% 2050,Europe,costs_usd_billions,8.00E-04,0.0068,0.0148,,,0.2% Historical,Europe,costs_usd_billions,NA,0,NA,
-0.2% 2050,North America,costs_usd_billions,0.0745,0.0823,0.0882,,,0.2% Historical,North America,costs_usd_billions,NA,0.059353223,NA,
-0.2% 2050,Oceania,costs_usd_billions,0.004,0.0109,0.0136,,,0.2% Historical,Oceania,costs_usd_billions,NA,0.001219874,NA,
-0.2% 2050,South America,costs_usd_billions,0.0034,0.0036,0.0039,,,0.2% Historical,South America,costs_usd_billions,NA,0.003081969,NA,
-0.5% 2050,Africa,costs_usd_billions,1.00E-04,2.00E-04,2.00E-04,,,0.5% Historical,Africa,costs_usd_billions,NA,0.000179513,NA,
-0.5% 2050,Asia,costs_usd_billions,0.0805,0.0854,0.0924,,,0.5% Historical,Asia,costs_usd_billions,NA,0.064587587,NA,
-0.5% 2050,Europe,costs_usd_billions,0,1.00E-04,1.00E-04,,,0.5% Historical,Europe,costs_usd_billions,NA,0,NA,
-0.5% 2050,North America,costs_usd_billions,0.0256,0.0295,0.033,,,0.5% Historical,North America,costs_usd_billions,NA,0.024692665,NA,
-0.5% 2050,Oceania,costs_usd_billions,0.0021,0.0036,0.0046,,,0.5% Historical,Oceania,costs_usd_billions,NA,0.000214458,NA,
-0.5% 2050,South America,costs_usd_billions,2.00E-04,3.00E-04,4.00E-04,,,0.5% Historical,South America,costs_usd_billions,NA,0.00035743,NA,
-1% 2050,Africa,costs_usd_billions,2.00E-04,0.0002,2.00E-04,0,,1% Historical,Africa,costs_usd_billions,NA,0.000221837,NA,1
-1% 2050,Asia,costs_usd_billions,0.0658,0.0733,0.0797,83,,1% Historical,Asia,costs_usd_billions,NA,0.016089077,NA,56
-1% 2050,Europe,costs_usd_billions,0, -   ,0, -   ,,1% Historical,Europe,costs_usd_billions,NA,0,NA,0
-1% 2050,North America,costs_usd_billions,0.0112,0.0143,0.0167,16,,1% Historical,North America,costs_usd_billions,NA,0.012260115,NA,43
-1% 2050,Oceania,costs_usd_billions,0,0.0011,0.0018,1,,1% Historical,Oceania,costs_usd_billions,NA,0,NA,0
-1% 2050,South America,costs_usd_billions,0, -   ,0, -   ,,1% Historical,South America,costs_usd_billions,NA,0,NA,0
+"","probability","model","year","interaction","cell_count_baseline","unit"
+"data1",NA,integer(0),2050,NA,numeric(0),cells_vulnerable_millions
+"data",NA,integer(0),2050,NA,numeric(0),costs_usd_billions
