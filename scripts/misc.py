@@ -14,7 +14,7 @@ CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
 BASE_PATH = CONFIG['file_locations']['base_path']
 
-DATA_RAW = os.path.join(BASE_PATH, 'raw')
+DATA_RAW = os.path.join(BASE_PATH, '..', '..', 'data_raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 
@@ -68,19 +68,19 @@ def get_regions(country, region_type):
 
     """
     if region_type == 'use_csv':
-        filename = 'regions_{}_{}.shp'.format(
+        filename = 'regions_{}_{}.gpkg'.format(
             country['lowest'],
             country['iso3']
         )
         folder = os.path.join(DATA_PROCESSED, country['iso3'], 'regions')
     elif region_type in [1, 2]:
-        filename = 'regions_{}_{}.shp'.format(
+        filename = 'regions_{}_{}.gpkg'.format(
             region_type,
             country['iso3']
         )
         folder = os.path.join(DATA_PROCESSED, country['iso3'], 'regions')
     elif region_type == 0:
-        filename = 'national_outline.shp'
+        filename = 'national_outline.gpkg'
         folder = os.path.join(DATA_PROCESSED, country['iso3'])
     else:
         print("Did not recognize region_type arg provided to get_regions()")
@@ -91,9 +91,9 @@ def get_regions(country, region_type):
         print('This path did not exist/load: {}'.format(path))
         return []
 
-    regions = gpd.read_file(path, crs='epsg:4326')#[:1]
+    regions = gpd.read_file(path)#[:1]
     regions = regions.to_dict('records')
-    
+
     return regions
 
 
@@ -126,29 +126,30 @@ def get_scenarios():
 
             # if 'inunriver' in scenario:
             #    continue
+            # if 'inuncoast' in scenario:
+            #    continue
 
-            if 'inuncoast' in scenario:
-               continue
-            
-            # if 'inuncoast' and 'wtsub' in scenario:
-            #     #if 'historical' in scenario:
-            #     #    if '2030' or '2050' or '2080' in scenario:
-            #     #    continue
-            #     if not 'perc' in scenario:
-            #         continue
-            #     if not 'hist' in scenario:
-            #         output.add(scenario)
+            if 'inuncoast' and 'wtsub' in scenario:
+                #if 'historical' in scenario:
+                #    if '2030' or '2050' or '2080' in scenario:
+                #    continue
+                # if not 'perc' in scenario:
+                #     continue
+                if not 'hist' in scenario:
+                    output.add(scenario)
 
             if 'inunriver' in scenario: # and 'MIROC-ESM-CHEM' in scenario:
+
+                # if '00IPSL' in scenario:
+                #     continue
+                if 'GFDL' in scenario:
+                    continue
+                if 'NorESM1' in scenario:
+                    continue
                 if not 'historical' in scenario:
                     output.add(scenario)
-            #else:
-            #    continue
 
         if 'historical' in scenario:
-
-            #if 'inuncoast' in scenario:
-            #    continue
 
             if any(x in scenario for x in return_periods): #specify return periods
                 if 'inuncoast_historical_wtsub_hist' in scenario:
@@ -159,24 +160,8 @@ def get_scenarios():
                     continue
 
     output = list(output)
-    output.sort()
-    # output = [#'inuncoast_rcp4p5_wtsub_2050_rp1000_0',
-    # 'inuncoast_rcp8p5_wtsub_2080_rp1000_0_perc_05',
-    # 'inuncoast_rcp4p5_wtsub_2050_rp0500_0',
-    # 'inuncoast_rcp8p5_wtsub_2050_rp0500_0',
-    # 'inuncoast_rcp8p5_wtsub_2080_rp0500_0',
-    # 'inuncoast_rcp4p5_wtsub_2080_rp0500_0'
-    # 'inuncoast_rcp8p5_wtsub_2080_rp0250_0_perc_05',
-    # 'inuncoast_rcp8p5_wtsub_2080_rp0100_0_perc_05',
-    # 'inuncoast_rcp8p5_wtsub_2050_rp1000_0_perc_05',
-    # 'inuncoast_rcp8p5_wtsub_2050_rp0500_0_perc_05',
-    # 'inuncoast_rcp8p5_wtsub_2050_rp0250_0_perc_05',
-    # 'inuncoast_rcp8p5_wtsub_2050_rp0100_0_perc_05',
-    # ]
-    # print(output)
-    #output = ['inuncoast_rcp4p5_wtsub_2030_rp0250_0']
 
-    return output #['inuncoast_rcp4p5_wtsub_2080_rp0100_0']
+    return output
 
 
 def get_tropical_storm_scenarios():
@@ -185,27 +170,32 @@ def get_tropical_storm_scenarios():
     """
     output = set()
 
-    hazard_dir = os.path.join(DATA_RAW,  'storm_data')
+    hazard_dir = os.path.join(BASE_PATH, 'raw', 'storm_data')
 
     scenarios = os.listdir(os.path.join(hazard_dir))#[:20]
     scenarios = [i.replace('.tif', '') for i in scenarios]
 
     return_periods = [
-        "10_YR_RP",
-        "50_YR_RP",
+        # "10_YR_RP",
+        # "50_YR_RP",
         "100_YR_RP",
         "200_YR_RP",
         "500_YR_RP",
         "1000_YR_RP",
-        "10000_YR_RP",
+        # "10000_YR_RP",
     ]
 
     for scenario in scenarios:
 
-        # if not 'HadGEM' in scenario:
-        #     continue
+        if 'xml' in scenario:
+            continue
 
         if any(x in scenario for x in return_periods): #specify return periods
+
+            if 'constant' in scenario: 
+                continue
+            if 'HadGEM3' in scenario:
+                continue
 
             output.add(scenario)
 
@@ -225,22 +215,19 @@ def process_country_shapes(iso3):
         Contains all desired country information.
 
     """
-    path = os.path.join(DATA_PROCESSED, iso3)
+    folder = os.path.join(DATA_PROCESSED, iso3)
+    path_out = os.path.join(folder, 'national_outline.gpkg')
 
-    if os.path.exists(os.path.join(path, 'national_outline.shp')):
+    if os.path.exists(path_out):
         return 'Completed national outline processing'
 
     print('Processing country shapes')
 
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-    shape_path = os.path.join(path, 'national_outline.shp')
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
     path = os.path.join(DATA_RAW, 'gadm36_levels_shp', 'gadm36_0.shp')
-
     countries = gpd.read_file(path)
-
     single_country = countries[countries.GID_0 == iso3].reset_index()
 
     single_country = single_country.copy()
@@ -256,7 +243,7 @@ def process_country_shapes(iso3):
     single_country = single_country.merge(
         load_glob_info, left_on='GID_0', right_on='iso3')
 
-    single_country.to_file(shape_path, driver='ESRI Shapefile')
+    single_country.to_file(path_out, driver='GPKG')
 
     return
 
@@ -276,10 +263,10 @@ def remove_small_shapes(x):
         Shapely MultiPolygon geometry without tiny shapes.
 
     """
-    if x.geometry.type == 'Polygon':
+    if x.geometry.geom_type == 'Polygon':
         return x.geometry
 
-    elif x.geometry.type == 'MultiPolygon':
+    elif x.geometry.geom_type == 'MultiPolygon':
 
         area1 = 0.01
         area2 = 50
@@ -319,12 +306,12 @@ def process_regions(iso3, level):
 
     for regional_level in range(1, int(level) + 1):
 
-        filename = 'regions_{}_{}.shp'.format(regional_level, iso3)
+        filename = 'regions_{}_{}.gpkg'.format(regional_level, iso3)
         folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
         path_processed = os.path.join(folder, filename)
 
-        # if os.path.exists(path_processed):
-        #     continue
+        if os.path.exists(path_processed):
+            continue
 
         print('Processing GID_{} region shapes'.format(regional_level))
 
@@ -344,7 +331,7 @@ def process_regions(iso3, level):
         regions['geometry'] = regions.apply(remove_small_shapes, axis=1)
 
         try:
-            regions.to_file(path_processed, driver='ESRI Shapefile')
+            regions.to_file(path_processed, driver='GPKG')
         except:
             print('Unable to write {}'.format(filename))
             pass

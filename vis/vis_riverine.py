@@ -141,7 +141,7 @@ def collect_results(countries):
 
     if not os.path.exists(path):
 
-        folder_in = os.path.join(VIS, '..', 'regional_results_riv_flooding_final')
+        folder_in = os.path.join(BASE_PATH, 'processed', 'results', 'regional')
 
         all_data = []
 
@@ -353,7 +353,7 @@ def plot_regional_results(regions, path, countries):
 
     base = regions.plot(column='bin', ax=ax, cmap='viridis', linewidth=0, #inferno_r
         legend=True, antialiased=False)
-    countries.plot(ax=base, facecolor="none", edgecolor='grey', linewidth=0.15)
+    countries.plot(ax=base, facecolor="none", edgecolor='grey', linewidth=0.1)
     # zeros = zeros.plot(ax=base, color='dimgray', edgecolor='dimgray', linewidth=0)
     # non_imf.plot(ax=base, color='lightgrey', edgecolor='lightgrey', linewidth=0)
 
@@ -379,16 +379,16 @@ if __name__ == "__main__":
 
     countries_shps = get_country_outlines(countries)
 
-    results = collect_results(countries)#[:300]
-    # #### out = pd.DataFrame(results)
-    # #### out.to_csv(os.path.join(VIS, '..', 'data.csv'))
+    # results = collect_results(countries)#[:300]
+    # out = pd.DataFrame(results)
+    # out.to_csv(os.path.join(VIS, '..', 'data.csv'))
 
     # regions = get_regional_shapes(countries)#[:1000]
     # regions = combine_data(results, regions)
     # regions = pd.DataFrame(regions)
 
-    # #### regions = regions[['GID_id', 'cost', 'decile']]
-    # #### regions.to_csv(os.path.join(VIS, '..', 'test.csv'))
+    # regions = regions[['GID_id', 'cost', 'decile']]
+    # regions.to_csv(os.path.join(VIS, '..', 'test.csv'))
 
     path_in_shp = os.path.join(VIS,'..','data','country_data_riverine.shp')
     regions = gpd.read_file(path_in_shp, crs='epsg:4326')#[:1000]

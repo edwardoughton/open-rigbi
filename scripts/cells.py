@@ -10,6 +10,7 @@ import os
 import json
 import configparser
 import pandas as pd
+import geopandas as gpd
 
 from misc import get_countries, get_regions
 
@@ -41,14 +42,14 @@ def count_cells(country):
         
         region = region["GID_{}".format(regional_level)]
         
-        filename = "{}_unique.csv".format(region)
+        filename = "{}_unique.gpkg".format(region)
         path_in = os.path.join(folder, filename)
         
         if not os.path.exists(path_in):
             print("path_in did not exist: {}".format(path_in))
             continue
         try:
-            data = pd.read_csv(path_in)
+            data = gpd.read_file(path_in)
         except:
             print('Failed to read in: {}'.format(path_in))
             continue

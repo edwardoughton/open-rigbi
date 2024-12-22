@@ -8,11 +8,16 @@ import json
 import configparser
 import pandas as pd
 import geopandas as gpd
+from shapely.geometry import Point
 import rasterio
 from rasterio.mask import mask
 import rasterio.merge
-# import glob
-# from shapely.geometry import box
+from rasterio.transform import rowcol
+import time
+from tqdm import tqdm
+
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, module="geopandas")
 
 from misc import (get_countries, get_scenarios, get_regions,
     remove_small_shapes, get_tropical_storm_scenarios)
@@ -52,16 +57,16 @@ def process_tropical_storm_layers(countries, scenario):
  
         if not os.path.exists(path_out):
 
-            print('--{}: {}'.format(name, filename))
+            # print('--{}: {}'.format(name, filename))
 
             if not os.path.exists(folder):
                 os.makedirs(folder)
 
-            try:
-                process_storm_layer(country, path_in, path_out)
-            except:
-                print('{} failed: {}'.format(country['iso3'], scenario))
-                continue
+            # try:
+            process_storm_layer(country, path_in, path_out)
+            # except:
+                # print('{} failed: {}'.format(country['iso3'], scenario))
+                # continue
 
     return
 
@@ -90,12 +95,12 @@ def process_storm_layer(country, path_in, path_out):
 
     iso3 = country['iso3']
     path_country = os.path.join(DATA_PROCESSED, iso3,
-        'national_outline.shp')
+        'national_outline.gpkg')
 
     if os.path.exists(path_country):
         country = gpd.read_file(path_country)
     else:
-        print('Must generate national_outline.shp first' )
+        print('Must generate national_outline.gpkg first' )
         return
 
     if os.path.exists(path_out):
@@ -140,7 +145,7 @@ def process_regional_storm_layers(countries, scenario):
 
     for country in countries:
 
-        # if not country['iso3'] == 'BGD':
+        # if not country['iso3'] == 'USA':
         #    continue
 
         iso3 = country['iso3']
@@ -151,11 +156,14 @@ def process_regional_storm_layers(countries, scenario):
         filename = os.path.basename(scenario).replace('.tif','')
         path_in = os.path.join(hazard_dir, filename + '.tif')
 
+        if not os.path.exists(path_in):
+            continue
+
         folder = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'tropical_storm', 'regional')
         if not os.path.exists(folder):
             os.makedirs(folder)
 
-        regions = get_regions(country, regional_level)
+        regions = get_regions(country, regional_level)#[:1]
 
         if len(regions) == 0:
             continue
@@ -168,14 +176,15 @@ def process_regional_storm_layers(countries, scenario):
             #if not region == 'USA.10.42_1':
             #    continue
 
-            if not os.path.exists(path_out):
+            if country['iso3'] == 'USA' and region_series['NAME_1'] == 'Alaska':
+                continue
 
-                print('--{}: {}'.format(region, filename))
+            if not os.path.exists(path_out):
 
                 if not os.path.exists(folder):
                    os.makedirs(folder)
 
-                try:
+                try:  
                     process_regional_storm_layer(country, region, path_in, path_out)
                 except:
                     print('{} failed: {}'.format(region, scenario))
@@ -208,23 +217,21 @@ def process_regional_storm_layer(country, region, path_in, path_out):
     hazard.crs.from_epsg(4326)
 
     iso3 = country['iso3']
-    filename = 'regions_{}_{}.shp'.format(regional_level, iso3)
+    filename = 'regions_{}_{}.gpkg'.format(regional_level, iso3)
     path_country = os.path.join(DATA_PROCESSED, iso3, 'regions', filename)
 
     if os.path.exists(path_country):
         regions = gpd.read_file(path_country)
         region = regions[regions[gid_level] == region]
     else:
-        print('Must generate national_outline.shp first' )
+        print('Must generate national_outline.gpkg first' )
         return
 
     if os.path.exists(path_out):
         return
 
     geo = gpd.GeoDataFrame()
-
     geo = gpd.GeoDataFrame({'geometry': region['geometry']})
-
     coords = [json.loads(geo.to_json())['features'][0]['geometry']]
 
     out_img, out_transform = mask(hazard, coords, crop=True)
@@ -262,7 +269,7 @@ def query_tropical_storm_layers(countries, scenario):
     """
     for country in countries:
 
-        # if not country['iso3'] == 'BGD':
+        # if not country['iso3'] == 'USA':
         #    continue
 
         iso3 = country['iso3']
@@ -270,7 +277,7 @@ def query_tropical_storm_layers(countries, scenario):
         regional_level = int(country['gid_region'])
         gid_level = 'GID_{}'.format(regional_level) #regional_level
 
-        print('Working on {}'.format(iso3))
+        # print('Working on {}'.format(iso3))
 
         regions = get_regions(country, regional_level)
 
@@ -282,22 +289,22 @@ def query_tropical_storm_layers(countries, scenario):
 
             region = region_series['GID_{}'.format(regional_level)]
 
-            #if not region == 'USA.10.43_1':
+            # if not region == 'USA.10.43_1':
             #    continue
 
             output = []
 
-            filename = '{}_{}_unique.csv'.format(region, os.path.basename(scenario).replace('.tif',''))
+            filename = '{}_{}_unique.gpkg'.format(region, os.path.basename(scenario).replace('.tif',''))
             folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'tropical_storm_scenarios')
             if not os.path.exists(folder_out):
                 os.makedirs(folder_out)
             path_output = os.path.join(folder_out, filename)
 
-            if os.path.exists(path_output):
-               print('storm layer output file already exists: {}'.format(path_output))
-               continue
+            # if os.path.exists(path_output):
+            #    print('storm layer output file already exists: {}'.format(path_output))
+            #    continue
 
-            filename = '{}_unique.csv'.format(region)
+            filename = '{}_unique.gpkg'.format(region)
             # filename = '{}_unique.csv'.format(region)
             folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
             path = os.path.join(folder, filename)
@@ -313,41 +320,50 @@ def query_tropical_storm_layers(countries, scenario):
                 # print('scenario_path does not exist: {}'.format(scenario_path))
                 continue
 
-            try:
-                sites = pd.read_csv(path)#[:10]
-            except:
-                continue
-            sites = sites.to_dict('records')
+            # try:
+            sites = gpd.read_file(path)#[:10]
+            # except:
+            #     continue
+            # sites = sites.to_dict('records')
 
             failures = 0
 
-            for site in sites:
+            with rasterio.open(scenario_path) as src:
+                raster_data = src.read(1)
+                transform = src.transform
 
-                x = float(site['cellid4326'].split('_')[0])
-                y = float(site['cellid4326'].split('_')[1])
+                # src.kwargs = {'nodata': 255}
 
-                with rasterio.open(scenario_path) as src:
+                for _, site in sites.iterrows():
 
-                    src.kwargs = {'nodata': 255}
+                    x = float(site['longitude'])
+                    y = float(site['latitude'])
 
-                    coords = [(y, x)]
+                    row, col = rowcol(transform, x, y)
 
-                    wind_speed = [sample[0] for sample in src.sample(coords)][0]
+                    # Check if coordinates are within raster bounds
+                    if 0 <= row < raster_data.shape[0] and 0 <= col < raster_data.shape[1]:
+                        wind_speed = raster_data[row, col]
+                    else:
+                        wind_speed = 255  # Handle out-of-bounds
 
-                    if wind_speed == 255:
-                        wind_speed = 0
+                    wind_speed = max(wind_speed, 0)
 
+                    # if wind_speed == 255:
+                    #     wind_speed = 0
+
+                    # Append processed data
                     output.append({
-                        'radio': site['radio'],
-                        # 'mcc': site['mcc'],
-                        'net': site['net'],
-                        # 'area': site['area'],
-                        'cell': site['cell_id'],
-                        'gid_level': gid_level,
-                        'gid_id': region,
-                        'cellid4326': site['cellid4326'],
-                        # 'cellid3857': site['cellid3857'],
-                        'wind_speed': wind_speed,
+                        'geometry': Point(x, y),
+                        'properties': {
+                            'radio': site.get('radio'),
+                            'net': site.get('net'),
+                            'latitude': site['latitude'],
+                            'longitude': site['longitude'],
+                            'gid_level': gid_level,
+                            'gid_id': region,
+                            'wind_speed': wind_speed,
+                        }
                     })
 
             if len(output) == 0:
@@ -356,9 +372,13 @@ def query_tropical_storm_layers(countries, scenario):
             if not os.path.exists(folder_out):
                 os.makedirs(folder_out)
 
-            output = pd.DataFrame(output)
+            output = gpd.GeoDataFrame.from_features(output)
+            output.set_crs("EPSG:4326", inplace=True)
+            
+            if os.path.exists(path_output):
+                os.remove(path_output)
 
-            output.to_csv(path_output, index=False)
+            output.to_file(path_output, driver="GPKG")
 
     return
 
@@ -378,7 +398,7 @@ def estimate_results(countries, scenario):
 
     for country in countries:
 
-        # if not country['iso3'] == 'BGD':
+        # if not country['iso3'] == 'USA':
         #    continue
 
         iso3 = country['iso3']
@@ -386,7 +406,7 @@ def estimate_results(countries, scenario):
         regional_level = int(country['gid_region'])
         gid_level = 'GID_{}'.format(regional_level) #regional_level
 
-        print('Working on {}'.format(iso3))
+        # print('Working on {}'.format(iso3))
 
         regions = get_regions(country, regional_level)
 
@@ -398,7 +418,7 @@ def estimate_results(countries, scenario):
 
             region = region_series['GID_{}'.format(regional_level)]
 
-            #if not region == 'USA.10.43_1':
+            # if not region == 'USA.10.43_1':
             #    continue
 
             output = []
@@ -406,21 +426,22 @@ def estimate_results(countries, scenario):
             filename = '{}_{}_unique.csv'.format(region, scenario)
             folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario)
             path_output = os.path.join(folder_out, filename)
-
+            # print(path_output)
             # if os.path.exists(path_output):
             #    print('results file already exists {}'.format(path_output))
             #    continue
 
-            filename = '{}_{}_unique.csv'.format(region, scenario)
+            filename = '{}_{}_unique.gpkg'.format(region, scenario)
             folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'tropical_storm_scenarios')
             path_in = os.path.join(folder, filename)
             if not os.path.exists(path_in):
                 # print('path_in does not exist {}'.format(path_in))
                 continue
-            try:
-                sites = pd.read_csv(path_in)#[:10]
-            except:
-                continue
+            # print(path_in)
+            # try:
+            sites = gpd.read_file(path_in)#[:10]
+            # except:
+            #     continue
             sites = sites.to_dict('records')
 
             for site in sites:
@@ -450,18 +471,18 @@ def estimate_results(countries, scenario):
                     # 'mcc': site['mcc'],
                     'net': site['net'],
                     # 'area': site['area'],
-                    'cell': site['cell'],
+                    # 'cell': site['cell'],
                     'gid_level': gid_level,
                     'gid_id': region,
-                    'cellid4326': site['cellid4326'],
+                    # 'cellid4326': site['cellid4326'],
                     # 'cellid3857': site['cellid3857'],
                     'wind_speed': site['wind_speed'],
                     'damage_low': damage_low,
                     'damage_baseline': damage_baseline,
                     'damage_high': damage_high,
-                    'cost_usd_low': round(40000 * damage_low),
-                    'cost_usd_baseline': round(40000 * damage_baseline),
-                    'cost_usd_high': round(40000 * damage_high),
+                    'cost_usd_low': round(33333.333 * damage_low),
+                    'cost_usd_baseline': round(33333.333 * damage_baseline),
+                    'cost_usd_high': round(33333.333 * damage_high),
                     'microwave_misalignment': microwave_misalignment,
                     'loss_of_cell_antenna': loss_of_cell_antenna,
                     'loss_of_off_site_power': loss_of_off_site_power,
@@ -560,7 +581,7 @@ def query_original_fragility_curve(f_curve, speed):
     if speed >= max([d['wind_speed_upper_m'] for d in f_curve]):
         return 1
 
-    print('fragility curve failure: {}'.format(speed))
+    # print('fragility curve failure: {}'.format(speed))
 
     return 0
 
@@ -618,7 +639,7 @@ def convert_to_regional_results(countries, scenario):
         regional_level = int(country['gid_region'])
         gid_level = 'GID_{}'.format(regional_level) #regional_level
 
-        print('Working on {}'.format(iso3))
+        # print('Working on {}'.format(iso3))
 
         regions = get_regions(country, regional_level)
 
@@ -769,15 +790,21 @@ def convert_to_regional_results(countries, scenario):
 
 if __name__ == "__main__":
 
-    args = sys.argv
+    start_time = time.time()
+    # args = sys.argv
+    # scenario = args[1]
 
-    scenario = args[1]
-
+    scenarios = get_tropical_storm_scenarios()
     countries = get_countries()
 
-    # process_tropical_storm_layers(countries, scenario)
-    # process_regional_storm_layers(countries, scenario)
-    # query_tropical_storm_layers(countries, scenario)
-    # estimate_results(countries, scenario)
-    convert_to_regional_results(countries, scenario)
+    for scenario in tqdm(scenarios):
 
+        process_tropical_storm_layers(countries, scenario)
+        process_regional_storm_layers(countries, scenario)
+        query_tropical_storm_layers(countries, scenario)
+        estimate_results(countries, scenario)
+        convert_to_regional_results(countries, scenario)
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"Function executed in {elapsed_time:.2f} seconds")

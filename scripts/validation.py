@@ -2,7 +2,6 @@
 Collect validation results.
 
 """
-import sys
 import os
 import configparser
 import pandas as pd
@@ -24,14 +23,19 @@ def collect(countries, scenarios):
     # gid_level = 'GID_{}'.format(country['gid_region'])
 
     folder_in = os.path.join(DATA_PROCESSED, 'results', 'validation', 'country_data')
-    #folder_out = os.path.join(DATA_PROCESSED, 'results', 'validation')
+    # folder_out = os.path.join(DATA_PROCESSED, 'results', 'validation')
+
+    # folder_in = os.path.join(BASE_PATH, '..','results','validation','country_data')
+
+    if not os.path.exists(folder_in):
+        os.makedirs(folder_in)
 
     for country in countries:
         
         #if not country['iso3'] in ['ARG']:
         #    continue
 
-        print("Working on {}".format(country['iso3']))
+        # print("Working on {}".format(country['iso3']))
 
         output = []
 
@@ -42,7 +46,7 @@ def collect(countries, scenarios):
 
             scenario = os.path.basename(scenario_path).replace('.tif','')
 
-            print('Working on {}'.format(scenario))
+            # print('Working on {}'.format(scenario))
 
             country_folder = os.path.join(folder_in, country['iso3'], 'regional', scenario)
 
@@ -139,7 +143,10 @@ def collect_all(countries):
     Collect all results. 
 
     """
-    folder_in = os.path.join(DATA_PROCESSED,'results','validation','country_data')
+    folder_in = os.path.join(BASE_PATH, '..','results','validation','country_data')
+
+    if not os.path.exists(folder_in):
+        os.makedirs(folder_in)
 
     output = []
 

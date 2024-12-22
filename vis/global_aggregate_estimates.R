@@ -1,16 +1,12 @@
 ## Visualization script for climate scenarios
 library(tidyverse)
 library(ggpubr)
-# install.packages("viridis")
-# library(viridis)
-# install.packages("llply")
-# require(llply)
 library(stringr)
 
 ###################
 #####Aggregate cells
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, 'results_coastal_flooding_final')
+data_directory = file.path(folder,'..','data','processed','results')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="inuncoast")
@@ -163,7 +159,7 @@ data$perc = NULL
 
 ####
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-path_in = file.path(folder, '..', 'data','raw','countries.csv')
+path_in = file.path(folder, '..', 'data','countries.csv')
 countries = read_csv(path_in)
 countries = select(countries, iso3, continent, income_group)
 data = merge(data, countries, by='iso3')
@@ -209,9 +205,9 @@ plot1 =
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
-       title = "Estimated Coastal Flooding Impact to Mobile Voice/Data Cells",
+       title = "Estimated Coastal Flooding Impact to Mobile Voice/Data Basestations",
        subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
-       x = "Annual Probability", y = "Cells (Thousands)", fill=NULL) +
+       x = "Annual Probability", y = "Basestations (Thousands)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
@@ -254,11 +250,11 @@ plot2 = ggplot(data_aggregated,
                 lwd = 0.2,
                 show.legend = FALSE, width=0.3,  color="#FF0000FF") +
   geom_text(aes(label = paste(round(mean,2),"Bn")), size = 1.8,
-            position = position_dodge(1), vjust =.5, hjust =-.6, angle = 90)+
+            position = position_dodge(1), vjust =.5, hjust =-.6, angle = 90) +
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
-       title = "Estimated Coastal Flooding Damage Costs to Cellular Voice/Data Cells",
+       title = "Estimated Coastal Flooding Damage Costs to Cellular Voice/Data Basestations",
        subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
        x = "Annual Probability", y = "Damage Cost (USD Billions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -266,7 +262,7 @@ plot2 = ggplot(data_aggregated,
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+3.5)) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+1)) +
   facet_wrap(~year, ncol=4, nrow=1)
 
 ggarrange(
@@ -289,7 +285,6 @@ filename = 'fig_3.2_coastal_flooding_assets_and_costs.csv'
 path = file.path(folder, 'report_data', filename)
 write.csv(output, path)
 
-
 data1$unit = 'cells_vulnerable_thousands'
 data_aggregated$unit = 'costs_usd_billions'
 output = rbind(data1, data_aggregated)
@@ -303,7 +298,7 @@ write.csv(output, path)
 ###################
 #####Aggregate cells
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, 'results_riv_flooding_final')
+data_directory = file.path(folder,'..','data','processed','results')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="inunriver")
@@ -471,7 +466,7 @@ data = data[complete.cases(data),]
 
 ####
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-path_in = file.path(folder, '..', 'data','raw','countries.csv')
+path_in = file.path(folder, '..', 'data','countries.csv')
 countries = read_csv(path_in)
 countries = select(countries, iso3, continent, income_group)
 data = merge(data, countries, by='iso3')
@@ -546,7 +541,7 @@ plot1 = ggplot(inunriver,
   labs(colour=NULL,
        title = "Estimated Riverine Flooding Impact to Mobile Voice/Data Cells",
        subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
-       x = "Annual Probability", y = "Sites (Millions)", fill=NULL) +
+       x = "Annual Probability", y = "Basestations (Millions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
@@ -609,7 +604,7 @@ plot2 =
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
-       title = "Estimated Riverine Flooding Impact to Mobile Voice/Data Cells",
+       title = "Estimated Riverine Flooding Impact to Mobile Voice/Data Basestations",
        subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
        x = "Annual Probability", y = "Damage Cost (USD Billions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -636,7 +631,7 @@ ggsave(path, units="in", width=8, height=6, dpi=300)
 ########################################################
 #####Tropical storms
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, 'results_tropical_storm')
+data_directory = file.path(folder,'..','data','processed','results')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="STORM")
@@ -693,7 +688,7 @@ data$probability[data$rp == 10000] = "0.01%" # (1/10000) * 100 = .4%
 
 ###
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-path_in = file.path(folder, '..', 'data','raw','countries.csv')
+path_in = file.path(folder, '..', 'data','countries.csv')
 countries = read_csv(path_in)
 countries = select(countries, iso3, continent, income_group)
 data = merge(data, countries, by='iso3')
@@ -825,6 +820,7 @@ df_errorbar <-
     high = sum(high)
   )
 
+max_y_value = max(data$mean)
 
 plot1 = ggplot(data,
                aes(x=interaction, y=mean, fill=continent)) +
@@ -839,15 +835,15 @@ plot1 = ggplot(data,
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
-       title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Cells",
+       title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Basestations",
        subtitle = "Reported by Return Period, Climate Scenario and Continent.",
-       x = "", y = "Cells (Millions)", fill=NULL) +
+       x = "", y = "Basestations (Millions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=7, title='Continent')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, 2.6))
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+1))
 
 data1 = data
 
@@ -858,7 +854,7 @@ data1 = data
 ########################################################
 #####Tropical storms
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, 'results_tropical_storm')
+data_directory = file.path(folder,'..','data','processed','results')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="STORM")
@@ -915,7 +911,7 @@ data$probability[data$rp == 10000] = "0.01%" # (1/10000) * 100 = .4%
 
 ###
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-path_in = file.path(folder, '..', 'data','raw','countries.csv')
+path_in = file.path(folder, '..', 'data','countries.csv')
 countries = read_csv(path_in)
 countries = select(countries, iso3, continent, income_group)
 data = merge(data, countries, by='iso3')
@@ -1027,6 +1023,11 @@ data$interaction = factor(data$interaction,
                           ),
 )
 
+filename = 'tropical_storm_gdp_data_figure_3.3.csv'
+path_out = file.path(folder, 'report_data', filename)
+write_csv(data, path_out)
+rm(historical)
+
 test = data %>%
   group_by(interaction) %>%
   summarize(
@@ -1055,6 +1056,8 @@ df_errorbar <-
     high = sum(high)
   )
 
+max_y_value = max(data$mean)
+
 plot2 = ggplot(data,
                aes(x=interaction, y=mean, fill=continent)) +
   geom_bar(stat="identity") +
@@ -1070,7 +1073,7 @@ plot2 = ggplot(data,
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
-       title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Cells",
+       title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Basestations",
        subtitle = "Reported by Return Period, Climate Scenario and Continent.",
        x = "", y = "Damage Cost (USD Bn)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -1078,7 +1081,7 @@ plot2 = ggplot(data,
   guides(fill=guide_legend(ncol=7, title='Continent')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, 1.25))
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+1.5))
 
 ggarrange(
   plot1,
@@ -1089,7 +1092,7 @@ ggarrange(
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures', 'global_tropical_storm_impacts.png')
-ggsave(path, units="in", width=8, height=6, dpi=300)
+ggsave(path, units="in", width=7, height=6, dpi=300)
 
 data1$unit = 'cells_vulnerable_millions'
 data$unit = 'costs_usd_billions'
@@ -1099,3 +1102,4 @@ dir.create(file.path(folder, 'report_data'), showWarnings = FALSE)
 filename = 'fig_3.3_tropical_storm_assets_and_costs.csv'
 path = file.path(folder, 'report_data', filename)
 write.csv(output, path)
+
