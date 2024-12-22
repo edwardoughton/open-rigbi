@@ -2,12 +2,13 @@
 Collect results.
 
 """
-import sys
 import os
 import configparser
 import pandas as pd
+from tqdm import tqdm 
 
-from misc import get_countries, get_scenarios, get_regions
+from misc import (get_countries, get_scenarios, 
+                  get_regions, get_tropical_storm_scenarios)
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -27,7 +28,7 @@ def collect_regional_results(scenario):
     folder_out = os.path.join(DATA_PROCESSED, 'results', 'regional')
 
     if not os.path.exists(folder_out):
-        os.mkdir(folder_out)
+        os.makedirs(folder_out)
 
     output = []
 
@@ -36,7 +37,7 @@ def collect_regional_results(scenario):
 
     for country in countries:
 
-        # if not country['iso3'] == 'BGD':
+        # if not country['iso3'] == 'NLD':
         #     continue
 
         # print('Working on {}'.format(country['iso3']))
@@ -106,7 +107,7 @@ def collect_country_regional_results(country, scenario, regions):
     for region in regions:
 
         if 'inuncoast' in scenario and region[gid_level] not in coastal_lut:
-            print('Not coastal: {} in {}'.format(region[gid_level], scenario))
+            # print('Not coastal: {} in {}'.format(region[gid_level], scenario))
             continue
 
         filename = "{}_{}_unique.csv".format(region[gid_level], scenario)
@@ -201,11 +202,25 @@ def collect_final_results(scenario):
 
 if __name__ == "__main__":
 
-    args = sys.argv
+    scenarios = get_scenarios()
+    for scenario in tqdm(scenarios):
+        # print('collecting regional results')
+        collect_regional_results(scenario)
+        # print('collecting final results')
+        collect_final_results(scenario)
 
-    print('collecting regional results')
-    collect_regional_results(args[1])
+    scenarios_tc = get_tropical_storm_scenarios()
+    for scenario_tc in tqdm(scenarios_tc):
+        # print('collecting regional results')
+        collect_regional_results(scenario_tc)
+        # print('collecting final results')
+        collect_final_results(scenario_tc)
 
-    print('collecting final results')
-    collect_final_results(args[1])
+    # args = sys.argv
+
+    # print('collecting regional results')
+    # collect_regional_results(args[1])
+
+    # print('collecting final results')
+    # collect_final_results(args[1])
 

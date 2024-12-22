@@ -136,7 +136,7 @@ def collect_results(countries):
 
     if not os.path.exists(path):
 
-        folder_in = os.path.join(VIS, '..', 'regional_results_tropical_storm')
+        folder_in = os.path.join(BASE_PATH, 'processed', 'results', 'regional')
 
         all_data = []
 

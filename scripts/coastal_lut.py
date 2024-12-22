@@ -5,8 +5,6 @@ Written by Ed Oughton.
 
 September 2023
 
-Adapted from Allison Thomey's pacch repo.
-
 """
 import os
 import configparser
@@ -55,7 +53,7 @@ def process_country_coast(country):
     
     """
     iso3 = country["iso3"]
-    
+
     filename = 'national_coastal_regions.shp'
     folder_out = os.path.join(BASE_PATH, 'processed', iso3, 'coastal')
     if not os.path.exists(folder_out):
@@ -63,20 +61,20 @@ def process_country_coast(country):
     path_out = os.path.join(folder_out, filename)
     if os.path.exists(path_out):
         return
-    
+
     filename = 'global_coastal_buffer.shp'
     folder = os.path.join(BASE_PATH, 'processed', 'coastal')
     path = os.path.join(folder, filename)
     gdf_coastal = gpd.read_file(path, crs = 'epsg:3857')
 
-    filename = "national_outline.shp"
+    filename = "national_outline.gpkg"
     folder = os.path.join('data', 'processed', iso3)
     path = os.path.join(folder, filename)
     if not os.path.exists(path):
-        return
+        return print(f"Could not find path {path}")
     country_outline = gpd.read_file(path, crs="epsg:4326")
     country_outline = country_outline.to_crs('epsg:3857')
-    
+
     output = gpd.overlay(gdf_coastal, country_outline, how='intersection')
     
     if len(output) == 0:
@@ -112,7 +110,7 @@ def process_regional_lut(country):
     coast_dict = gdf_coastal.to_dict("records")
 
     #loading in regions by GID level
-    filename = "regions_{}_{}.shp".format(gid_region, iso3)
+    filename = "regions_{}_{}.gpkg".format(gid_region, iso3)
     path_region = os.path.join('data', 'processed', iso3, 'regions', filename)
     gdf_region = gpd.read_file(path_region, crs="epsg:4326")
     gdf_region = gdf_region.to_crs('epsg:3857')
@@ -170,7 +168,7 @@ if __name__ == "__main__":
 
     for country in countries:
 
-        # if not country['iso3'] == 'CIV':
+        # if not country['iso3'] == 'USA':
         #     continue
 
         print("---- {}".format(country['iso3']))
