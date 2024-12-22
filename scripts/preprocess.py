@@ -36,15 +36,15 @@ def run_preprocessing(iso3):
 
     """
     filename = "countries.csv"
-    path = os.path.join(DATA_RAW, filename)
+    path = os.path.join(BASE_PATH, filename)
 
     countries = pd.read_csv(path, encoding='latin-1')
     country = countries[countries.iso3 == iso3]
     country = country.to_records('dicts')[0]
     regional_level = int(country['gid_region'])
 
-    # print('Working on create_national_sites_csv')
-    # create_national_sites_csv(country)
+    print('Working on create_national_sites_csv')
+    create_national_sites_csv(country)
 
     print('Working on process_country_shapes')
     process_country_shapes(iso3)
@@ -52,45 +52,45 @@ def run_preprocessing(iso3):
     print('Working on process_regions')
     process_regions(iso3, regional_level)
 
-    # print('Working on create_national_sites_shp')
-    # create_national_sites_shp(iso3)
+    print('Working on create_national_sites_shp')
+    create_national_sites_shp(iso3)
 
-    # print('Working on process_flooding_layers')
-    # process_flooding_layers(country)
+    print('Working on process_flooding_layers')
+    process_flooding_layers(country)
 
-    # regions = get_regions(country, regional_level)#[:1]#[::-1]
+    regions = get_regions(country, regional_level)#[:1]#[::-1]
 
-    # print('Working on regional disaggregation')
-    # for region in regions:
+    print('Working on regional disaggregation')
+    for region in regions:
 
-    #     # if not region['GID_2'] == 'BGD.1.4_1': #'BGD.1.1_1':
-    #     #   continue
+        # if not region['GID_2'] == 'BGD.1.4_1': #'BGD.1.1_1':
+        #   continue
 
-    #     region = region['GID_{}'.format(regional_level)]
+        region = region['GID_{}'.format(regional_level)]
 
-    #     if regional_level == 1:
+        if regional_level == 1:
 
-    #         #print('Working on segment_by_gid_1')
-    #         segment_by_gid_1(iso3, 1, region)
+            #print('Working on segment_by_gid_1')
+            segment_by_gid_1(iso3, 1, region)
 
-    #         #print('Working on create_regional_sites_layer')
-    #         create_regional_sites_layer(iso3, 1, region)
+            #print('Working on create_regional_sites_layer')
+            create_regional_sites_layer(iso3, 1, region)
 
-    #     if regional_level == 2:
+        if regional_level == 2:
 
-    #         gid_1 = get_gid_1(region)
+            gid_1 = get_gid_1(region)
 
-    #         #print('Working on segment_by_gid_1')
-    #         segment_by_gid_1(iso3, 1, gid_1)
+            #print('Working on segment_by_gid_1')
+            segment_by_gid_1(iso3, 1, gid_1)
 
-    #         #print('Working on create_regional_sites_layer')
-    #         create_regional_sites_layer(iso3, 1, gid_1)
+            #print('Working on create_regional_sites_layer')
+            create_regional_sites_layer(iso3, 1, gid_1)
 
-    #         #print('Working on segment_by_gid_2')
-    #         segment_by_gid_2(iso3, 2, region, gid_1)
+            #print('Working on segment_by_gid_2')
+            segment_by_gid_2(iso3, 2, region, gid_1)
 
-    #         #print('Working on create_regional_sites_layer')
-    #         create_regional_sites_layer(iso3, 2, region)
+            #print('Working on create_regional_sites_layer')
+            create_regional_sites_layer(iso3, 2, region)
 
     regions = get_regions(country, regional_level)#[:1]#[::-1]
 
@@ -127,7 +127,7 @@ def create_national_sites_csv(country):
     iso3 = country['iso3']#.values[0]
 
     filename = "mobile_codes.csv"
-    path = os.path.join(DATA_RAW, filename)
+    path = os.path.join(BASE_PATH, filename)
     mobile_codes = pd.read_csv(path)
     mobile_codes = mobile_codes[['iso3', 'mcc', 'mnc']].drop_duplicates()
     all_mobile_codes = mobile_codes[mobile_codes['iso3'] == iso3]
@@ -1004,23 +1004,23 @@ def convert_to_gpd_df(data):
 
 if __name__ == "__main__":
 
-    args = sys.argv
-    iso3 = args[1]
-    print('Running site processing for {}'.format(iso3))
-    run_preprocessing(iso3)
+    # args = sys.argv
+    # iso3 = args[1]
+    # print('Running site processing for {}'.format(iso3))
+    # run_preprocessing(iso3)
 
-    # countries = get_countries()
+    countries = get_countries()
 
-    # failures = []
-    # for country in countries:
+    failures = []
+    for country in countries:
 
-    # #     #if not country['iso3'] == 'TJK':
-    # #     #    continue
+    #     #if not country['iso3'] == 'TJK':
+    #     #    continue
+        # print(country)
+        # try:
+        run_preprocessing(country['iso3'])
 
-    #     try:
-    #         run_preprocessing(country['iso3'])
-
-    #     except:
-    #         failures.append(
-    #         (country['iso3'],country['country']))
-    #     print(failures)
+        # except:
+        #     failures.append(
+        #     (country['iso3'],country['country']))
+        # print(failures)

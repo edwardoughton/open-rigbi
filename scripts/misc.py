@@ -52,7 +52,7 @@ def get_countries():
 
     """
     filename = "countries.csv"
-    path = os.path.join(DATA_RAW, filename)
+    path = os.path.join(BASE_PATH,  filename)
 
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
