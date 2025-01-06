@@ -799,6 +799,8 @@ if __name__ == "__main__":
 
     for scenario in tqdm(scenarios):
 
+        print(f'--Working on: {scenario}')
+
         process_tropical_storm_layers(countries, scenario)
         process_regional_storm_layers(countries, scenario)
         query_tropical_storm_layers(countries, scenario)

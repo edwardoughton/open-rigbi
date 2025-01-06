@@ -20,6 +20,21 @@ BASE_PATH = CONFIG['file_locations']['base_path']
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 
 
+def process_coastal_lut(country):
+    """
+    Meta function to process coastal lookup table. 
+
+    """
+
+    process_coastal_shapefile()
+
+    process_country_coast(country)
+
+    process_regional_lut(country)
+
+    return
+
+
 def process_coastal_shapefile():
     """
     Process the global coastal shapefile. 

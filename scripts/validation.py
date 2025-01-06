@@ -143,7 +143,7 @@ def collect_all(countries):
     Collect all results. 
 
     """
-    folder_in = os.path.join(BASE_PATH, '..','results','validation','country_data')
+    folder_in = os.path.join(BASE_PATH,'..','results','validation','country_data')
 
     if not os.path.exists(folder_in):
         os.makedirs(folder_in)
