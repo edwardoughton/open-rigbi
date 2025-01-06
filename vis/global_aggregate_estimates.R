@@ -199,9 +199,9 @@ plot1 =
   geom_errorbar(data=data_aggregated, aes(y=mean, ymin=low, ymax=high),
                 position = position_dodge(1),
                 lwd = 0.2,
-                show.legend = FALSE, width=0.3,  color="#FF0000FF") +
-  geom_text(aes(label = paste(round(mean,1),"")), size = 1.8,
-            position = position_dodge(1), vjust =.5, hjust =-1, angle = 90)+
+                show.legend = FALSE, width=0.1,  color="#FF0000FF") +
+  geom_text(data = data_aggregated, aes(label = paste(round(mean,1),"k")), size = 1.8,
+            position = position_dodge(1), vjust =1.4, hjust =-0.2, angle = 90)+
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
@@ -248,9 +248,9 @@ plot2 = ggplot(data_aggregated,
   geom_errorbar(data=data_aggregated, aes(y=mean, ymin=low, ymax=high),
                 position = position_dodge(1),
                 lwd = 0.2,
-                show.legend = FALSE, width=0.3,  color="#FF0000FF") +
+                show.legend = FALSE, width=0.1,  color="#FF0000FF") +
   geom_text(aes(label = paste(round(mean,2),"Bn")), size = 1.8,
-            position = position_dodge(1), vjust =.5, hjust =-.6, angle = 90) +
+            position = position_dodge(1), vjust =1.4, hjust =-.2, angle = 90) +
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
@@ -533,9 +533,9 @@ plot1 = ggplot(inunriver,
                 aes(y=mean, ymin=low, ymax=high),
                 position = position_dodge(1),
                 lwd = 0.2,
-                show.legend = FALSE, width=0.3,  color="#FF0000FF") +
+                show.legend = FALSE, width=0.1,  color="#FF0000FF") +
   geom_text(aes(label = paste(round(mean,2),"Mn")), size = 1.8,
-            position = position_dodge(1), vjust =.5, hjust=-.4, angle = 90)+
+            position = position_dodge(1), vjust =1.4, hjust=-.2, angle = 90)+
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=.8)) +
   labs(colour=NULL,
@@ -598,9 +598,9 @@ plot2 =
                 aes(y=mean, ymin=low, ymax=high),
                 position = position_dodge(1),
                 lwd = 0.2,
-                show.legend = FALSE, width=0.5,  color="#FF0000FF") +
+                show.legend = FALSE, width=0.1,  color="#FF0000FF") +
   geom_text(aes(label = paste(round(mean,1),"Bn")), size = 1.8,
-            position = position_dodge(1), vjust =.5, hjust=-.6, angle = 90) +
+            position = position_dodge(1), vjust =1.4, hjust=-.2, angle = 90) +
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
@@ -795,8 +795,18 @@ data$interaction = factor(data$interaction,
                             "0.5% 2050",
                             "1% Historical",
                             "1% 2050"#,
-                            
-                            
+                          ),
+                          labels=c(
+                            "0.01%\nHistorical",
+                            "0.01%\n2050",
+                            "0.1%\nHistorical",
+                            "0.1%\n2050",
+                            "0.2%\nHistorical",
+                            "0.2%\n2050",
+                            "0.5%\nHistorical",
+                            "0.5%\n2050",
+                            "1%\nHistorical",
+                            "1%\n2050"#,
                           ),
 )
 filename = 'tropical_storm_data_figure_3.3.csv'
@@ -824,16 +834,16 @@ max_y_value = max(data$mean)
 
 plot1 = ggplot(data,
                aes(x=interaction, y=mean, fill=continent)) +
-  geom_bar(stat="identity") +
+  geom_bar(stat="identity", width=0.7) +
   geom_errorbar(data=df_errorbar, aes(y=mean, ymin=low, ymax=high),
                 position = position_dodge(1),
                 lwd = 0.2,
-                show.legend = FALSE, width=0.2,  color="#FF0000FF") +
+                show.legend = FALSE, width=0.05,  color="#FF0000FF") +
   geom_text(data = df_errorbar,
             aes(label = paste(round(mean, 2),"")), size = 2,#.25,
-            vjust =-.7, hjust =-.7, angle = 0) +
+            vjust =-.7, hjust =-.5, angle = 0) +
   theme(legend.position = 'bottom',
-        axis.text.x = element_text(angle=45, hjust=1)) +
+        axis.text.x = element_text(angle=0, hjust=.5)) +
   labs(colour=NULL,
        title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Basestations",
        subtitle = "Reported by Return Period, Climate Scenario and Continent.",
@@ -843,7 +853,7 @@ plot1 = ggplot(data,
   guides(fill=guide_legend(ncol=7, title='Continent')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+1))
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+2))
 
 data1 = data
 
@@ -1018,8 +1028,18 @@ data$interaction = factor(data$interaction,
                             "0.5% 2050",
                             "1% Historical",
                             "1% 2050"#,
-                            
-                            
+                          ),
+                          labels=c(
+                            "0.01%\nHistorical",
+                            "0.01%\n2050",
+                            "0.1%\nHistorical",
+                            "0.1%\n2050",
+                            "0.2%\nHistorical",
+                            "0.2%\n2050",
+                            "0.5%\nHistorical",
+                            "0.5%\n2050",
+                            "1%\nHistorical",
+                            "1%\n2050"#,
                           ),
 )
 
@@ -1028,17 +1048,16 @@ path_out = file.path(folder, 'report_data', filename)
 write_csv(data, path_out)
 rm(historical)
 
-test = data %>%
-  group_by(interaction) %>%
-  summarize(
-    low = sum(low),
-    mean = sum(mean),
-    high = sum(high), 
-  )
-filename = 'cost_by_scenario.csv'
-path_out = file.path(folder, 'data', filename)
-write_csv(test, path_out)
-
+# test = data %>%
+#   group_by(interaction) %>%
+#   summarize(
+#     low = sum(low),
+#     mean = sum(mean),
+#     high = sum(high), 
+#   )
+# filename = 'cost_by_scenario.csv'
+# path_out = file.path(folder, 'data', filename)
+# write_csv(test, path_out)
 
 df_errorbar <-
   data |>
@@ -1060,18 +1079,18 @@ max_y_value = max(data$mean)
 
 plot2 = ggplot(data,
                aes(x=interaction, y=mean, fill=continent)) +
-  geom_bar(stat="identity") +
+  geom_bar(stat="identity", width=0.7) +
   geom_errorbar(data=df_errorbar, aes(y=mean, ymin=low, ymax=high),
                 position = position_dodge(1),
                 lwd = 0.2,
-                show.legend = FALSE, width=0.2,  color="#FF0000FF") +
+                show.legend = FALSE, width=0.05,  color="#FF0000FF") +
   geom_text(data = df_errorbar,
             aes(label = paste(round(mean, 2),"")), size = 2,#.25,
-            vjust =-.7, hjust =-.7, angle = 0) +
+            vjust =-.7, hjust =-.5, angle = 0) +
   # geom_text(aes(label = paste(round(mean,2),"Mn")), size = 1.8,
   #           position = position_dodge(1), vjust =.5, hjust =-.5, angle = 90)+
   theme(legend.position = 'bottom',
-        axis.text.x = element_text(angle=45, hjust=1)) +
+        axis.text.x = element_text(angle=0, hjust=.5)) +
   labs(colour=NULL,
        title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Basestations",
        subtitle = "Reported by Return Period, Climate Scenario and Continent.",
@@ -1081,7 +1100,7 @@ plot2 = ggplot(data,
   guides(fill=guide_legend(ncol=7, title='Continent')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+1.5))
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+2))
 
 ggarrange(
   plot1,
@@ -1102,4 +1121,3 @@ dir.create(file.path(folder, 'report_data'), showWarnings = FALSE)
 filename = 'fig_3.3_tropical_storm_assets_and_costs.csv'
 path = file.path(folder, 'report_data', filename)
 write.csv(output, path)
-

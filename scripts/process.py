@@ -24,7 +24,6 @@ warnings.filterwarnings("ignore", category=FutureWarning, module="geopandas")
 
 from misc import get_countries, get_scenarios, get_regions, get_f_curves
 from collect import collect_regional_results, collect_final_results
-# from validation import collect, collect_all
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', 'script_config.ini'))
@@ -50,26 +49,19 @@ def run_site_processing(country):
         # if not region['GID_2'] == 'USA.1.49_1':
         #     continue
 
-        # # # print('Working on process_flooding_extent_stats')
-        # process_flooding_extent_stats(country, region, scenarios, regional_level)
+        # print('Working on process_flooding_extent_stats')
+        process_flooding_extent_stats(country, region, scenarios, regional_level)
 
-        # # # # print('Working on query_hazard_layers')
-        query_hazard_layers(country, region, scenarios, regional_level)
+        # # # # # print('Working on query_hazard_layers')
+        # query_hazard_layers(country, region, scenarios, regional_level)
 
-        # # # # print('--Estimating results')
-        estimate_results(country, region, scenarios, regional_level)
+        # # # # # print('--Estimating results')
+        # estimate_results(country, region, scenarios, regional_level)
 
-        # # # print('--Converting to regional results')
-        convert_to_regional_results(country, region, scenarios, regional_level)
+        # # # # print('--Converting to regional results')
+        # convert_to_regional_results(country, region, scenarios, regional_level)
 
-    # countries = get_countries()
-    # scenarios = get_scenarios()
-    # for scenario in scenarios:
-    #     collect_regional_results(scenario)
-    #     collect_final_results(scenario)
-
-    # collect(countries, scenarios)
-    # collect_all(countries)
+        # break
 
     return print('Completed processing')
 
@@ -104,22 +96,23 @@ def process_flooding_extent_stats(country, region, scenarios, regional_level):
         if os.path.exists(path_out):
             continue
 
-        print('Working on flood extent for {}'.format(filename))
+        # print('Working on flood extent for {}'.format(filename))
 
         metrics = []
 
         path = os.path.join(folder, region + '_' + filename + '.tif')
 
         if not os.path.exists(path):
-            print('path does not exist: {}'.format(path))
-            continue
+            # print('path does not exist: {}'.format(path))
 
-        try:
-            raster = rasterio.open(path)
-            data = raster.read(1)
-        except:
-            print('reading failed {}'.format(filename))
             continue
+        # print(path)
+        # try:
+        raster = rasterio.open(path)
+        data = raster.read(1)
+        # except:
+        #     print('reading failed {}'.format(filename))
+        #     continue
 
         output = []
         depths = []
@@ -129,6 +122,7 @@ def process_flooding_extent_stats(country, region, scenarios, regional_level):
                 if i >= 0.000001 and i < 150:
                     coords = raster.transform * (idx2, idx)
                     depths.append(i)
+                    # print(i)
                 else:
                     continue
 
@@ -330,9 +324,9 @@ def estimate_results(country, region, scenarios, regional_level):
             os.makedirs(folder_out)
         path_output = os.path.join(folder_out, filename)
 
-        # if os.path.exists(path_output):
-        #     print('path_output exists {}'.format(path_output))
-        #     continue
+        if os.path.exists(path_output):
+            # print('path_output exists {}'.format(path_output))
+            continue
 
         if 'inuncoast' in scenario and region not in coastal_lut:
             # print('if inuncoast in scenario and region not in coastal_lut:')
@@ -553,13 +547,18 @@ if __name__ == "__main__":
 
     failures = []
 
-    for country in tqdm(countries):
+    for country in tqdm(countries[::-1]):
 
-        # if not country['iso3'] in ['BRA']:
+        # if not country['iso3'] in ['GBR']:
         #     continue
 
         print(f"--Working on {country['country']}")
         run_site_processing(country)
+
+    # scenarios = get_scenarios()
+    # for scenario in scenarios:
+    #     collect_regional_results(scenario)
+    #     collect_final_results(scenario)
 
     end_time = time.time()
     elapsed_time = end_time - start_time

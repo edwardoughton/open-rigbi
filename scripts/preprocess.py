@@ -22,6 +22,7 @@ from tqdm import tqdm
 
 from misc import (get_countries, process_country_shapes, 
                   process_regions, get_regions, get_scenarios)
+from coastal_lut import process_coastal_lut
 
 CONFIG = configparser.ConfigParser()
 filename = 'script_config.ini'
@@ -38,7 +39,7 @@ def run_preprocessing(iso3):
 
     """
     filename = "countries.csv"
-    path = os.path.join(DATA_RAW, filename)
+    path = os.path.join(BASE_PATH, filename)
 
     countries = pd.read_csv(path, encoding='latin-1')
     country = countries[countries.iso3 == iso3]
@@ -66,6 +67,8 @@ def run_preprocessing(iso3):
         for region in regions:
             segment_by_gid_2(iso3, 2, region['GID_2'], region['GID_1'])
 
+    process_coastal_lut(country)
+
     # print('Working on process_flooding_layers')
     process_flooding_layers(country)
 
@@ -77,7 +80,7 @@ def run_preprocessing(iso3):
         region = region['GID_{}'.format(regional_level)]
         process_regional_flooding_layers(country, region)
 
-    # print('Convert cell estimates to site estimates')
+    print('Convert cell estimates to site estimates')
     gid_id = "GID_{}".format(regional_level)
     regions = get_regions(country, regional_level)#[:1]#[::-1]
     for region in regions:
@@ -99,7 +102,7 @@ def create_national_sites_csv(country):
     iso3 = country['iso3']#.values[0]
 
     filename = "mobile_codes.csv"
-    path = os.path.join(DATA_RAW, filename)
+    path = os.path.join(BASE_PATH, filename)
     mobile_codes = pd.read_csv(path)
     mobile_codes = mobile_codes[['iso3', 'mcc', 'mnc']].drop_duplicates()
     all_mobile_codes = mobile_codes[mobile_codes['iso3'] == iso3]
@@ -179,11 +182,11 @@ def segment_by_gid_1(iso3, region):
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites')
     path = os.path.join(folder, filename)
     sites = pd.read_csv(path)#[:1000]
-
+ 
     geometry = [Point(xy) for xy in zip(sites["lon"], sites["lat"])]
     gdf = gpd.GeoDataFrame(sites, geometry=geometry)
     gdf.set_crs("EPSG:4326", inplace=True)  # EPSG:4326 is WGS 84 (lat/lon)
-
+  
     filename = 'regions_{}_{}.gpkg'.format(1, iso3)
     folder = os.path.join(DATA_PROCESSED, iso3, 'regions')
     path_regions = os.path.join(folder, filename)
@@ -514,14 +517,14 @@ if __name__ == "__main__":
     failures = []
     for country in tqdm(countries):
 
-        # if not country['iso3'] == 'BRA':
+        # if not country['iso3'] == 'ALB':
         #    continue
 
         print(f"--{country['country']}")#['iso3']
 
-        # try:
-        run_preprocessing(country['iso3'])
+        try:
+            run_preprocessing(country['iso3'])
 
-        # except:
-        #     failures.append((country['iso3'],country['country']))
-        # print(failures)
+        except:
+            failures.append((country['iso3'],country['country']))
+        print(failures)

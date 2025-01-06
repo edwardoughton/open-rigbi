@@ -52,7 +52,7 @@ def get_countries():
 
     """
     filename = "countries.csv"
-    path = os.path.join(DATA_RAW, filename)
+    path = os.path.join(BASE_PATH, filename)
 
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
@@ -142,10 +142,10 @@ def get_scenarios():
 
                 # if '00IPSL' in scenario:
                 #     continue
-                if 'GFDL' in scenario:
-                    continue
-                if 'NorESM1' in scenario:
-                    continue
+                # if 'GFDL' in scenario:
+                #     continue
+                # if 'NorESM1' in scenario:
+                #     continue
                 if not 'historical' in scenario:
                     output.add(scenario)
 
@@ -177,12 +177,12 @@ def get_tropical_storm_scenarios():
 
     return_periods = [
         # "10_YR_RP",
-        # "50_YR_RP",
+        "50_YR_RP",
         "100_YR_RP",
         "200_YR_RP",
         "500_YR_RP",
         "1000_YR_RP",
-        # "10000_YR_RP",
+        "10000_YR_RP",
     ]
 
     for scenario in scenarios:
@@ -192,16 +192,16 @@ def get_tropical_storm_scenarios():
 
         if any(x in scenario for x in return_periods): #specify return periods
 
-            if 'constant' in scenario: 
+            if not 'constant' in scenario: 
                 continue
-            if 'HadGEM3' in scenario:
-                continue
+            # if 'HadGEM3' in scenario:
+            #     continue
 
             output.add(scenario)
 
     output = list(output)
     output.sort()
-    # print(output)
+ 
     return output#[:1]
 
 
@@ -237,7 +237,7 @@ def process_country_shapes(iso3):
     single_country['geometry'] = single_country.apply(
         remove_small_shapes, axis=1)
 
-    glob_info_path = os.path.join(DATA_RAW, 'countries.csv')
+    glob_info_path = os.path.join(BASE_PATH, 'countries.csv')
     load_glob_info = pd.read_csv(glob_info_path, encoding = "ISO-8859-1",
         keep_default_na=False)
     single_country = single_country.merge(
@@ -379,12 +379,12 @@ if __name__ == '__main__':
     #    #if country['iso3'] == 'TJK':
     #    print(country['country'])
 
-    scenarios = get_scenarios()
-    for scenario in scenarios:
-        print(scenario)
+    # scenarios = get_scenarios()
+    # for scenario in scenarios:
+    #     print(scenario)
 
-    # tropical_storm_scenarios = get_tropical_storm_scenarios()
-    # for scenario in tropical_storm_scenarios:
-    #    print(scenario)
+    tropical_storm_scenarios = get_tropical_storm_scenarios()
+    for scenario in tropical_storm_scenarios:
+       print(scenario)
 
 
