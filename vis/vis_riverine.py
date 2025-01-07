@@ -379,7 +379,7 @@ if __name__ == "__main__":
 
     countries_shps = get_country_outlines(countries)
 
-    # results = collect_results(countries)#[:300]
+    results = collect_results(countries)#[:300]
     # out = pd.DataFrame(results)
     # out.to_csv(os.path.join(VIS, '..', 'data.csv'))
 
