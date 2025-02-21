@@ -5,10 +5,10 @@ library(ggpubr)
 ###################
 ##### Coastal flooding
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, '..', 'validation')
+data_directory = file.path(folder,'..','data','processed','results','sites')
 setwd(data_directory)
 
-data = read_csv('cell_count_regional.csv')
+data = read_csv('cell_count_regional_unique.csv')
 
 sum(data$cells_3g,data$cells_4g,data$cells_5g)
 
@@ -23,7 +23,7 @@ data = data %>%
     count = sum(count)
   )
 
-country_info = read_csv(file.path(folder, '..', 'data','raw', 'countries.csv'))
+country_info = read_csv(file.path(folder, '..', 'data','countries.csv'))
 country_info = select(country_info, iso3, continent, flood_region)
 all_data = merge(data, country_info,by="iso3")
 
@@ -76,13 +76,13 @@ plot1 =
        aes(x=continent, y=count, fill=radio)) + 
   # coord_flip() + 
   geom_bar(stat="identity", position = position_dodge()) +
-  geom_text(aes(label = paste(round(count,1),"")), size = 1.8,
+  geom_text(aes(label = paste(round(count,2),"")), size = 1.8,
             position = position_dodge(.9), vjust =.5, hjust=-.2, angle = 90) +
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=90, hjust=1, vjust=.5)) +
   labs(colour=NULL,
-       title = "Quantity of Mobile Voice/Data Cells by Continent and Cellular Generation",
-       subtitle = "Data extracted from OpenCelliD on December 24th 2022.",
+       # title = '(A)', #"Quantity of Mobile Voice/Data Cells by Continent and Cellular Generation",
+       # subtitle = "Data extracted from OpenCelliD on December 24th 2022.",
        x = NULL,
        y = "Cell Count (Millions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -90,7 +90,7 @@ plot1 =
   guides(fill=guide_legend(ncol=5, title='Cell Type')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+2))
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.15))
 
 data = all_data %>%
     group_by(flood_region, radio) %>%
@@ -140,13 +140,13 @@ plot2 =
                aes(x=flood_region, y=count, fill=radio)) + 
   # coord_flip() + 
   geom_bar(stat="identity", position = position_dodge()) +
-  geom_text(aes(label = paste(round(count,1),"")), size = 1.8,
+  geom_text(aes(label = paste(round(count,2),"")), size = 1.8,
             position = position_dodge(1), vjust =.5, hjust=-.3, angle = 90) +
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=90, hjust=1, vjust=.5)) +
   labs(colour=NULL,
-       title = "Quantity of Mobile Voice/Data Cells by Flood Region and Cellular Generation",
-       subtitle = "Data extracted from OpenCelliD on December 24th 2022.",
+       # title = '(A)', #"Quantity of Mobile Voice/Data Cells by Flood Region and Cellular Generation",
+       # subtitle = "Data extracted from OpenCelliD on December 24th 2022.",
        x = NULL,
        y = "Cell Count (Millions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -154,8 +154,7 @@ plot2 =
   guides(fill=guide_legend(ncol=5, title='Cell Type')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+2))
-
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.15))
 
 ggarrange(
   plot1, 
@@ -166,4 +165,4 @@ ggarrange(
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures', 'cell_counts.png')
-ggsave(path, units="in", width=8, height=7, dpi=300)
+ggsave(path, units="in", width=8, height=7, dpi=600)

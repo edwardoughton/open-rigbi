@@ -123,10 +123,10 @@ def collect_results(countries):
     """
     filename = 'tropical_storm_rcp85_mean_results.csv'
     folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data')
-    path_out = os.path.join(folder_out, filename)
+    path = os.path.join(folder_out, filename)
 
-    if os.path.exists(path_out):
-        output = pd.read_csv(path_out)
+    if os.path.exists(path):
+        output = pd.read_csv(path)
         # output = output.to_dict('records')
         return output
 

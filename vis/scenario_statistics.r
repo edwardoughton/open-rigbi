@@ -5,9 +5,8 @@ library(ggpubr)
 ###################
 ##### Coastal flooding
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, '..', 'validation')
+data_directory = file.path(folder,'..','data','processed','results','validation')
 setwd(data_directory)
-
 data = read_csv('scenario_stats.csv')
 
 data$flooded_area_km2 = gsub("-", 'NA', data$flooded_area_km2)
@@ -16,7 +15,7 @@ data$flooded_area_km2 = round(data$flooded_area_km2 / 1e6,3)
 
 data = data[data$hazard == 'inuncoast',]
 
-country_info = read_csv(file.path(folder, '..', 'data','raw', 'countries.csv'))
+country_info = read_csv(file.path(folder, '..', 'data','countries.csv'))
 country_info = select(country_info, iso3, continent, flood_region)
 data = merge(data, country_info,by="iso3")
 
@@ -178,14 +177,14 @@ plot1 =
          aes(x=interaction, y=flooded_area_km2, fill=continent)) + #, income_group
   geom_bar(stat="identity", position='stack') +
   geom_text(data = df_errorbar, aes(label = paste(round(flooded_area_km2,2),"m")), 
-            size = 1.5,
+            size = 2,
             # position = position_dodge(1), 
-            vjust =-.5, hjust =.5, angle = 0) +
+            vjust =0.4, hjust =-0.2, angle = 90) +
   theme(legend.position = '',
         axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
   labs(colour=NULL,
-       title = "Global Sum of Flooded Coastal Area by Scenario",
-       subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
+       # title = "(A)", #"Global Sum of Flooded Coastal Area by Scenario",
+       # subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
        x = "", y = "Flooded Area (km^2)", fill=NULL) +
   theme(legend.position = 'bottom', panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
@@ -228,14 +227,14 @@ plot2 =
          aes(x=interaction, y=flooded_area_km2, fill=flood_region)) + #, income_group
   geom_bar(stat="identity", position='stack') +
   geom_text(data = df_errorbar, aes(label = paste(round(flooded_area_km2,2),"m")),
-            size = 1.5,
+            size = 2,
             # position = position_dodge(1),
-            vjust =-.5, hjust =.5, angle = 0) +
+            vjust =0.4, hjust =-0.2, angle = 90) +
   theme(legend.position = '',
         axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
   labs(colour=NULL,
-       title = "Global Sum of Flooded Coastal Area by Scenario",
-       subtitle = "Reported by Flood Region, Annual Probability, Year and Climate Scenario.", 
+       # title = "(B)", #"Global Sum of Flooded Coastal Area by Scenario",
+       # subtitle = "Reported by Flood Region, Annual Probability, Year and Climate Scenario.", 
        x = "", y = "Flooded Area (km^2)", fill=NULL) +
   theme(legend.position = 'bottom', panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
@@ -249,7 +248,7 @@ plot2 =
 ###################
 ##### Riverine flooding
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, '..', 'validation')
+data_directory = file.path(folder,'..','data','processed','results','validation')
 setwd(data_directory)
 
 data = read_csv('scenario_stats.csv')
@@ -258,7 +257,7 @@ data$flooded_area_km2 = gsub("-", 'NA', data$flooded_area_km2)
 data$flooded_area_km2 = as.numeric(as.character(data$flooded_area_km2))
 data$flooded_area_km2 = round(data$flooded_area_km2 / 1e6,5)
 
-country_info = read_csv(file.path(folder, '..', 'data','raw', 'countries.csv'))
+country_info = read_csv(file.path(folder, '..', 'data','countries.csv'))
 country_info = select(country_info, iso3, continent, flood_region)
 data = merge(data, country_info,by="iso3")
 
@@ -371,13 +370,13 @@ plot3 =
          aes(x=interaction, y=flooded_area_km2, fill=continent)) + #, income_group
   geom_bar(stat="identity", position='stack') +
   geom_text(data = df_errorbar, 
-            aes(label = paste(round(flooded_area_km2,2),"m")), size = 1.5,
-            vjust =-.5, hjust =.5, angle = 0) +
+            aes(label = paste(round(flooded_area_km2,2),"m")), size = 2,
+            vjust =0.4, hjust =-0.2, angle = 90) +
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
   labs(colour=NULL,
-       title = "Global Sum of Flooded Riverine Area by Scenario",
-       subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
+       # title = "Global Sum of Flooded Riverine Area by Scenario",
+       # subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
        x = "", y = "Flooded Area (km^2)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
@@ -422,13 +421,13 @@ plot4 =
          aes(x=interaction, y=flooded_area_km2, fill=flood_region)) + #, income_group
   geom_bar(stat="identity", position='stack') +
   geom_text(data = df_errorbar, 
-            aes(label = paste(round(flooded_area_km2,2),"m")), size = 1.5,
-            vjust =-.5, hjust =.5, angle = 0) +
+            aes(label = paste(round(flooded_area_km2,2),"m")), size = 2,
+            vjust =0.4, hjust =-0.2, angle = 90) +
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
   labs(colour=NULL,
-       title = "Global Sum of Flooded Riverine Area by Scenario",
-       subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
+       # title = "Global Sum of Flooded Riverine Area by Scenario",
+       # subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
        x = "", y = "Flooded Area (km^2)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
@@ -451,7 +450,7 @@ ggarrange(
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures', 'hazard_layer_stats_continent.png')
-ggsave(path, units="in", width=8, height=6, dpi=300)
+ggsave(path, units="in", width=8, height=6, dpi=600)
 
 ggarrange(
   # plot1, 
@@ -464,7 +463,7 @@ ggarrange(
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures', 'hazard_layer_stats_flood-region.png')
-ggsave(path, units="in", width=8, height=7, dpi=300)
+ggsave(path, units="in", width=8, height=7, dpi=600)
 ###################
 
 
@@ -477,7 +476,7 @@ ggsave(path, units="in", width=8, height=7, dpi=300)
 ###################
 ##### Coastal flooding
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, '..', 'validation')
+data_directory = file.path(folder,'..','data','processed','results','validation')
 setwd(data_directory)
 
 data = read_csv('scenario_stats.csv')
@@ -488,7 +487,7 @@ data$flooded_area_km2 = round(data$flooded_area_km2 / 1e6,3)
 
 data = data[data$hazard == 'inuncoast',]
 
-country_info = read_csv(file.path(folder, '..', 'data','raw', 'countries.csv'))
+country_info = read_csv(file.path(folder, '..', 'data','countries.csv'))
 country_info = select(country_info, iso3, continent, flood_region)
 data = merge(data, country_info,by="iso3")
 
@@ -656,8 +655,8 @@ plot1 =
   theme(legend.position = '',
         axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
   labs(colour=NULL,
-       title = "Global Sum of Flooded Coastal Area by Scenario",
-       subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
+       # title = "Global Sum of Flooded Coastal Area by Scenario",
+       # subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
        x = "", y = "Flooded Area\n(Millions km^2)", fill=NULL) +
   theme(legend.position = 'bottom', panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
@@ -707,8 +706,8 @@ plot2 =
   theme(legend.position = '',
         axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
   labs(colour=NULL,
-       title = "Global Sum of Flooded Coastal Area by Scenario",
-       subtitle = "Reported by Flood Region, Annual Probability, Year and Climate Scenario.", 
+       # title = "Global Sum of Flooded Coastal Area by Scenario",
+       # subtitle = "Reported by Flood Region, Annual Probability, Year and Climate Scenario.", 
        x = "", y = "Flooded Area\n(Millions km^2)", fill=NULL) +
   theme(legend.position = 'bottom', panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
@@ -722,7 +721,7 @@ plot2 =
 ###################
 ##### Riverine flooding
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder, '..', 'validation')
+data_directory = file.path(folder,'..','data','processed','results','validation')
 setwd(data_directory)
 
 data = read_csv('scenario_stats.csv')
@@ -731,7 +730,7 @@ data$flooded_area_km2 = gsub("-", 'NA', data$flooded_area_km2)
 data$flooded_area_km2 = as.numeric(as.character(data$flooded_area_km2))
 data$flooded_area_km2 = round(data$flooded_area_km2 / 1e6,5)
 
-country_info = read_csv(file.path(folder, '..', 'data','raw', 'countries.csv'))
+country_info = read_csv(file.path(folder, '..', 'data','countries.csv'))
 country_info = select(country_info, iso3, continent, flood_region)
 data = merge(data, country_info,by="iso3")
 
@@ -903,8 +902,8 @@ plot3 =
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
   labs(colour=NULL,
-       title = "Global Sum of Flooded Riverine Area by Scenario",
-       subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
+       # title = "Global Sum of Flooded Riverine Area by Scenario",
+       # subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
        x = "", y = "Flooded Area\n(Millions km^2)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
@@ -954,8 +953,8 @@ plot4 =
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
   labs(colour=NULL,
-       title = "Global Sum of Flooded Riverine Area by Scenario",
-       subtitle = "Reported by Flood Region, Annual Probability, Year and Climate Scenario.", 
+       # title = "Global Sum of Flooded Riverine Area by Scenario",
+       # subtitle = "Reported by Flood Region, Annual Probability, Year and Climate Scenario.", 
        x = "", y = "Flooded Area\n(Millions km^2)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) + 
   expand_limits(y=0) +
@@ -978,7 +977,7 @@ ggarrange(
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures', 'hazard_layer_stats_continent_dodged.png')
-ggsave(path, units="in", width=8, height=6, dpi=300)
+ggsave(path, units="in", width=8, height=6, dpi=600)
 
 ggarrange(
   # plot1, 
@@ -991,4 +990,4 @@ ggarrange(
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures', 'hazard_layer_stats_flood-region_dodged.png')
-ggsave(path, units="in", width=8, height=7, dpi=300)
+ggsave(path, units="in", width=8, height=7, dpi=600)

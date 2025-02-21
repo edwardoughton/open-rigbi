@@ -143,7 +143,8 @@ def collect_all(countries):
     Collect all results. 
 
     """
-    folder_in = os.path.join(BASE_PATH,'..','results','validation','country_data')
+    # folder_in = os.path.join(BASE_PATH,'..','results','validation','country_data')
+    folder_in = os.path.join(DATA_PROCESSED, 'results', 'validation', 'country_data')
 
     if not os.path.exists(folder_in):
         os.makedirs(folder_in)
@@ -155,7 +156,7 @@ def collect_all(countries):
         #if not country['iso3'] == 'USA':
         #    continue
 
-        path = os.path.join(folder_in,country['iso3'],'scenario_stats.csv')
+        path = os.path.join(folder_in, country['iso3'], 'scenario_stats.csv')
 
         if not os.path.exists(path):
             continue
@@ -167,7 +168,8 @@ def collect_all(countries):
         output = output + data
 
     output = pd.DataFrame(output)
-    output.to_csv(os.path.join(folder_in,'..','scenario_stats.csv'),index=False)
+    folder_out = os.path.join(DATA_PROCESSED, 'results', 'validation')
+    output.to_csv(os.path.join(folder_out,'..','scenario_stats.csv'),index=False)
 
     return
 
@@ -177,8 +179,6 @@ if __name__ == "__main__":
     countries = get_countries()
     scenarios = get_scenarios()
     #scenarios_tropical = get_tropical_storm_scenarios()
-
-    # scenarios = scenarios
 
     collect(countries, scenarios)
 

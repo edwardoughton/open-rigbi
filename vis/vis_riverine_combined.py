@@ -4,6 +4,8 @@ import configparser
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
+import matplotlib
+import matplotlib.colors as mcolors
 import seaborn as sns
 from shapely.geometry import MultiPolygon
 
@@ -56,32 +58,77 @@ def combine_data(results, regions):
 
 def plot_combined_results(regions, countries):
     """ Generate a combined panel plot. """
+    matplotlib.rcParams['font.family'] = 'Times New Roman'
     fig, axes = plt.subplots(2, 1, figsize=(10, 8))
     metrics = {'cost_per_km2': '(A)', 'cost_usd_baseline_m': '(B)'}
     regions['cost_usd_baseline_m'] = regions['cost_usd_baseline'] / 1e6
 
     bins = {
-        'cost_per_km2': [-10, 1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 1e12],
-        'cost_usd_baseline_m': [-10,2,3,4,5,6,7,8,9,10,1e12]
+        'cost_per_km2': [-10, 1, 5, 10, 50, 100, 500, 1000, 5000, 1e12],
+        'cost_usd_baseline_m': [-10,2,3,4,5,6,7,8,9,1e12]
     }
 
     legend_labels = {
-        'cost_per_km2': ['$<1k/km²','$5k/km²','$10k/km²','$50k/km²','$100k/km²','$500k/km²','$1M/km²','$5M/km²','$10M/km²','>$10M/km²'][::-1],
-        'cost_usd_baseline_m': ['$<2m','$3m','$4m','$5m','$6m','$7m','$8m','$9m','$10m','>$10m'][::-1]
+        'cost_per_km2': ['$<1/km²','$5/km²','$10/km²','$50/km²','$100/km²','$500/km²','$1k/km²','$5k/km²','>$5k/km²'],#[::-1],
+        'cost_usd_baseline_m': ['$<2m','$3m','$4m','$5m','$6m','$7m','$8m','$9m','>$9m']#[::-1]
     }
 
+    zero_color = 'lightgrey'  # Color for 'N/A'
+
     for ax, (metric, title) in zip(axes, metrics.items()):
+        
+        print(metric, bins[metric], legend_labels[metric])
+        
+        # **Step 1: Create an explicit mask for "N/A" areas**
+        na_mask = regions[metric] == 0
+
+        # **Step 2: Bin values while ignoring "N/A"**
         regions['bin'] = pd.cut(
-            regions[metric],
-            bins=bins[metric],
-            labels=legend_labels[metric]
+            regions[metric].where(~na_mask),  # Ignore 0 values for binning
+            bins=bins[metric], 
+            labels=legend_labels[metric],  
+            include_lowest=True
         )
-        base = regions.plot(column='bin', ax=ax, cmap='viridis', linewidth=0, legend=True)
+
+        # **Step 3: Reverse order of legend labels**
+        ordered_labels = list(reversed(legend_labels[metric]))  # Reverse the order
+        ordered_labels.append('N/A')  # Add 'N/A' at the bottom
+
+        # **Step 4: Convert 'bin' column to categorical with reversed order**
+        regions['bin'] = regions['bin'].astype(pd.CategoricalDtype(categories=ordered_labels, ordered=True))
+
+        # **Step 5: Explicitly assign 'N/A' to zero values**
+        regions.loc[na_mask, 'bin'] = 'N/A'
+
+        # **Step 6: Create a colormap with 'N/A' explicitly assigned to grey**
+        viridis_colors = plt.get_cmap('viridis', len(ordered_labels) - 1)  
+        custom_colors = {'N/A': zero_color}  # Start with explicit grey for 'N/A'
+        
+        # Assign viridis colors in reversed order
+        for i, label in enumerate(ordered_labels[:-1]):  # Exclude 'N/A' from viridis mapping
+            custom_colors[label] = viridis_colors(i / (len(ordered_labels) - 2))
+
+        # **Step 7: Create colormap, ensuring 'N/A' is explicitly assigned**
+        cmap = mcolors.ListedColormap([custom_colors[label] for label in ordered_labels])
+
+        # Normalize color mapping
+        norm = mcolors.BoundaryNorm(range(len(ordered_labels) + 1), cmap.N)
+
+        # **Step 8: Plot "N/A" regions separately in light gray FIRST**
+        regions[na_mask].plot(ax=ax, color=zero_color, linewidth=0)
+
+        # **Step 9: Plot main regions (without "N/A" regions)**
+        base = regions[~na_mask].plot(column='bin', ax=ax, cmap=cmap, linewidth=0, legend=True,
+                                      categorical=True, legend_kwds={'bbox_to_anchor': (1, 1), 'labelspacing': .95})
+
+        # **Step 10: Overlay country borders**
         countries.plot(ax=base, facecolor="none", edgecolor='grey', linewidth=0.1)
+        
         ax.set_title(title, loc='left', fontsize=14)
         minx, miny, maxx, maxy = regions.total_bounds
         ax.set_xlim(-170, 215)
         ax.set_ylim(miny-5, maxy)
+
     
     # fig.suptitle('Flood Damage Costs: Cost per km² & Total Cost')
     plt.tight_layout()
