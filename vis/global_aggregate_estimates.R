@@ -205,15 +205,15 @@ plot1 =
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
-       title = "Estimated Coastal Flooding Impact to Mobile Voice/Data Basestations",
-       subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
+       # title = "Estimated Coastal Flooding Impact to Mobile Voice/Data Basestations",
+       # subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
        x = "Annual Probability", y = "Basestations (Thousands)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+55)) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.2)) +
   facet_wrap(~year, ncol=4, nrow=1)
 
 # data1$unit = 'sites_affected_thousands'
@@ -254,15 +254,15 @@ plot2 = ggplot(data_aggregated,
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
-       title = "Estimated Coastal Flooding Damage Costs to Cellular Voice/Data Basestations",
-       subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
+       # title = "Estimated Coastal Flooding Damage Costs to Cellular Voice/Data Basestations",
+       # subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
        x = "Annual Probability", y = "Damage Cost (USD Billions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+1)) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.2)) +
   facet_wrap(~year, ncol=4, nrow=1)
 
 ggarrange(
@@ -274,7 +274,7 @@ ggarrange(
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures', 'global_coastal_flooding_impacts.png')
-ggsave(path, units="in", width=8, height=6, dpi=300)
+ggsave(path, units="in", width=8, height=6, dpi=600)
 
 data1$unit = 'cells_vulnerable_thousands'
 data_aggregated$unit = 'costs_usd_billions'
@@ -539,15 +539,15 @@ plot1 = ggplot(inunriver,
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=.8)) +
   labs(colour=NULL,
-       title = "Estimated Riverine Flooding Impact to Mobile Voice/Data Cells",
-       subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
+       # title = "Estimated Riverine Flooding Impact to Mobile Voice/Data Cells",
+       # subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
        x = "Annual Probability", y = "Basestations (Millions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+.6)) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.2)) +
   facet_wrap(~year, ncol=4, nrow=1)
 
 ####################
@@ -604,15 +604,15 @@ plot2 =
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
-       title = "Estimated Riverine Flooding Impact to Mobile Voice/Data Basestations",
-       subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
+       # title = "Estimated Riverine Flooding Impact to Mobile Voice/Data Basestations",
+       # subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
        x = "Annual Probability", y = "Damage Cost (USD Billions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+12)) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.2)) +
   facet_wrap(~year, ncol=4, nrow=1)
 
 ggarrange(
@@ -624,7 +624,7 @@ ggarrange(
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures', 'global_riverine_flooding_impacts.png')
-ggsave(path, units="in", width=8, height=6, dpi=300)
+ggsave(path, units="in", width=8, height=6, dpi=600)
 
 
 ########################################################
@@ -845,20 +845,20 @@ plot1 = ggplot(data,
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=0, hjust=.5)) +
   labs(colour=NULL,
-       title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Basestations",
-       subtitle = "Reported by Return Period, Climate Scenario and Continent.",
+       # title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Basestations",
+       # subtitle = "Reported by Return Period, Climate Scenario and Continent.",
        x = "", y = "Basestations (Millions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=7, title='Continent')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+2))
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+1.4))
 
 data1 = data
 
 # path = file.path(folder, 'figures', 'tropical_cyclone_impacts.png')
-# ggsave(path, units="in", width=8, height=4.5, dpi=300)
+# ggsave(path, units="in", width=8, height=4.5, dpi=600)
 
 ########################################################
 ########################################################
@@ -1075,7 +1075,7 @@ df_errorbar <-
     high = sum(high)
   )
 
-max_y_value = max(data$mean)
+# max_y_value = max(data$mean)
 
 plot2 = ggplot(data,
                aes(x=interaction, y=mean, fill=continent)) +
@@ -1092,15 +1092,15 @@ plot2 = ggplot(data,
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=0, hjust=.5)) +
   labs(colour=NULL,
-       title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Basestations",
-       subtitle = "Reported by Return Period, Climate Scenario and Continent.",
+       # title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Basestations",
+       # subtitle = "Reported by Return Period, Climate Scenario and Continent.",
        x = "", y = "Damage Cost (USD Bn)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=7, title='Continent')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+2))
+  scale_y_continuous(expand = c(0, 0), limits=c(0, 2.4))
 
 ggarrange(
   plot1,
@@ -1111,7 +1111,7 @@ ggarrange(
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures', 'global_tropical_storm_impacts.png')
-ggsave(path, units="in", width=7, height=6, dpi=300)
+ggsave(path, units="in", width=7, height=6, dpi=600)
 
 data1$unit = 'cells_vulnerable_millions'
 data$unit = 'costs_usd_billions'

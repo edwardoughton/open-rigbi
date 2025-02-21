@@ -2106,7 +2106,7 @@ BHR,139,2651689,inuncoast,RCP4.5,2050,1-in-1000-Years,0,unique.csv,high,inuncoas
 BRA,130,2240004,inuncoast,RCP4.5,2050,1-in-1000-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2050_rp1000_0_unique.csv,0.1%
 CAN,523,10635055,inuncoast,RCP4.5,2050,1-in-1000-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2050_rp1000_0_unique.csv,0.1%
 CHL,4,63334,inuncoast,RCP4.5,2050,1-in-1000-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2050_rp1000_0_unique.csv,0.1%
-CHN,18371,455301201,inuncoast,RCP4.5,2050,1-in-1000-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2050_rp1000_0_unique.csv,0.1%
+CHN,18471,458007851,inuncoast,RCP4.5,2050,1-in-1000-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2050_rp1000_0_unique.csv,0.1%
 CMR,7,106667,inuncoast,RCP4.5,2050,1-in-1000-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2050_rp1000_0_unique.csv,0.1%
 COL,9,151667,inuncoast,RCP4.5,2050,1-in-1000-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2050_rp1000_0_unique.csv,0.1%
 CRI,2,43334,inuncoast,RCP4.5,2050,1-in-1000-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2050_rp1000_0_unique.csv,0.1%
@@ -2600,7 +2600,7 @@ BHR,465,9803339,inuncoast,RCP4.5,2080,1-in-250-Years,0,unique.csv,high,inuncoast
 BRA,183,3311683,inuncoast,RCP4.5,2080,1-in-250-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2080_rp0250_0_unique.csv,0.4%
 CAN,589,11883397,inuncoast,RCP4.5,2080,1-in-250-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2080_rp0250_0_unique.csv,0.4%
 CHL,4,63334,inuncoast,RCP4.5,2080,1-in-250-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2080_rp0250_0_unique.csv,0.4%
-CHN,19147,476179515,inuncoast,RCP4.5,2080,1-in-250-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2080_rp0250_0_unique.csv,0.4%
+CHN,19246,479097822,inuncoast,RCP4.5,2080,1-in-250-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2080_rp0250_0_unique.csv,0.4%
 CMR,9,145001,inuncoast,RCP4.5,2080,1-in-250-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2080_rp0250_0_unique.csv,0.4%
 COL,14,273334,inuncoast,RCP4.5,2080,1-in-250-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2080_rp0250_0_unique.csv,0.4%
 CRI,2,43334,inuncoast,RCP4.5,2080,1-in-250-Years,0,unique.csv,high,inuncoast_rcp4p5_wtsub_2080_rp0250_0_unique.csv,0.4%
@@ -4750,7 +4750,7 @@ BHR,139,2651689,inuncoast,RCP8.5,2050,1-in-500-Years,0,unique.csv,high,inuncoast
 BRA,130,2235004,inuncoast,RCP8.5,2050,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2050_rp0500_0_unique.csv,0.2%
 CAN,481,9818397,inuncoast,RCP8.5,2050,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2050_rp0500_0_unique.csv,0.2%
 CHL,4,63334,inuncoast,RCP8.5,2050,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2050_rp0500_0_unique.csv,0.2%
-CHN,17081,423189721,inuncoast,RCP8.5,2050,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2050_rp0500_0_unique.csv,0.2%
+CHN,17180,425854708,inuncoast,RCP8.5,2050,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2050_rp0500_0_unique.csv,0.2%
 CMR,7,106667,inuncoast,RCP8.5,2050,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2050_rp0500_0_unique.csv,0.2%
 COL,9,156667,inuncoast,RCP8.5,2050,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2050_rp0500_0_unique.csv,0.2%
 CRI,2,43334,inuncoast,RCP8.5,2050,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2050_rp0500_0_unique.csv,0.2%
@@ -5240,7 +5240,7 @@ BHR,488,10811708,inuncoast,RCP8.5,2080,1-in-100-Years,0,unique.csv,high,inuncoas
 BRA,190,3561690,inuncoast,RCP8.5,2080,1-in-100-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0100_0_unique.csv,1%
 CAN,589,11940063,inuncoast,RCP8.5,2080,1-in-100-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0100_0_unique.csv,1%
 CHL,4,63334,inuncoast,RCP8.5,2080,1-in-100-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0100_0_unique.csv,1%
-CHN,18476,454983182,inuncoast,RCP8.5,2080,1-in-100-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0100_0_unique.csv,1%
+CHN,18575,457893155,inuncoast,RCP8.5,2080,1-in-100-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0100_0_unique.csv,1%
 CMR,10,188336,inuncoast,RCP8.5,2080,1-in-100-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0100_0_unique.csv,1%
 COL,17,325001,inuncoast,RCP8.5,2080,1-in-100-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0100_0_unique.csv,1%
 CRI,4,60000,inuncoast,RCP8.5,2080,1-in-100-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0100_0_unique.csv,1%
@@ -5750,7 +5750,7 @@ BHR,500,11051704,inuncoast,RCP8.5,2080,1-in-500-Years,0,unique.csv,high,inuncoas
 BRA,219,4001695,inuncoast,RCP8.5,2080,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0500_0_unique.csv,0.2%
 CAN,620,12830060,inuncoast,RCP8.5,2080,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0500_0_unique.csv,0.2%
 CHL,4,68334,inuncoast,RCP8.5,2080,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0500_0_unique.csv,0.2%
-CHN,25856,673620632,inuncoast,RCP8.5,2080,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0500_0_unique.csv,0.2%
+CHN,25961,676705609,inuncoast,RCP8.5,2080,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0500_0_unique.csv,0.2%
 CMR,13,220001,inuncoast,RCP8.5,2080,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0500_0_unique.csv,0.2%
 COL,21,416669,inuncoast,RCP8.5,2080,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0500_0_unique.csv,0.2%
 CRI,4,65000,inuncoast,RCP8.5,2080,1-in-500-Years,0,unique.csv,high,inuncoast_rcp8p5_wtsub_2080_rp0500_0_unique.csv,0.2%
