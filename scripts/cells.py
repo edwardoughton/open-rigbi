@@ -4,7 +4,6 @@ Gather cell count information.
 Written by Ed Oughton.
 
 February 2023
-
 """
 import os
 import json
@@ -23,8 +22,18 @@ DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 def count_cells(country):
     """
-    Add up cells by technology.
+    Count unique cells by radio technology for each administrative region.
 
+    This function iterates over all regions at the country’s configured
+    administrative level, reads the corresponding unique site layers,
+    and counts the number of cells by radio technology (2G, 3G, 4G, and 5G).
+    The aggregated results are written to a country-level CSV file.
+
+    Parameters
+    ----------
+    country : dict
+        Dictionary containing country metadata, including the ISO3 code
+        and regional configuration.
     """
     regional_level = country['gid_region']
     gid_level = 'gid_{}'.format(regional_level) #regional_level
@@ -97,8 +106,18 @@ def count_cells(country):
 
 def collect_cells(countries):
     """
-    Collect all cells.
+    Aggregate regional cell counts across multiple countries.
 
+    This function reads per-country regional cell count files, combines
+    them into a single dataset, and writes the aggregated results to a
+    consolidated CSV file. Countries without available cell count data
+    are skipped.
+
+    Parameters
+    ----------
+    countries : list of dict
+        Iterable of country metadata dictionaries, each containing at
+        least an ISO3 country code.
     """
     output = []
 
