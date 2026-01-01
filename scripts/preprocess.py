@@ -28,7 +28,7 @@ filename = 'script_config.ini'
 CONFIG.read(os.path.join(os.path.dirname(__file__),'..', 'scripts', filename))
 BASE_PATH = CONFIG['file_locations']['base_path']
 
-DATA_RAW = os.path.join(BASE_PATH, '..', '..', 'data_raw')
+DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 
@@ -138,8 +138,8 @@ def create_national_sites_csv(country):
     if os.path.exists(path_csv):
         return
 
-    # print('-site.csv data does not exist')
-    # print('-Subsetting site data for {}'.format(iso3))
+    print('-site.csv data does not exist')
+    print('-Subsetting site data for {}'.format(iso3))
 
     if not os.path.exists(folder):
         os.makedirs(folder)
