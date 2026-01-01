@@ -4,7 +4,6 @@ Preprocess sites data.
 Ed Oughton
 
 February 2022
-
 """
 import sys
 import os
@@ -35,8 +34,18 @@ DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
 
 def run_preprocessing(iso3):
     """
-    Meta function for running preprocessing.
+    Run the full preprocessing pipeline for a given country.
 
+    This function orchestrates all national- and regional-level preprocessing
+    steps for a country identified by its ISO3 code. It generates site layers,
+    processes administrative boundaries, disaggregates sites by region,
+    creates coastal lookup tables, clips flood hazard layers, and converts
+    cell-level estimates into site-level geometries.
+
+    Parameters
+    ----------
+    iso3 : str
+        Three-letter ISO country code identifying the country to process.
     """
     filename = "countries.csv"
     path = os.path.join(BASE_PATH, filename)
@@ -46,30 +55,31 @@ def run_preprocessing(iso3):
     country = country.to_records('dicts')[0]
     regional_level = int(country['gid_region'])
 
-    # print('Working on create_national_sites_csv')
+    print(f'Working on create_national_sites_csv for {iso3}')
     create_national_sites_csv(country)
 
-    # print('Working on process_country_shapes')
+    print(f'Working on process_country_shapes for {iso3}')
     process_country_shapes(iso3)
 
-    # print('Working on process_regions')
+    print(f'Working on process_regions for {iso3}')
     process_regions(iso3, regional_level)
 
-    # print('Working on gid_1 regional disaggregation')
+    print(f'Working on gid_1 regional disaggregation for {iso3}')
     if regional_level >= 1:
         regions = get_regions(country, 1)#[:1]#[::-1]
         for region in regions:
             segment_by_gid_1(iso3, region['GID_1'])
 
-    # print('Working on gid_2 disaggregation')
+    print(f'Working on gid_2 disaggregation for {iso3}')
     if regional_level == 2:
         regions = get_regions(country, 2)#[:1]#[::-1]
         for region in regions:
             segment_by_gid_2(iso3, 2, region['GID_2'], region['GID_1'])
 
+    print(f'Working on process_coastal_lut for {iso3}')
     process_coastal_lut(country)
 
-    # print('Working on process_flooding_layers')
+    print(f'Working on process_flooding_layers for {iso3}')
     process_flooding_layers(country)
 
     # print('Working on process_regional_flooding_layers')
@@ -80,7 +90,7 @@ def run_preprocessing(iso3):
         region = region['GID_{}'.format(regional_level)]
         process_regional_flooding_layers(country, region)
 
-    print('Convert cell estimates to site estimates')
+    print(f'Convert cell estimates to site estimates for {iso3}')
     gid_id = "GID_{}".format(regional_level)
     regions = get_regions(country, regional_level)#[:1]#[::-1]
     for region in regions:
@@ -96,8 +106,18 @@ def run_preprocessing(iso3):
 
 def create_national_sites_csv(country):
     """
-    Create a national sites csv layer for a selected country.
+    Create a national-level site CSV for a given country.
 
+    This function filters a global cell tower dataset using mobile network
+    codes associated with the specified country and writes a deduplicated
+    national site layer to disk. If the output file already exists, the
+    function exits without reprocessing.
+
+    Parameters
+    ----------
+    country : dict
+        Dictionary containing country metadata, including the ISO3 code
+        and mobile network identifiers.
     """
     iso3 = country['iso3']#.values[0]
 
@@ -164,8 +184,19 @@ def create_national_sites_csv(country):
 
 def segment_by_gid_1(iso3, region):
     """
-    Segment sites by gid_1 bounding box.
+    Filter national sites to a single GID_1 administrative region.
 
+    This function performs a spatial join between national site locations
+    and the GID_1 polygon corresponding to the specified region. The resulting
+    subset of sites is written to an interim GeoPackage file. If the output
+    file already exists, no processing is performed.
+
+    Parameters
+    ----------
+    iso3 : str
+        Three-letter ISO country code.
+    region : str
+        GID_1 region identifier used to select the administrative boundary.
     """
     gid_level = 'GID_1'
 
@@ -207,8 +238,24 @@ def segment_by_gid_1(iso3, region):
 
 def segment_by_gid_2(iso3, level, region, gid_1):
     """
-    Segment sites by gid_2 bounding box.
+    Filter GID_1-segmented sites to a single GID_2 administrative region.
 
+    This function reads the interim site layer for a given GID_1 region and
+    performs a spatial join against the polygon for the specified GID level
+    (typically GID_2). The resulting subset of sites is written to an interim
+    GeoPackage file. If the output file already exists, or if required inputs
+    are missing, the function exits without processing.
+
+    Parameters
+    ----------
+    iso3 : str
+        Three-letter ISO country code.
+    level : int
+        Administrative level used to select the region layer (e.g., 2 for GID_2).
+    region : str
+        Region identifier for the selected administrative level (e.g., a GID_2 code).
+    gid_1 : str
+        GID_1 region identifier used to locate the interim GID_1 site layer.
     """
     # Ensure output folder exists
     folder = os.path.join(DATA_PROCESSED, iso3, 'sites', 'gid_2', 'interim')
@@ -255,8 +302,18 @@ def segment_by_gid_2(iso3, level, region, gid_1):
 
 def process_flooding_layers(country):
     """
-    Loop to process all flood layers.
+    Process and clip all flood hazard layers for a country.
 
+    This function iterates over all configured flood hazard scenarios,
+    clips each raster to the national boundary of the specified country,
+    and writes the resulting layers to the country-specific hazard
+    directory. Hazard layers that already exist are skipped.
+
+    Parameters
+    ----------
+    country : dict
+        Dictionary containing country metadata, including the ISO3 code
+        and country name.
     """
     scenarios = get_scenarios()
     iso3 = country['iso3']
@@ -309,7 +366,6 @@ def process_flood_layer(country, path_in, path_out):
         The path for the chosen global hazard file to be processed.
     path_out : string
         The path to write the clipped hazard file.
-
     """
     iso3 = country['iso3']
     path_country = os.path.join(DATA_PROCESSED, iso3,
@@ -345,7 +401,20 @@ def process_flood_layer(country, path_in, path_out):
 
 def process_regional_flooding_layers(country, region):
     """
-    Process each flooding layer at the regional level.
+    Process flood hazard layers for a specific administrative region.
+
+    This function iterates over all configured flood hazard scenarios and
+    clips each national-level flood raster to the geometry of the specified
+    region. Coastal flood scenarios are processed only for regions listed
+    in the coastal lookup table. Existing output files are skipped.
+
+    Parameters
+    ----------
+    country : dict
+        Dictionary containing country metadata, including the ISO3 code.
+    region : str
+        Administrative region identifier (e.g., a GID code) used to select
+        the regional boundary.
     """
     scenarios = get_scenarios()
     iso3 = country['iso3']
@@ -460,8 +529,25 @@ def process_regional_flood_layer(country, region, path_in, path_out):
 
 def create_sites_layer(country, regional_level, region, polygon):
     """
-    Process cell estimates into an estimated site layer.
+    Create an estimated site layer from cell-level observations.
 
+    This function aggregates cell-level records into estimated site
+    locations by grouping sectors belonging to the same base station
+    and computing mean coordinates. The resulting site geometries are
+    written to a regional GeoPackage file. If the output already exists
+    or required inputs are missing, the function exits without processing.
+
+    Parameters
+    ----------
+    country : dict
+        Dictionary containing country metadata, including the ISO3 code.
+    regional_level : int
+        Administrative level used to determine the site segmentation
+        (e.g., 1 for GID_1, 2 for GID_2).
+    region : str
+        Administrative region identifier used to select the interim site layer.
+    polygon : shapely.geometry.base.BaseGeometry
+        Geometry of the administrative region associated with the site layer.
     """
     gid_level = "gid_{}".format(regional_level)
     filename = "{}_unique.gpkg".format(region)
@@ -517,10 +603,10 @@ if __name__ == "__main__":
     failures = []
     for country in tqdm(countries):
 
-        # if not country['iso3'] == 'ALB':
-        #    continue
+        if not country['iso3'] == 'ALB':
+           continue
 
-        print(f"--{country['country']}")#['iso3']
+        print(f"-----{country['country']}")#['iso3']
 
         try:
             run_preprocessing(country['iso3'])
