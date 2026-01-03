@@ -1,124 +1,124 @@
 "","interaction","continent","unit","low","mean","high"
 "1","0.01%
-2050","Africa","cells_vulnerable_millions",0.0368,0.0392,0.042
-"2","0.01%
-2050","Asia","cells_vulnerable_millions",1.0615,1.0789,1.0918
-"3","0.01%
-2050","Europe","cells_vulnerable_millions",0.2821,0.39,0.4678
-"4","0.01%
-2050","North America","cells_vulnerable_millions",0.5871,0.6197,0.6583
-"5","0.01%
-2050","Oceania","cells_vulnerable_millions",0.0424,0.0613,0.0816
-"6","0.01%
 2050","South America","cells_vulnerable_millions",0.0105,0.0112,0.0117
+"2","0.01%
+2050","Oceania","cells_vulnerable_millions",0.0424,0.0613,0.0816
+"3","0.01%
+2050","North America","cells_vulnerable_millions",0.5871,0.6197,0.6583
+"4","0.01%
+2050","Europe","cells_vulnerable_millions",0.2821,0.39,0.4678
+"5","0.01%
+2050","Asia","cells_vulnerable_millions",1.0615,1.0789,1.0918
+"6","0.01%
+2050","Africa","cells_vulnerable_millions",0.0368,0.0392,0.042
 "7","0.1%
-2050","Africa","cells_vulnerable_millions",0.0261,0.0274,0.029
-"8","0.1%
-2050","Asia","cells_vulnerable_millions",0.903,0.9333,0.9594
-"9","0.1%
-2050","Europe","cells_vulnerable_millions",0.1063,0.1486,0.1702
-"10","0.1%
-2050","North America","cells_vulnerable_millions",0.4392,0.4549,0.4715
-"11","0.1%
-2050","Oceania","cells_vulnerable_millions",0.0288,0.0351,0.0385
-"12","0.1%
 2050","South America","cells_vulnerable_millions",0.0069,0.0075,0.0079
+"8","0.1%
+2050","Oceania","cells_vulnerable_millions",0.0288,0.0351,0.0385
+"9","0.1%
+2050","North America","cells_vulnerable_millions",0.4392,0.4549,0.4715
+"10","0.1%
+2050","Europe","cells_vulnerable_millions",0.1063,0.1486,0.1702
+"11","0.1%
+2050","Asia","cells_vulnerable_millions",0.903,0.9333,0.9594
+"12","0.1%
+2050","Africa","cells_vulnerable_millions",0.0261,0.0274,0.029
 "13","0.2%
-2050","Africa","cells_vulnerable_millions",0.0099,0.0121,0.0163
-"14","0.2%
-2050","Asia","cells_vulnerable_millions",0.8585,0.8823,0.9041
-"15","0.2%
-2050","Europe","cells_vulnerable_millions",0.0826,0.0926,0.1048
-"16","0.2%
-2050","North America","cells_vulnerable_millions",0.3642,0.3854,0.4034
-"17","0.2%
-2050","Oceania","cells_vulnerable_millions",0.0205,0.0297,0.0371
-"18","0.2%
 2050","South America","cells_vulnerable_millions",0.0055,0.0056,0.0058
+"14","0.2%
+2050","Oceania","cells_vulnerable_millions",0.0205,0.0297,0.0371
+"15","0.2%
+2050","North America","cells_vulnerable_millions",0.3642,0.3854,0.4034
+"16","0.2%
+2050","Europe","cells_vulnerable_millions",0.0826,0.0926,0.1048
+"17","0.2%
+2050","Asia","cells_vulnerable_millions",0.8585,0.8823,0.9041
+"18","0.2%
+2050","Africa","cells_vulnerable_millions",0.0099,0.0121,0.0163
 "19","0.5%
-2050","Africa","cells_vulnerable_millions",0.0074,0.0077,0.0081
-"20","0.5%
-2050","Asia","cells_vulnerable_millions",0.7508,0.7966,0.83
-"21","0.5%
-2050","Europe","cells_vulnerable_millions",0.0811,0.0813,0.0815
-"22","0.5%
-2050","North America","cells_vulnerable_millions",0.2208,0.2386,0.2514
-"23","0.5%
-2050","Oceania","cells_vulnerable_millions",0.018,0.0216,0.0266
-"24","0.5%
 2050","South America","cells_vulnerable_millions",0.0026,0.0027,0.0028
+"20","0.5%
+2050","Oceania","cells_vulnerable_millions",0.018,0.0216,0.0266
+"21","0.5%
+2050","North America","cells_vulnerable_millions",0.2208,0.2386,0.2514
+"22","0.5%
+2050","Europe","cells_vulnerable_millions",0.0811,0.0813,0.0815
+"23","0.5%
+2050","Asia","cells_vulnerable_millions",0.7508,0.7966,0.83
+"24","0.5%
+2050","Africa","cells_vulnerable_millions",0.0074,0.0077,0.0081
 "25","1%
-2050","Africa","cells_vulnerable_millions",0.0074,0.0074,0.0074
-"26","1%
-2050","Asia","cells_vulnerable_millions",0.6552,0.7003,0.733
-"27","1%
-2050","Europe","cells_vulnerable_millions",0.0482,0.0717,0.0812
-"28","1%
-2050","North America","cells_vulnerable_millions",0.1585,0.1724,0.1846
-"29","1%
-2050","Oceania","cells_vulnerable_millions",0.0121,0.0169,0.0219
-"30","1%
 2050","South America","cells_vulnerable_millions",0.0025,0.0025,0.0025
+"26","1%
+2050","Oceania","cells_vulnerable_millions",0.0121,0.0169,0.0219
+"27","1%
+2050","North America","cells_vulnerable_millions",0.1585,0.1724,0.1846
+"28","1%
+2050","Europe","cells_vulnerable_millions",0.0482,0.0717,0.0812
+"29","1%
+2050","Asia","cells_vulnerable_millions",0.6552,0.7003,0.733
+"30","1%
+2050","Africa","cells_vulnerable_millions",0.0074,0.0074,0.0074
 "31","0.01%
-Historical","Africa","cells_vulnerable_millions",NA,0.030293,NA
-"32","0.1%
-Historical","Africa","cells_vulnerable_millions",NA,0.010511,NA
-"33","0.2%
-Historical","Africa","cells_vulnerable_millions",NA,0.007309,NA
-"34","0.5%
-Historical","Africa","cells_vulnerable_millions",NA,0.006967,NA
-"35","1%
-Historical","Africa","cells_vulnerable_millions",NA,0.005881,NA
-"36","0.01%
-Historical","Asia","cells_vulnerable_millions",NA,1.032676,NA
-"37","0.1%
-Historical","Asia","cells_vulnerable_millions",NA,0.8542,NA
-"38","0.2%
-Historical","Asia","cells_vulnerable_millions",NA,0.759325,NA
-"39","0.5%
-Historical","Asia","cells_vulnerable_millions",NA,0.614706,NA
-"40","1%
-Historical","Asia","cells_vulnerable_millions",NA,0.256742,NA
-"41","0.01%
-Historical","Europe","cells_vulnerable_millions",NA,0.29861,NA
-"42","0.1%
-Historical","Europe","cells_vulnerable_millions",NA,0.071422,NA
-"43","0.2%
-Historical","Europe","cells_vulnerable_millions",NA,0.071322,NA
-"44","0.5%
-Historical","Europe","cells_vulnerable_millions",NA,0.071322,NA
-"45","1%
-Historical","Europe","cells_vulnerable_millions",NA,0.071322,NA
-"46","0.01%
-Historical","North America","cells_vulnerable_millions",NA,0.543903,NA
-"47","0.1%
-Historical","North America","cells_vulnerable_millions",NA,0.372696,NA
-"48","0.2%
-Historical","North America","cells_vulnerable_millions",NA,0.27952,NA
-"49","0.5%
-Historical","North America","cells_vulnerable_millions",NA,0.212259,NA
-"50","1%
-Historical","North America","cells_vulnerable_millions",NA,0.157788,NA
-"51","0.01%
-Historical","Oceania","cells_vulnerable_millions",NA,0.039428,NA
-"52","0.1%
-Historical","Oceania","cells_vulnerable_millions",NA,0.024153,NA
-"53","0.2%
-Historical","Oceania","cells_vulnerable_millions",NA,0.017408,NA
-"54","0.5%
-Historical","Oceania","cells_vulnerable_millions",NA,0.015802,NA
-"55","1%
-Historical","Oceania","cells_vulnerable_millions",NA,0.011008,NA
-"56","0.01%
 Historical","South America","cells_vulnerable_millions",NA,0.010689,NA
-"57","0.1%
+"32","0.1%
 Historical","South America","cells_vulnerable_millions",NA,0.006727,NA
-"58","0.2%
+"33","0.2%
 Historical","South America","cells_vulnerable_millions",NA,0.0052,NA
-"59","0.5%
+"34","0.5%
 Historical","South America","cells_vulnerable_millions",NA,0.002747,NA
-"60","1%
+"35","1%
 Historical","South America","cells_vulnerable_millions",NA,0.002461,NA
+"36","0.01%
+Historical","Oceania","cells_vulnerable_millions",NA,0.039428,NA
+"37","0.1%
+Historical","Oceania","cells_vulnerable_millions",NA,0.024153,NA
+"38","0.2%
+Historical","Oceania","cells_vulnerable_millions",NA,0.017408,NA
+"39","0.5%
+Historical","Oceania","cells_vulnerable_millions",NA,0.015802,NA
+"40","1%
+Historical","Oceania","cells_vulnerable_millions",NA,0.011008,NA
+"41","0.01%
+Historical","North America","cells_vulnerable_millions",NA,0.543903,NA
+"42","0.1%
+Historical","North America","cells_vulnerable_millions",NA,0.372696,NA
+"43","0.2%
+Historical","North America","cells_vulnerable_millions",NA,0.27952,NA
+"44","0.5%
+Historical","North America","cells_vulnerable_millions",NA,0.212259,NA
+"45","1%
+Historical","North America","cells_vulnerable_millions",NA,0.157788,NA
+"46","0.01%
+Historical","Europe","cells_vulnerable_millions",NA,0.29861,NA
+"47","0.1%
+Historical","Europe","cells_vulnerable_millions",NA,0.071422,NA
+"48","0.2%
+Historical","Europe","cells_vulnerable_millions",NA,0.071322,NA
+"49","0.5%
+Historical","Europe","cells_vulnerable_millions",NA,0.071322,NA
+"50","1%
+Historical","Europe","cells_vulnerable_millions",NA,0.071322,NA
+"51","0.01%
+Historical","Asia","cells_vulnerable_millions",NA,1.032676,NA
+"52","0.1%
+Historical","Asia","cells_vulnerable_millions",NA,0.8542,NA
+"53","0.2%
+Historical","Asia","cells_vulnerable_millions",NA,0.759325,NA
+"54","0.5%
+Historical","Asia","cells_vulnerable_millions",NA,0.614706,NA
+"55","1%
+Historical","Asia","cells_vulnerable_millions",NA,0.256742,NA
+"56","0.01%
+Historical","Africa","cells_vulnerable_millions",NA,0.030293,NA
+"57","0.1%
+Historical","Africa","cells_vulnerable_millions",NA,0.010511,NA
+"58","0.2%
+Historical","Africa","cells_vulnerable_millions",NA,0.007309,NA
+"59","0.5%
+Historical","Africa","cells_vulnerable_millions",NA,0.006967,NA
+"60","1%
+Historical","Africa","cells_vulnerable_millions",NA,0.005881,NA
 "61","0.01%
 2050","Africa","costs_usd_billions",0.0171,0.0184,0.0199
 "62","0.01%
