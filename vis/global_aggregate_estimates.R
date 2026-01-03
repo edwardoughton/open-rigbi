@@ -205,9 +205,9 @@ plot1 =
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
-       # title = "Estimated Coastal Flooding Impact to Mobile Voice/Data Basestations",
+       # title = "Estimated Coastal Flooding Impact to Mobile Voice/Data Base Stations",
        # subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
-       x = "Annual Probability", y = "Basestations (Thousands)", fill=NULL) +
+       x = "Annual Probability", y = "Base Stations (Thousands)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
@@ -254,7 +254,7 @@ plot2 = ggplot(data_aggregated,
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
-       # title = "Estimated Coastal Flooding Damage Costs to Cellular Voice/Data Basestations",
+       # title = "Estimated Coastal Flooding Damage Costs to Cellular Voice/Data Base Stations",
        # subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
        x = "Annual Probability", y = "Damage Cost (USD Billions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -541,7 +541,7 @@ plot1 = ggplot(inunriver,
   labs(colour=NULL,
        # title = "Estimated Riverine Flooding Impact to Mobile Voice/Data Cells",
        # subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
-       x = "Annual Probability", y = "Basestations (Millions)", fill=NULL) +
+       x = "Annual Probability", y = "Base Stations (Millions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
@@ -604,7 +604,7 @@ plot2 =
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=45, hjust=1)) +
   labs(colour=NULL,
-       # title = "Estimated Riverine Flooding Impact to Mobile Voice/Data Basestations",
+       # title = "Estimated Riverine Flooding Impact to Mobile Voice/Data Base Stations",
        # subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
        x = "Annual Probability", y = "Damage Cost (USD Billions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
@@ -729,6 +729,11 @@ data$model = factor(data$model,
                       "HadGEM3-GC31-HM"),
 )
 
+data$continent <- factor(
+  data$continent,
+  levels = c("South America", "Oceania", "North America", "Europe", "Asia", "Africa")
+)
+
 data = data %>%
   group_by(continent, model, probability) %>%
   summarize(
@@ -845,13 +850,15 @@ plot1 = ggplot(data,
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=0, hjust=.5)) +
   labs(colour=NULL,
-       # title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Basestations",
+       # title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Base Stations",
        # subtitle = "Reported by Return Period, Climate Scenario and Continent.",
-       x = "", y = "Basestations (Millions)", fill=NULL) +
+       x = "", y = "Base Stations (Millions)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=7, title='Continent')) +
-  scale_fill_viridis_d(direction=1) +
+  scale_fill_manual(values = c("Africa" = "#000000","Asia" = "#E69F00",
+      "Europe" = "#56B4E9","North America" = "#009E73","Oceania" = "#F0E442",
+      "South America" = "#D55E00")) +
   scale_x_discrete(expand = c(0, 0.15)) +
   scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+1.4))
 
@@ -1092,13 +1099,15 @@ plot2 = ggplot(data,
   theme(legend.position = 'bottom',
         axis.text.x = element_text(angle=0, hjust=.5)) +
   labs(colour=NULL,
-       # title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Basestations",
+       # title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Base Stations",
        # subtitle = "Reported by Return Period, Climate Scenario and Continent.",
        x = "", y = "Damage Cost (USD Bn)", fill=NULL) +
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=7, title='Continent')) +
-  scale_fill_viridis_d(direction=1) +
+  scale_fill_manual(values = c("Africa" = "#000000","Asia" = "#E69F00",
+      "Europe" = "#56B4E9","North America" = "#009E73","Oceania" = "#F0E442",
+      "South America" = "#D55E00")) +
   scale_x_discrete(expand = c(0, 0.15)) +
   scale_y_continuous(expand = c(0, 0), limits=c(0, 2.4))
 

@@ -170,13 +170,23 @@ def collect_final_results(scenario):
         # if not country == 'BGD':
         #     continue
 
+        cell_count_low = 0
+        cost_usd_low = 0
         cell_count_baseline = 0
         cost_usd_baseline = 0
+        cell_count_high = 0
+        cost_usd_high = 0
 
         for item in data:
 
             if not item['iso3'] == country:
                 continue
+
+            if item['cell_count_low'] > 0:
+                cell_count_low += item['cell_count_low']
+
+            if item['cost_usd_low'] > 0:
+                cost_usd_low += item['cost_usd_low']
 
             if item['cell_count_baseline'] > 0:
                 cell_count_baseline += item['cell_count_baseline']
@@ -184,10 +194,20 @@ def collect_final_results(scenario):
             if item['cost_usd_baseline'] > 0:
                 cost_usd_baseline += item['cost_usd_baseline']
 
+            if item['cell_count_high'] > 0:
+                cell_count_high += item['cell_count_high']
+
+            if item['cost_usd_high'] > 0:
+                cost_usd_high += item['cost_usd_high']
+
         output.append({
             'iso3': country,
+            'cell_count_low': cell_count_low,
+            'cost_usd_low': cost_usd_low,
             'cell_count_baseline': cell_count_baseline,
             'cost_usd_baseline': cost_usd_baseline,
+            'cell_count_high': cell_count_high,
+            'cost_usd_high': cost_usd_high,
             })
 
     if len(output) == 0:
@@ -202,18 +222,22 @@ def collect_final_results(scenario):
 
 if __name__ == "__main__":
 
-    scenarios = get_scenarios()
-    for scenario in tqdm(scenarios):
-        # print('collecting regional results')
-        collect_regional_results(scenario)
-        # print('collecting final results')
-        collect_final_results(scenario)
+    # scenarios = get_scenarios()
+    # for scenario in tqdm(scenarios):
+    #     # print('collecting regional results')
+    #     collect_regional_results(scenario)
+    #     # print('collecting final results')
+    #     collect_final_results(scenario)
 
     scenarios_tc = get_tropical_storm_scenarios()
     for scenario_tc in tqdm(scenarios_tc):
+        
+        print(f"----Working on: {scenario_tc}")
+
         # print('collecting regional results')
-        collect_regional_results(scenario_tc)
-        # print('collecting final results')
+        # collect_regional_results(scenario_tc)
+
+        print('collecting final results')
         collect_final_results(scenario_tc)
 
     # args = sys.argv

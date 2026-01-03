@@ -2,6 +2,7 @@
 
 """
 import os
+import gdal
 import configparser
 import glob
 from tqdm import tqdm
@@ -20,8 +21,6 @@ def convert_surface_water_to_shapes():
     """
 
     """
-    import os, gdal
-
     input_folder = os.path.join(DATA_RAW, 'global_surface_water')
     paths = glob.glob(os.path.join(input_folder, "*.tif"))#[100:102]
 

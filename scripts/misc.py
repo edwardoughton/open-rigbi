@@ -1,14 +1,18 @@
 """
 Miscellaneous model inputs.
 
+This module provides helper functions and configuration required by the model,
+including accessors for country and region datasets, hazard scenario selection,
+and preprocessing of national and subnational administrative boundaries.
+
+Written by Ed Oughton
+February 2022
 """
 import os
 import configparser
-import glob
 import pandas as pd
 import geopandas as gpd
-# from shapely.ops import transform
-from shapely.geometry import shape, Point, mapping, LineString, MultiPolygon
+from shapely.geometry import MultiPolygon
 
 CONFIG = configparser.ConfigParser()
 CONFIG.read(os.path.join(os.path.dirname(__file__), 'script_config.ini'))
@@ -48,8 +52,15 @@ technologies = [
 
 def get_countries():
     """
-    Get all countries.
+    Read and return the list of included countries.
 
+    Countries are loaded from ``countries.csv`` and filtered to those not
+    marked for exclusion.
+
+    Returns
+    -------
+    list of dict
+        Country records as dictionaries.
     """
     filename = "countries.csv"
     path = os.path.join(BASE_PATH, filename)
@@ -57,15 +68,32 @@ def get_countries():
     countries = pd.read_csv(path, encoding='latin-1')
     countries = countries[countries.Exclude == 0]
     countries = countries.to_dict('records')
-    #countries = countries.sort_values(by=['Population'], ascending=True)
-    #countries = countries.sample(frac=1)
-    return countries#[:10]
+
+    return countries
 
 
 def get_regions(country, region_type):
     """
-    Get region information.
+    Read and return region geometries for a country and region type.
 
+    Depending on ``region_type``, this function loads either the national
+    outline or a subnational regions layer from the processed data directory.
+
+    Parameters
+    ----------
+    country : dict
+        Country metadata dictionary containing at least ``iso3`` and, when
+        ``region_type`` is ``'use_csv'``, the key ``lowest``.
+    region_type : int or str
+        Region selector. Use 0 for national outline, 1 or 2 for subnational
+        region layers, or ``'use_csv'`` to load the country-defined lowest
+        processed level.
+
+    Returns
+    -------
+    list of dict
+        Region records as dictionaries. Returns an empty list if the expected
+        file is missing.
     """
     if region_type == 'use_csv':
         filename = 'regions_{}_{}.gpkg'.format(
@@ -99,7 +127,15 @@ def get_regions(country, region_type):
 
 def get_scenarios():
     """
+    Build and return the set of flood hazard scenario identifiers.
 
+    Scenario identifiers are derived from the filenames in the flood hazard
+    directory and filtered to include specific return periods and hazard types.
+
+    Returns
+    -------
+    list of str
+        Scenario identifiers.
     """
     output = set()
 
@@ -166,7 +202,15 @@ def get_scenarios():
 
 def get_tropical_storm_scenarios():
     """
+    Build and return the set of tropical storm scenario identifiers.
 
+    Scenario identifiers are derived from the filenames in the storm hazard
+    directory and filtered by return period and other naming conventions.
+
+    Returns
+    -------
+    list of str
+        Scenario identifiers in sorted order.
     """
     output = set()
 
@@ -192,8 +236,8 @@ def get_tropical_storm_scenarios():
 
         if any(x in scenario for x in return_periods): #specify return periods
 
-            if not 'constant' in scenario: 
-                continue
+            # if not 'constant' in scenario: 
+            #     continue
             # if 'HadGEM3' in scenario:
             #     continue
 
@@ -207,13 +251,15 @@ def get_tropical_storm_scenarios():
 
 def process_country_shapes(iso3):
     """
-    Creates a single national boundary for the desired country.
+    Create and write a simplified national boundary for a country.
+
+    The national boundary is extracted from the GADM level 0 dataset, simplified,
+    and written as ``national_outline.gpkg`` in the processed data directory.
 
     Parameters
     ----------
-    country : dict
-        Contains all desired country information.
-
+    iso3 : str
+        Three-letter ISO country code.
     """
     folder = os.path.join(DATA_PROCESSED, iso3)
     path_out = os.path.join(folder, 'national_outline.gpkg')
@@ -250,18 +296,17 @@ def process_country_shapes(iso3):
 
 def remove_small_shapes(x):
     """
-    Remove small multipolygon shapes.
+    Remove small multipolygon components from a feature geometry.
 
     Parameters
-    ---------
+    ----------
     x : polygon
         Feature to simplify.
 
     Returns
     -------
-    MultiPolygon : MultiPolygon
-        Shapely MultiPolygon geometry without tiny shapes.
-
+    shapely.geometry.base.BaseGeometry
+        Shapely geometry with small polygon components removed.
     """
     if x.geometry.geom_type == 'Polygon':
         return x.geometry
@@ -293,14 +338,18 @@ def remove_small_shapes(x):
 
 def process_regions(iso3, level):
     """
-    Function for processing the lowest desired subnational
-    regions for the chosen country.
+    Process and write subnational region boundaries for a country.
+
+    This function reads GADM administrative levels from 1 up to ``level``,
+    simplifies geometries, removes small shapes, and writes each level to a
+    GeoPackage in the processed data directory.
 
     Parameters
     ----------
-    country : dict
-        Contains all desired country information.
-
+    iso3 : str
+        Three-letter ISO country code.
+    level : int
+        Maximum GADM administrative level to process.
     """
     regions = []
 
@@ -341,8 +390,12 @@ def process_regions(iso3, level):
 
 def get_f_curves():
     """
-    Fragility curves.
-    
+    Return flood fragility curves.
+
+    Returns
+    -------
+    list of dict
+        Fragility curve records with depth ranges and associated damage ratios.
     """
     return [
     {'depth_lower_m': 0.0, 'depth_upper_m': 0.3, 'damage': 0.25, 'scenario': 'baseline', 'source': 'kok_et_al_2004'}, 
@@ -379,12 +432,12 @@ if __name__ == '__main__':
     #    #if country['iso3'] == 'TJK':
     #    print(country['country'])
 
-    scenarios = get_scenarios()
-    for scenario in scenarios:
-        print(scenario)
+    # scenarios = get_scenarios()
+    # for scenario in scenarios:
+    #     print(scenario)
 
-    # tropical_storm_scenarios = get_tropical_storm_scenarios()
-    # for scenario in tropical_storm_scenarios:
-    #    print(scenario)
+    tropical_storm_scenarios = get_tropical_storm_scenarios()
+    for scenario in tropical_storm_scenarios:
+       print(scenario)
 
 
