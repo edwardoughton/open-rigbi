@@ -35,7 +35,7 @@ def get_country_outlines():
     Get country shapes.
 
     """
-    path = os.path.join(VIS, '..', 'data', 'simplified_outputs.shp')
+    path = os.path.join(VIS, '..', 'data_new', 'simplified_outputs.shp')
 
     if os.path.exists(path):
 
@@ -247,7 +247,7 @@ def get_regional_shapes(countries):
     Load regional shapes.
 
     """
-    folder = os.path.join(VIS, '..', 'data')
+    folder = os.path.join(VIS, '..', 'data_new')
     if not os.path.exists(folder):
         os.makedirs(folder)
     path = os.path.join(folder, 'regions.shp')

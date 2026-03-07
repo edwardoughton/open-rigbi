@@ -149,13 +149,13 @@ if __name__ == "__main__":
 
     countries = get_countries()
 
-    # for country in countries:
+    for country in countries:
         
-    #     # if not country['iso3'] == 'RWA':
-    #     #     continue
+        # if not country['iso3'] == 'RWA':
+        #     continue
         
-    #     print("Working on {}".format(country['iso3']))
+        print("Working on {}".format(country['iso3']))
 
-    #     count_cells(country)
+        count_cells(country)
 
     collect_cells(countries)
