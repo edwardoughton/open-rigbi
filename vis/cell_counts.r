@@ -5,7 +5,7 @@ library(ggpubr)
 ###################
 ##### Coastal flooding
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder,'..','data','processed','results','sites')
+data_directory = file.path(folder,'..','data','processed','results_new','sites_new')
 setwd(data_directory)
 
 data = read_csv('cell_count_regional_unique.csv')
@@ -16,6 +16,11 @@ data = select(data, iso3, cells_2g, cells_3g, cells_4g, cells_5g)
 
 data = data %>% 
   pivot_longer(!iso3, names_to = "radio", values_to = "count")
+
+by_generation <- data %>%
+  group_by(radio) %>%
+  summarize(count = sum(count), count_mil = round(sum(count)/1e6,2), .groups = "drop") %>%
+  mutate(perc = round(count / sum(count) * 100,1))
 
 data = data %>%
   group_by(iso3, radio) %>%
@@ -164,5 +169,5 @@ ggarrange(
   legend = 'bottom',
   ncol = 1, nrow = 2)
 
-path = file.path(folder, 'figures', 'cell_counts.png')
+path = file.path(folder, 'figures_new', 'cell_counts.png')
 ggsave(path, units="in", width=8, height=7, dpi=600)

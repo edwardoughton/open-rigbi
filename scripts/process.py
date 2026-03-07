@@ -12,8 +12,6 @@ import configparser
 import pandas as pd
 import geopandas as gpd
 import time
-# from shapely.ops import transform
-# from shapely.geometry import shape, Point, mapping, LineString, MultiPolygon
 from shapely.geometry import Point
 import rasterio
 from rasterio.transform import rowcol
@@ -49,19 +47,18 @@ def run_site_processing(country):
         # if not region['GID_2'] == 'USA.1.49_1':
         #     continue
 
-        # print('Working on process_flooding_extent_stats')
+        print('Working on process_flooding_extent_stats')
         process_flooding_extent_stats(country, region, scenarios, regional_level)
 
-        # # # # # print('Working on query_hazard_layers')
-        # query_hazard_layers(country, region, scenarios, regional_level)
+        print('Working on query_hazard_layers')
+        query_hazard_layers(country, region, scenarios, regional_level)
 
-        # # # # # print('--Estimating results')
-        # estimate_results(country, region, scenarios, regional_level)
+        print('--Estimating results')
+        estimate_results(country, region, scenarios, regional_level)
 
-        # # # # print('--Converting to regional results')
-        # convert_to_regional_results(country, region, scenarios, regional_level)
+        print('--Converting to regional results')
+        convert_to_regional_results(country, region, scenarios, regional_level)
 
-        # break
 
     return print('Completed processing')
 
@@ -106,13 +103,9 @@ def process_flooding_extent_stats(country, region, scenarios, regional_level):
             # print('path does not exist: {}'.format(path))
 
             continue
-        # print(path)
-        # try:
+
         raster = rasterio.open(path)
         data = raster.read(1)
-        # except:
-        #     print('reading failed {}'.format(filename))
-        #     continue
 
         output = []
         depths = []
@@ -122,7 +115,6 @@ def process_flooding_extent_stats(country, region, scenarios, regional_level):
                 if i >= 0.000001 and i < 150:
                     coords = raster.transform * (idx2, idx)
                     depths.append(i)
-                    # print(i)
                 else:
                     continue
 
@@ -198,7 +190,7 @@ def query_hazard_layers(country, region, scenarios, regional_level):
 
         filename = '{}_{}_unique.gpkg'.format(region, scenario_name)
         folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', 
-                                  region, 'flood_scenarios')
+                                  region, 'flood_scenarios_new')
         if not os.path.exists(folder_out):
             os.makedirs(folder_out)
         path_output = os.path.join(folder_out, filename)
@@ -207,7 +199,6 @@ def query_hazard_layers(country, region, scenarios, regional_level):
            continue
 
         if 'inuncoast' in scenario and region not in coastal_lut:
-            # print('not coastal: {} in {}'.format(region, scenario))
             continue
 
         filename = '{}_{}.tif'.format(region, scenario_name)
@@ -216,15 +207,13 @@ def query_hazard_layers(country, region, scenarios, regional_level):
         path_in = os.path.join(folder_in, filename)
 
         if not os.path.exists(path_in):
-            # print('path did not exist: {}'.format(path_in))
             continue
 
         filename = '{}_unique.gpkg'.format(region)
-        folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
+        folder = os.path.join(DATA_PROCESSED, iso3, 'sites_new', gid_level.lower())
         path_sites = os.path.join(folder, filename)
 
         if not os.path.exists(path_sites):
-            # print('path did not exist: {}'.format(path_sites))
             continue
 
         sites = gpd.read_file(path_sites)
@@ -296,9 +285,7 @@ def estimate_results(country, region, scenarios, regional_level):
     gid_level = 'GID_{}'.format(regional_level)
     region = region[gid_level]
 
-    # filename = 'fragility_curve.csv'
-    # path_fragility = os.path.join(DATA_RAW, filename)
-    low, baseline, high = load_f_curves() #path_fragility)
+    low, baseline, high = load_f_curves()
 
     filename = 'coastal_lookup.csv'
     folder = os.path.join(DATA_PROCESSED, iso3, 'coastal')
@@ -319,26 +306,23 @@ def estimate_results(country, region, scenarios, regional_level):
         #     continue
 
         filename = '{}_{}_unique.csv'.format(region, scenario_name)
-        folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario_name)
+        folder_out = os.path.join(DATA_PROCESSED, iso3, 'results_new', 'regional_data', scenario_name)
         if not os.path.exists(folder_out):
             os.makedirs(folder_out)
         path_output = os.path.join(folder_out, filename)
 
         if os.path.exists(path_output):
-            # print('path_output exists {}'.format(path_output))
             continue
 
         if 'inuncoast' in scenario and region not in coastal_lut:
-            # print('if inuncoast in scenario and region not in coastal_lut:')
             continue
 
         filename = '{}_{}_unique.gpkg'.format(region, scenario_name)
         folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', 
-                              region, 'flood_scenarios')
+                              region, 'flood_scenarios_new')
         path_in = os.path.join(folder, filename)
 
         if not os.path.exists(path_in):
-            # print('path_in does not exist {}'.format(path_in))
             continue
         
         sites = gpd.read_file(path_in)
@@ -461,7 +445,7 @@ def convert_to_regional_results(country, region, scenarios, regional_level):
     gid_level = 'GID_{}'.format(regional_level)
     region = region[gid_level]
 
-    folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 
+    folder_out = os.path.join(DATA_PROCESSED, iso3, 'results_new', 
                               'regional_aggregated', 'regions')
     if not os.path.exists(folder_out):
         os.makedirs(folder_out)
@@ -473,7 +457,7 @@ def convert_to_regional_results(country, region, scenarios, regional_level):
         # Extract scenario name and file paths
         scenario_name = os.path.basename(scenario)
         filename = f"{region}_{scenario_name}_unique.csv"
-        folder_in = os.path.join(DATA_PROCESSED, iso3, 'results', 
+        folder_in = os.path.join(DATA_PROCESSED, iso3, 'results_new', 
                                  'regional_data', scenario_name)
         path_in = os.path.join(folder_in, filename)
         path_out = os.path.join(folder_out, filename)
@@ -547,18 +531,18 @@ if __name__ == "__main__":
 
     failures = []
 
-    for country in tqdm(countries[::-1]):
-
+    for country in tqdm(countries):
+        
         # if not country['iso3'] in ['GBR']:
         #     continue
 
         print(f"--Working on {country['country']}")
         run_site_processing(country)
 
-    # scenarios = get_scenarios()
-    # for scenario in scenarios:
-    #     collect_regional_results(scenario)
-    #     collect_final_results(scenario)
+    scenarios = get_scenarios()
+    for scenario in scenarios:
+        collect_regional_results(scenario)
+        collect_final_results(scenario)
 
     end_time = time.time()
     elapsed_time = end_time - start_time
