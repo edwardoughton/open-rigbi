@@ -6,7 +6,7 @@ library(stringr)
 ###################
 #####Aggregate cells
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder,'..','data','processed','results')
+data_directory = file.path(folder,'..','data','processed','results_new')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="inuncoast")
@@ -213,7 +213,7 @@ plot1 =
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.2)) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.3)) +
   facet_wrap(~year, ncol=4, nrow=1)
 
 # data1$unit = 'sites_affected_thousands'
@@ -262,7 +262,7 @@ plot2 = ggplot(data_aggregated,
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.2)) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.3)) +
   facet_wrap(~year, ncol=4, nrow=1)
 
 ggarrange(
@@ -273,7 +273,10 @@ ggarrange(
   legend = 'bottom',
   ncol = 1, nrow = 2)
 
-path = file.path(folder, 'figures', 'global_coastal_flooding_impacts.png')
+# Create directory if it doesn't exist
+fig_dir <- file.path(folder, "figures_new")
+if (!dir.exists(fig_dir)) {dir.create(fig_dir, recursive = TRUE)}
+path = file.path(folder, 'figures_new', 'global_coastal_flooding_impacts.png')
 ggsave(path, units="in", width=8, height=6, dpi=600)
 
 data1$unit = 'cells_vulnerable_thousands'
@@ -298,7 +301,7 @@ write.csv(output, path)
 ###################
 #####Aggregate cells
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder,'..','data','processed','results')
+data_directory = file.path(folder,'..','data','processed','results_new')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="inunriver")
@@ -483,9 +486,6 @@ aggregated_by_income  = data %>%
 ####
 
 
-
-
-
 ######################
 
 inunriver = data %>%
@@ -547,7 +547,7 @@ plot1 = ggplot(inunriver,
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.2)) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.3)) +
   facet_wrap(~year, ncol=4, nrow=1)
 
 ####################
@@ -612,7 +612,7 @@ plot2 =
   guides(fill=guide_legend(ncol=3, title='Scenario')) +
   scale_fill_viridis_d(direction=1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.2)) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.3)) +
   facet_wrap(~year, ncol=4, nrow=1)
 
 ggarrange(
@@ -623,7 +623,7 @@ ggarrange(
   legend = 'bottom',
   ncol = 1, nrow = 2)
 
-path = file.path(folder, 'figures', 'global_riverine_flooding_impacts.png')
+path = file.path(folder, 'figures_new', 'global_riverine_flooding_impacts.png')
 ggsave(path, units="in", width=8, height=6, dpi=600)
 
 
@@ -631,7 +631,7 @@ ggsave(path, units="in", width=8, height=6, dpi=600)
 ########################################################
 #####Tropical storms
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder,'..','data','processed','results')
+data_directory = file.path(folder,'..','data','processed','results_new')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="STORM")
@@ -657,7 +657,8 @@ import_function = lapply(metric_files, function(x) {
   return(df_merge)})
 
 data <- do.call(rbind, import_function)
-
+# 
+# sum(data$cell_count_baseline)
 # data = data[(data$radio != 'LTE' | data$radio != 'UMTS'),]
 # data = data[complete.cases(data[ , c('radio')]), ]
 
@@ -856,22 +857,20 @@ plot1 = ggplot(data,
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=7, title='Continent')) +
-  scale_fill_manual(values = c("Africa" = "#000000","Asia" = "#E69F00",
-      "Europe" = "#56B4E9","North America" = "#009E73","Oceania" = "#F0E442",
-      "South America" = "#D55E00")) +
+  scale_fill_viridis_d(direction=-1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+1.4))
+  scale_y_continuous(expand = c(0, 0), limits=c(0, 5.99))
 
 data1 = data
 
-# path = file.path(folder, 'figures', 'tropical_cyclone_impacts.png')
+# path = file.path(folder, 'figures_new', 'tropical_cyclone_impacts.png')
 # ggsave(path, units="in", width=8, height=4.5, dpi=600)
 
 ########################################################
 ########################################################
 #####Tropical storms
 folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder,'..','data','processed','results')
+data_directory = file.path(folder,'..','data','processed','results_new')
 setwd(data_directory)
 
 metric_files <- list.files(data_directory, pattern="STORM")
@@ -967,6 +966,11 @@ data$model = factor(data$model,
                       "CNRM-CM6-1-HR",
                       "EC-Earth3P-HR",
                       "HadGEM3-GC31-HM"),
+)
+
+data$continent <- factor(
+  data$continent,
+  levels = c("South America", "Oceania", "North America", "Europe", "Asia", "Africa")
 )
 
 data = data %>%
@@ -1105,11 +1109,9 @@ plot2 = ggplot(data,
   theme(panel.spacing = unit(0.6, "lines")) +
   expand_limits(y=0) +
   guides(fill=guide_legend(ncol=7, title='Continent')) +
-  scale_fill_manual(values = c("Africa" = "#000000","Asia" = "#E69F00",
-      "Europe" = "#56B4E9","North America" = "#009E73","Oceania" = "#F0E442",
-      "South America" = "#D55E00")) +
+  scale_fill_viridis_d(direction=-1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, 2.4))
+  scale_y_continuous(expand = c(0, 0), limits=c(0, 5.99))
 
 ggarrange(
   plot1,
@@ -1119,7 +1121,7 @@ ggarrange(
   legend = 'bottom',
   ncol = 1, nrow = 2)
 
-path = file.path(folder, 'figures', 'global_tropical_storm_impacts.png')
+path = file.path(folder, 'figures_new', 'global_tropical_storm_impacts.png')
 ggsave(path, units="in", width=7, height=6, dpi=600)
 
 data1$unit = 'cells_vulnerable_millions'

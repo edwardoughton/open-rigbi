@@ -94,7 +94,7 @@ def run_preprocessing(iso3):
     gid_id = "GID_{}".format(regional_level)
     regions = get_regions(country, regional_level)#[:1]#[::-1]
     for region in regions:
-        create_sites_layer(
+        create_enodeb_layer(  #create_sites_layer
             country, 
             regional_level, 
             region[gid_id], 
@@ -554,7 +554,10 @@ def create_sites_layer(country, regional_level, region, polygon):
     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
     path_out = os.path.join(folder, filename)
     
-    if os.path.exists(path_out):
+    # if os.path.exists(path_out):
+    #     return
+
+    if not region == "GBR.1.1_1":
         return
 
     filename = "{}.gpkg".format(region)
@@ -564,10 +567,10 @@ def create_sites_layer(country, regional_level, region, polygon):
         return #print(f'Could not find {path}')
     data = gpd.read_file(path)#[:500]
 
-    data['bs_id_float'] = data['cell'] / 256
-    data['bs_id_int'] = np.round(data['bs_id_float'],0)
-    data['sector_id'] = data['bs_id_float'] - data['bs_id_int']
-    data['sector_id'] = np.round(data['sector_id'].abs() * 256)
+    # Decode LTE ECI
+    data['bs_id_int'] = (data['cell'] // 256).astype(int)
+    data['sector_id'] = data['cell'] % 256
+
     # data.to_csv(path_out, index=False)
     data['longitude'] = data['geometry'].x
     data['latitude'] = data['geometry'].y
@@ -587,6 +590,169 @@ def create_sites_layer(country, regional_level, region, polygon):
     return
 
 
+def create_enodeb_layer(country, regional_level, region, polygon=None):
+    """
+    Create a single GeoPackage combining:
+      1) LTE eNodeBs (base stations) derived deterministically from ECI:
+           enodeb_id = floor(cell / 256)
+           sector_id = cell % 256
+         aggregated to one point per (net, enodeb_id)
+
+      2) 2G/3G unique cells (NOT base stations), exported as unique cell records:
+           unique key ~ (net, radio, lac, cell)  [or (net, radio, cell) if lac absent]
+
+    Output
+    ------
+    Writes to:
+        filename_out = f"{region}_unique.gpkg"
+        folder_out  = os.path.join(DATA_PROCESSED, country["iso3"], "sites", gid_level)
+
+    Notes
+    -----
+    - This function intentionally does NOT infer 2G/3G sites/base stations (no clustering),
+      to avoid adding uncertainty.
+    - The combined output includes a 'record_type' field:
+        - 'LTE_ENODEB' for LTE base stations
+        - 'LEGACY_CELL' for 2G/3G unique cells
+    """
+
+    gid_level = f"gid_{regional_level}"
+
+    # Output path (as requested)
+    filename_out = f"{region}_unique.gpkg"
+    folder_out = os.path.join(DATA_PROCESSED, country["iso3"], "sites_new", gid_level)
+    os.makedirs(folder_out, exist_ok=True)
+    path_out = os.path.join(folder_out, filename_out)
+
+    # Input path (interim)
+    filename_in = f"{region}.gpkg"
+    folder_in = os.path.join(DATA_PROCESSED, country["iso3"], "sites", gid_level, "interim")
+    path_in = os.path.join(folder_in, filename_in)
+    if not os.path.exists(path_in):
+        return
+
+    data = gpd.read_file(path_in)
+    if data.empty:
+        return
+
+    # Basic required fields
+    for col in ["radio", "cell", "net"]:
+        if col not in data.columns:
+            return
+
+    # Ensure coordinate columns exist
+    data = data.copy()
+    data["longitude"] = data.geometry.x
+    data["latitude"] = data.geometry.y
+
+    # Normalize radio labels
+    radio_upper = data["radio"].astype(str).str.upper()
+
+    # LTE eNodeBs
+    lte = data[radio_upper.eq("LTE")].copy()
+    lte_out = None
+    if not lte.empty:
+        lte["enodeb_id"] = (lte["cell"] // 256).astype("int64")
+        lte["sector_id"] = (lte["cell"] % 256).astype("int64")
+
+        # Weighted centroid if 'samples' exists; otherwise mean
+        if "samples" in lte.columns:
+            lte["samples"] = pd.to_numeric(lte["samples"], errors="coerce").fillna(0.0)
+            lte["w"] = lte["samples"].where(lte["samples"] > 0, 1.0)
+
+            lte_agg = (
+                lte.groupby(["net", "radio", "enodeb_id"], as_index=False)
+                   .apply(lambda g: pd.Series({
+                       "latitude": (g["latitude"] * g["w"]).sum() / g["w"].sum(),
+                       "longitude": (g["longitude"] * g["w"]).sum() / g["w"].sum(),
+                       "n_sectors": g["sector_id"].nunique(),
+                       "n_obs": len(g),
+                       "samples_sum": g["samples"].sum(),
+                   }))
+                   .reset_index(drop=True)
+            )
+        else:
+            lte_agg = (
+                lte.groupby(["net", "radio", "enodeb_id"], as_index=False)
+                   .agg(
+                       latitude=("latitude", "mean"),
+                       longitude=("longitude", "mean"),
+                       n_sectors=("sector_id", "nunique"),
+                       n_obs=("cell", "size"),
+                   )
+            )
+            lte_agg["samples_sum"] = pd.NA
+
+        lte_agg["record_type"] = "LTE_ENODEB"
+        lte_agg["unique_id"] = (
+            "LTE_" + lte_agg["net"].astype(str) + "_" + lte_agg["enodeb_id"].astype(str)
+        )
+
+        lte_out = gpd.GeoDataFrame(
+            lte_agg,
+            geometry=gpd.points_from_xy(lte_agg["longitude"], lte_agg["latitude"]),
+            crs="EPSG:4326",
+        )
+
+    # 2G/3G unique cells
+    legacy = data[radio_upper.isin(["GSM", "UMTS", "WCDMA", "HSPA"])].copy()
+    legacy_out = None
+    if not legacy.empty:
+        # Define uniqueness key
+        if "lac" in legacy.columns:
+            key_cols = ["net", "radio", "lac", "cell"]
+        else:
+            key_cols = ["net", "radio", "cell"]
+
+        # Prefer best observation per unique cell if 'samples' exists
+        if "samples" in legacy.columns:
+            legacy["samples"] = pd.to_numeric(legacy["samples"], errors="coerce")
+            legacy = legacy.sort_values("samples", ascending=False, na_position="last")
+
+        legacy_unique = legacy.drop_duplicates(subset=key_cols).reset_index(drop=True)
+
+        legacy_unique["record_type"] = "LEGACY_CELL"
+        # Create a stable unique_id (string) for downstream joins
+        if "lac" in legacy_unique.columns:
+            legacy_unique["unique_id"] = (
+                "LEGACY_" + legacy_unique["net"].astype(str)
+                + "_" + legacy_unique["radio"].astype(str)
+                + "_" + legacy_unique["lac"].astype(str)
+                + "_" + legacy_unique["cell"].astype(str)
+            )
+        else:
+            legacy_unique["unique_id"] = (
+                "LEGACY_" + legacy_unique["net"].astype(str)
+                + "_" + legacy_unique["radio"].astype(str)
+                + "_" + legacy_unique["cell"].astype(str)
+            )
+
+        # Keep the original point geometry
+        legacy_out = gpd.GeoDataFrame(legacy_unique, geometry=legacy_unique.geometry, crs="EPSG:4326")
+
+        # Ensure LTE-only columns exist for concat compatibility
+        for col in ["enodeb_id", "sector_id", "n_sectors", "n_obs", "samples_sum"]:
+            if col not in legacy_out.columns:
+                legacy_out[col] = pd.NA
+
+    frames = [gdf for gdf in [lte_out, legacy_out] if gdf is not None and not gdf.empty]
+    if not frames:
+        return
+
+    # Ensure both have the same CRS
+    for i in range(len(frames)):
+        if frames[i].crs is None:
+            frames[i].set_crs("EPSG:4326", inplace=True)
+        elif str(frames[i].crs).upper() != "EPSG:4326":
+            frames[i] = frames[i].to_crs("EPSG:4326")
+
+    out = gpd.GeoDataFrame(pd.concat(frames, ignore_index=True), crs="EPSG:4326")
+
+    out.to_file(path_out, driver="GPKG")
+    
+    return
+
+
 if __name__ == "__main__":
 
     # start_time = time.time()
@@ -603,8 +769,8 @@ if __name__ == "__main__":
     failures = []
     for country in tqdm(countries):
 
-        if not country['iso3'] == 'ALB':
-           continue
+        # if not country['iso3'] == 'GBR':
+        #    continue
 
         print(f"-----{country['country']}")#['iso3']
 

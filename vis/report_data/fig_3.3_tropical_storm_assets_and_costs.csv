@@ -1,241 +1,241 @@
 "","interaction","continent","unit","low","mean","high"
 "1","0.01%
-2050","South America","cells_vulnerable_millions",0.0105,0.0112,0.0117
+2050","South America","cells_vulnerable_millions",0.0651,0.0694,0.0724
 "2","0.01%
-2050","Oceania","cells_vulnerable_millions",0.0424,0.0613,0.0816
+2050","Oceania","cells_vulnerable_millions",0.1071,0.1586,0.2134
 "3","0.01%
-2050","North America","cells_vulnerable_millions",0.5871,0.6197,0.6583
+2050","North America","cells_vulnerable_millions",1.3175,1.4232,1.5521
 "4","0.01%
-2050","Europe","cells_vulnerable_millions",0.2821,0.39,0.4678
+2050","Europe","cells_vulnerable_millions",0.8445,1.1123,1.3131
 "5","0.01%
-2050","Asia","cells_vulnerable_millions",1.0615,1.0789,1.0918
+2050","Asia","cells_vulnerable_millions",2.3941,2.4814,2.5371
 "6","0.01%
-2050","Africa","cells_vulnerable_millions",0.0368,0.0392,0.042
+2050","Africa","cells_vulnerable_millions",0.1913,0.2049,0.219
 "7","0.1%
-2050","South America","cells_vulnerable_millions",0.0069,0.0075,0.0079
+2050","South America","cells_vulnerable_millions",0.0414,0.0453,0.0477
 "8","0.1%
-2050","Oceania","cells_vulnerable_millions",0.0288,0.0351,0.0385
+2050","Oceania","cells_vulnerable_millions",0.0767,0.0907,0.0984
 "9","0.1%
-2050","North America","cells_vulnerable_millions",0.4392,0.4549,0.4715
+2050","North America","cells_vulnerable_millions",0.9653,1.0039,1.0566
 "10","0.1%
-2050","Europe","cells_vulnerable_millions",0.1063,0.1486,0.1702
+2050","Europe","cells_vulnerable_millions",0.3214,0.4544,0.5208
 "11","0.1%
-2050","Asia","cells_vulnerable_millions",0.903,0.9333,0.9594
+2050","Asia","cells_vulnerable_millions",1.8359,1.9661,2.0294
 "12","0.1%
-2050","Africa","cells_vulnerable_millions",0.0261,0.0274,0.029
+2050","Africa","cells_vulnerable_millions",0.1303,0.1381,0.1459
 "13","0.2%
-2050","South America","cells_vulnerable_millions",0.0055,0.0056,0.0058
+2050","South America","cells_vulnerable_millions",0.0317,0.0332,0.0349
 "14","0.2%
-2050","Oceania","cells_vulnerable_millions",0.0205,0.0297,0.0371
+2050","Oceania","cells_vulnerable_millions",0.0543,0.0779,0.0948
 "15","0.2%
-2050","North America","cells_vulnerable_millions",0.3642,0.3854,0.4034
+2050","North America","cells_vulnerable_millions",0.7896,0.8385,0.8727
 "16","0.2%
-2050","Europe","cells_vulnerable_millions",0.0826,0.0926,0.1048
+2050","Europe","cells_vulnerable_millions",0.2158,0.2479,0.2839
 "17","0.2%
-2050","Asia","cells_vulnerable_millions",0.8585,0.8823,0.9041
+2050","Asia","cells_vulnerable_millions",1.6986,1.765,1.8496
 "18","0.2%
-2050","Africa","cells_vulnerable_millions",0.0099,0.0121,0.0163
+2050","Africa","cells_vulnerable_millions",0.0542,0.0652,0.0868
 "19","0.5%
-2050","South America","cells_vulnerable_millions",0.0026,0.0027,0.0028
+2050","South America","cells_vulnerable_millions",0.015,0.0154,0.016
 "20","0.5%
-2050","Oceania","cells_vulnerable_millions",0.018,0.0216,0.0266
+2050","Oceania","cells_vulnerable_millions",0.0487,0.0567,0.0669
 "21","0.5%
-2050","North America","cells_vulnerable_millions",0.2208,0.2386,0.2514
+2050","North America","cells_vulnerable_millions",0.4929,0.5303,0.5561
 "22","0.5%
-2050","Europe","cells_vulnerable_millions",0.0811,0.0813,0.0815
+2050","Europe","cells_vulnerable_millions",0.2093,0.21,0.2105
 "23","0.5%
-2050","Asia","cells_vulnerable_millions",0.7508,0.7966,0.83
+2050","Asia","cells_vulnerable_millions",1.4191,1.525,1.634
 "24","0.5%
-2050","Africa","cells_vulnerable_millions",0.0074,0.0077,0.0081
+2050","Africa","cells_vulnerable_millions",0.0405,0.0421,0.044
 "25","1%
-2050","South America","cells_vulnerable_millions",0.0025,0.0025,0.0025
+2050","South America","cells_vulnerable_millions",0.0138,0.0138,0.0138
 "26","1%
-2050","Oceania","cells_vulnerable_millions",0.0121,0.0169,0.0219
+2050","Oceania","cells_vulnerable_millions",0.0354,0.046,0.0558
 "27","1%
-2050","North America","cells_vulnerable_millions",0.1585,0.1724,0.1846
+2050","North America","cells_vulnerable_millions",0.3732,0.4003,0.422
 "28","1%
-2050","Europe","cells_vulnerable_millions",0.0482,0.0717,0.0812
+2050","Europe","cells_vulnerable_millions",0.1383,0.1891,0.2095
 "29","1%
-2050","Asia","cells_vulnerable_millions",0.6552,0.7003,0.733
+2050","Asia","cells_vulnerable_millions",1.2221,1.3077,1.3521
 "30","1%
-2050","Africa","cells_vulnerable_millions",0.0074,0.0074,0.0074
+2050","Africa","cells_vulnerable_millions",0.0398,0.0399,0.0401
 "31","0.01%
-Historical","South America","cells_vulnerable_millions",NA,0.010689,NA
+Historical","South America","cells_vulnerable_millions",NA,0.066467,NA
 "32","0.1%
-Historical","South America","cells_vulnerable_millions",NA,0.006727,NA
+Historical","South America","cells_vulnerable_millions",NA,0.040018,NA
 "33","0.2%
-Historical","South America","cells_vulnerable_millions",NA,0.0052,NA
+Historical","South America","cells_vulnerable_millions",NA,0.030194,NA
 "34","0.5%
-Historical","South America","cells_vulnerable_millions",NA,0.002747,NA
+Historical","South America","cells_vulnerable_millions",NA,0.015721,NA
 "35","1%
-Historical","South America","cells_vulnerable_millions",NA,0.002461,NA
+Historical","South America","cells_vulnerable_millions",NA,0.013771,NA
 "36","0.01%
-Historical","Oceania","cells_vulnerable_millions",NA,0.039428,NA
+Historical","Oceania","cells_vulnerable_millions",NA,0.100419,NA
 "37","0.1%
-Historical","Oceania","cells_vulnerable_millions",NA,0.024153,NA
+Historical","Oceania","cells_vulnerable_millions",NA,0.061202,NA
 "38","0.2%
-Historical","Oceania","cells_vulnerable_millions",NA,0.017408,NA
+Historical","Oceania","cells_vulnerable_millions",NA,0.047137,NA
 "39","0.5%
-Historical","Oceania","cells_vulnerable_millions",NA,0.015802,NA
+Historical","Oceania","cells_vulnerable_millions",NA,0.043369,NA
 "40","1%
-Historical","Oceania","cells_vulnerable_millions",NA,0.011008,NA
+Historical","Oceania","cells_vulnerable_millions",NA,0.033443,NA
 "41","0.01%
-Historical","North America","cells_vulnerable_millions",NA,0.543903,NA
+Historical","North America","cells_vulnerable_millions",NA,1.24,NA
 "42","0.1%
-Historical","North America","cells_vulnerable_millions",NA,0.372696,NA
+Historical","North America","cells_vulnerable_millions",NA,0.817384,NA
 "43","0.2%
-Historical","North America","cells_vulnerable_millions",NA,0.27952,NA
+Historical","North America","cells_vulnerable_millions",NA,0.615884,NA
 "44","0.5%
-Historical","North America","cells_vulnerable_millions",NA,0.212259,NA
+Historical","North America","cells_vulnerable_millions",NA,0.476124,NA
 "45","1%
-Historical","North America","cells_vulnerable_millions",NA,0.157788,NA
+Historical","North America","cells_vulnerable_millions",NA,0.36792,NA
 "46","0.01%
-Historical","Europe","cells_vulnerable_millions",NA,0.29861,NA
+Historical","Europe","cells_vulnerable_millions",NA,0.85858,NA
 "47","0.1%
-Historical","Europe","cells_vulnerable_millions",NA,0.071422,NA
+Historical","Europe","cells_vulnerable_millions",NA,0.185956,NA
 "48","0.2%
-Historical","Europe","cells_vulnerable_millions",NA,0.071322,NA
+Historical","Europe","cells_vulnerable_millions",NA,0.185644,NA
 "49","0.5%
-Historical","Europe","cells_vulnerable_millions",NA,0.071322,NA
+Historical","Europe","cells_vulnerable_millions",NA,0.185644,NA
 "50","1%
-Historical","Europe","cells_vulnerable_millions",NA,0.071322,NA
+Historical","Europe","cells_vulnerable_millions",NA,0.185644,NA
 "51","0.01%
-Historical","Asia","cells_vulnerable_millions",NA,1.032676,NA
+Historical","Asia","cells_vulnerable_millions",NA,2.309188,NA
 "52","0.1%
-Historical","Asia","cells_vulnerable_millions",NA,0.8542,NA
+Historical","Asia","cells_vulnerable_millions",NA,1.786205,NA
 "53","0.2%
-Historical","Asia","cells_vulnerable_millions",NA,0.759325,NA
+Historical","Asia","cells_vulnerable_millions",NA,1.549679,NA
 "54","0.5%
-Historical","Asia","cells_vulnerable_millions",NA,0.614706,NA
+Historical","Asia","cells_vulnerable_millions",NA,1.219262,NA
 "55","1%
-Historical","Asia","cells_vulnerable_millions",NA,0.256742,NA
+Historical","Asia","cells_vulnerable_millions",NA,0.609911,NA
 "56","0.01%
-Historical","Africa","cells_vulnerable_millions",NA,0.030293,NA
+Historical","Africa","cells_vulnerable_millions",NA,0.152305,NA
 "57","0.1%
-Historical","Africa","cells_vulnerable_millions",NA,0.010511,NA
+Historical","Africa","cells_vulnerable_millions",NA,0.056715,NA
 "58","0.2%
-Historical","Africa","cells_vulnerable_millions",NA,0.007309,NA
+Historical","Africa","cells_vulnerable_millions",NA,0.040279,NA
 "59","0.5%
-Historical","Africa","cells_vulnerable_millions",NA,0.006967,NA
+Historical","Africa","cells_vulnerable_millions",NA,0.03809,NA
 "60","1%
-Historical","Africa","cells_vulnerable_millions",NA,0.005881,NA
+Historical","Africa","cells_vulnerable_millions",NA,0.030708,NA
 "61","0.01%
-2050","Africa","costs_usd_billions",0.0171,0.0184,0.0199
+2050","South America","costs_usd_billions",0.2901,0.307,0.3287
 "62","0.01%
-2050","Asia","costs_usd_billions",0.39,0.4255,0.4516
+2050","Oceania","costs_usd_billions",0.6809,0.76,0.8163
 "63","0.01%
-2050","Europe","costs_usd_billions",0.6215,0.6691,0.6947
+2050","North America","costs_usd_billions",1.2683,1.3274,1.3844
 "64","0.01%
-2050","North America","costs_usd_billions",0.5588,0.5908,0.6146
+2050","Europe","costs_usd_billions",1.6542,1.7827,1.8427
 "65","0.01%
-2050","Oceania","costs_usd_billions",0.2676,0.297,0.317
+2050","Asia","costs_usd_billions",0.9812,1.0659,1.1208
 "66","0.01%
-2050","South America","costs_usd_billions",0.075,0.079,0.085
+2050","Africa","costs_usd_billions",0.0936,0.1,0.108
 "67","0.1%
-2050","Africa","costs_usd_billions",0.0144,0.0154,0.017
+2050","South America","costs_usd_billions",0.2884,0.2927,0.2975
 "68","0.1%
-2050","Asia","costs_usd_billions",0.2783,0.3378,0.3997
+2050","Oceania","costs_usd_billions",0.53,0.6152,0.678
 "69","0.1%
-2050","Europe","costs_usd_billions",0.5508,0.567,0.5754
+2050","North America","costs_usd_billions",0.8757,0.8879,0.9081
 "70","0.1%
-2050","North America","costs_usd_billions",0.4029,0.4076,0.418
+2050","Europe","costs_usd_billions",1.4396,1.4908,1.5163
 "71","0.1%
-2050","Oceania","costs_usd_billions",0.1967,0.2379,0.2664
+2050","Asia","costs_usd_billions",0.7365,0.855,0.9632
 "72","0.1%
-2050","South America","costs_usd_billions",0.0509,0.0516,0.0524
+2050","Africa","costs_usd_billions",0.0754,0.0824,0.0914
 "73","0.2%
-2050","Africa","costs_usd_billions",0.0126,0.0145,0.0166
+2050","South America","costs_usd_billions",0.2721,0.2742,0.2763
 "74","0.2%
-2050","Asia","costs_usd_billions",0.2979,0.3263,0.3753
+2050","Oceania","costs_usd_billions",0.4934,0.5511,0.6736
 "75","0.2%
-2050","Europe","costs_usd_billions",0.5417,0.5455,0.5502
+2050","North America","costs_usd_billions",0.7927,0.7975,0.8085
 "76","0.2%
-2050","North America","costs_usd_billions",0.3631,0.3656,0.3691
+2050","Europe","costs_usd_billions",1.3991,1.4114,1.4252
 "77","0.2%
-2050","Oceania","costs_usd_billions",0.1808,0.2071,0.2645
+2050","Asia","costs_usd_billions",0.7834,0.8293,0.8983
 "78","0.2%
-2050","South America","costs_usd_billions",0.0484,0.0487,0.0491
+2050","Africa","costs_usd_billions",0.0674,0.0778,0.0909
 "79","0.5%
-2050","Africa","costs_usd_billions",0.013,0.0133,0.0136
+2050","South America","costs_usd_billions",0.2321,0.2327,0.2341
 "80","0.5%
-2050","Asia","costs_usd_billions",0.2748,0.2895,0.2977
+2050","Oceania","costs_usd_billions",0.4834,0.5308,0.6554
 "81","0.5%
-2050","Europe","costs_usd_billions",0.5407,0.5411,0.5412
+2050","North America","costs_usd_billions",0.6827,0.6899,0.6953
 "82","0.5%
-2050","North America","costs_usd_billions",0.3138,0.3169,0.3206
+2050","Europe","costs_usd_billions",1.3954,1.3965,1.397
 "83","0.5%
-2050","Oceania","costs_usd_billions",0.1751,0.198,0.2576
+2050","Asia","costs_usd_billions",0.6941,0.7087,0.7278
 "84","0.5%
-2050","South America","costs_usd_billions",0.0413,0.0414,0.0417
+2050","Africa","costs_usd_billions",0.0717,0.0724,0.0741
 "85","1%
-2050","Africa","costs_usd_billions",0.0147,0.0148,0.0148
+2050","South America","costs_usd_billions",0.2295,0.2295,0.2295
 "86","1%
-2050","Asia","costs_usd_billions",0.2712,0.2783,0.2809
+2050","Oceania","costs_usd_billions",0.3936,0.4816,0.5984
 "87","1%
-2050","Europe","costs_usd_billions",0.3215,0.478,0.541
+2050","North America","costs_usd_billions",0.5954,0.6429,0.6927
 "88","1%
-2050","North America","costs_usd_billions",0.2709,0.2956,0.3204
+2050","Europe","costs_usd_billions",0.9222,1.2605,1.3965
 "89","1%
-2050","Oceania","costs_usd_billions",0.1341,0.1758,0.2336
+2050","Asia","costs_usd_billions",0.644,0.664,0.674
 "90","1%
-2050","South America","costs_usd_billions",0.041,0.041,0.041
+2050","Africa","costs_usd_billions",0.0801,0.0805,0.0808
 "91","0.01%
-Historical","Africa","costs_usd_billions",NA,0.015482131,NA
+Historical","South America","costs_usd_billions",NA,0.4072196015,NA
 "92","0.1%
-Historical","Africa","costs_usd_billions",NA,0.0147247432222222,NA
+Historical","South America","costs_usd_billions",NA,0.2830937045,NA
 "93","0.2%
-Historical","Africa","costs_usd_billions",NA,0.0134953996875,NA
+Historical","South America","costs_usd_billions",NA,0.2706769625,NA
 "94","0.5%
-Historical","Africa","costs_usd_billions",NA,0.0160130911538462,NA
+Historical","South America","costs_usd_billions",NA,0.2327389945,NA
 "95","1%
-Historical","Africa","costs_usd_billions",NA,0.0157736078181818,NA
+Historical","South America","costs_usd_billions",NA,0.229498666,NA
 "96","0.01%
-Historical","Asia","costs_usd_billions",NA,0.35527358812,NA
+Historical","Oceania","costs_usd_billions",NA,0.681973546,NA
 "97","0.1%
-Historical","Asia","costs_usd_billions",NA,0.317972618434783,NA
+Historical","Oceania","costs_usd_billions",NA,0.585122791,NA
 "98","0.2%
-Historical","Asia","costs_usd_billions",NA,0.293523539090909,NA
+Historical","Oceania","costs_usd_billions",NA,0.489386043333333,NA
 "99","0.5%
-Historical","Asia","costs_usd_billions",NA,0.270781766333333,NA
+Historical","Oceania","costs_usd_billions",NA,0.475862987666667,NA
 "100","1%
-Historical","Asia","costs_usd_billions",NA,0.232868774285714,NA
+Historical","Oceania","costs_usd_billions",NA,0.371585173,NA
 "101","0.01%
-Historical","Europe","costs_usd_billions",NA,0.5628447524,NA
+Historical","North America","costs_usd_billions",NA,1.17527944164286,NA
 "102","0.1%
-Historical","Europe","costs_usd_billions",NA,0.4755136852,NA
+Historical","North America","costs_usd_billions",NA,0.815920319071429,NA
 "103","0.2%
-Historical","Europe","costs_usd_billions",NA,0.4754752452,NA
+Historical","North America","costs_usd_billions",NA,0.720505348642857,NA
 "104","0.5%
-Historical","Europe","costs_usd_billions",NA,0.4754752452,NA
+Historical","North America","costs_usd_billions",NA,0.6310777165,NA
 "105","1%
-Historical","Europe","costs_usd_billions",NA,0.4754752452,NA
+Historical","North America","costs_usd_billions",NA,0.616077394,NA
 "106","0.01%
-Historical","North America","costs_usd_billions",NA,0.522472562928571,NA
+Historical","Europe","costs_usd_billions",NA,1.4962908888,NA
 "107","0.1%
-Historical","North America","costs_usd_billions",NA,0.3735956535,NA
+Historical","Europe","costs_usd_billions",NA,1.2377342232,NA
 "108","0.2%
-Historical","North America","costs_usd_billions",NA,0.327096455714286,NA
+Historical","Europe","costs_usd_billions",NA,1.2376142904,NA
 "109","0.5%
-Historical","North America","costs_usd_billions",NA,0.285257302,NA
+Historical","Europe","costs_usd_billions",NA,1.2376142904,NA
 "110","1%
-Historical","North America","costs_usd_billions",NA,0.277494079769231,NA
+Historical","Europe","costs_usd_billions",NA,1.2376142904,NA
 "111","0.01%
-Historical","Oceania","costs_usd_billions",NA,0.267897494,NA
+Historical","Asia","costs_usd_billions",NA,0.97613941456,NA
 "112","0.1%
-Historical","Oceania","costs_usd_billions",NA,0.226712997,NA
+Historical","Asia","costs_usd_billions",NA,0.844570537521739,NA
 "113","0.2%
-Historical","Oceania","costs_usd_billions",NA,0.179128283,NA
+Historical","Asia","costs_usd_billions",NA,0.747806076045454,NA
 "114","0.5%
-Historical","Oceania","costs_usd_billions",NA,0.173220197,NA
+Historical","Asia","costs_usd_billions",NA,0.656499450619048,NA
 "115","1%
-Historical","Oceania","costs_usd_billions",NA,0.122309888,NA
+Historical","Asia","costs_usd_billions",NA,0.581717802047619,NA
 "116","0.01%
-Historical","South America","costs_usd_billions",NA,0.070364984,NA
+Historical","Africa","costs_usd_billions",NA,0.083616384826087,NA
 "117","0.1%
-Historical","South America","costs_usd_billions",NA,0.050180425,NA
+Historical","Africa","costs_usd_billions",NA,0.0799974461111111,NA
 "118","0.2%
-Historical","South America","costs_usd_billions",NA,0.0481087975,NA
+Historical","Africa","costs_usd_billions",NA,0.0748673761875,NA
 "119","0.5%
-Historical","South America","costs_usd_billions",NA,0.0413853355,NA
+Historical","Africa","costs_usd_billions",NA,0.0882399737692308,NA
 "120","1%
-Historical","South America","costs_usd_billions",NA,0.0410162565,NA
+Historical","Africa","costs_usd_billions",NA,0.0825908963636364,NA

@@ -24,7 +24,7 @@ BASE_PATH = CONFIG['file_locations']['base_path']
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 # DATA_INTERMEDIATE = os.path.join(BASE_PATH, 'intermediate')
 DATA_PROCESSED = os.path.join(BASE_PATH, '..', 'vis', 'processed')
-VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures')
+VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures_new')
 
 sys.path.insert(1, os.path.join(BASE_PATH, '..','scripts'))
 from misc import get_countries #, get_regions
@@ -124,45 +124,45 @@ def collect_results(countries):
 
     """
     filename = 'tropical_storm_rcp85_mean_results.csv'
-    folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data')
-    path = os.path.join(folder_out, filename)
+    folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data_new')
+    path_out = os.path.join(folder_out, filename)
 
-    if os.path.exists(path):
-        output = pd.read_csv(path)
+    if os.path.exists(path_out):
+        output = pd.read_csv(path_out)
         # output = output.to_dict('records')
         return output
 
     filename = 'tropical_storm_rcp85_regions.csv'
-    folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data')
-    path = os.path.join(folder_out, filename)
+    folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data_new')
+    path_in = os.path.join(folder_out, filename)
 
-    if not os.path.exists(path):
+    # if not os.path.exists(path_in):
 
-        folder_in = os.path.join(BASE_PATH, 'processed', 'results', 'regional')
+    folder_in = os.path.join(BASE_PATH, 'processed', 'results_new', 'regional')
 
-        all_data = []
+    all_data = []
 
-        for filename in os.listdir(folder_in):
+    for filename in os.listdir(folder_in):
 
-            if not 'STORM' in filename:
-                continue
+        if not 'STORM' in filename:
+            continue
 
-            if not '_1000_YR_RP' in filename:
-                continue
+        if not '_1000_YR_RP' in filename:
+            continue
 
-            if 'PERIODS_constant' in filename:
-                continue
+        if 'PERIODS_constant' in filename:
+            continue
 
-            data = pd.read_csv(os.path.join(folder_in, filename))
-            data = data.to_dict('records')
-            all_data = all_data + data
+        data = pd.read_csv(os.path.join(folder_in, filename))
+        data = data.to_dict('records')
+        all_data = all_data + data
 
-        all_data = pd.DataFrame(all_data)
-        all_data.to_csv(path)
+    all_data = pd.DataFrame(all_data)
+    all_data.to_csv(path_in)
 
-    else:
+    # else:
 
-        all_data = pd.read_csv(path)#[:10]
+    #     all_data = pd.read_csv(path_in)#[:10]
 
     for country in countries:
 
@@ -207,7 +207,7 @@ def collect_results(countries):
 
         interim = pd.DataFrame(interim)
         filename = 'tropical_storm_rcp85_mean_results.csv'
-        folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data', 'countries', country['iso3'])
+        folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data_new', 'countries', country['iso3'])
         if not os.path.exists(folder_out):
             os.makedirs(folder_out)
         path_out = os.path.join(folder_out, filename)
@@ -220,7 +220,7 @@ def collect_results(countries):
         print('Working on {}'.format(country['iso3']))
 
         filename = 'tropical_storm_rcp85_mean_results.csv'
-        folder_in = os.path.join(BASE_PATH, '..', 'vis', 'data', 'countries', country['iso3'])
+        folder_in = os.path.join(BASE_PATH, '..', 'vis', 'data_new', 'countries', country['iso3'])
         path_in = os.path.join(folder_in, filename)
         if not os.path.exists(path_in):
             continue
@@ -232,7 +232,7 @@ def collect_results(countries):
         output = output + data
 
     filename = 'tropical_storm_rcp85_mean_results.csv'
-    folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data')
+    folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data_new')
     path_out = os.path.join(folder_out, filename)
 
     output = pd.DataFrame(output)

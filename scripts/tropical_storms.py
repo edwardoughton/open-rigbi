@@ -62,11 +62,7 @@ def process_tropical_storm_layers(countries, scenario):
             if not os.path.exists(folder):
                 os.makedirs(folder)
 
-            # try:
             process_storm_layer(country, path_in, path_out)
-            # except:
-                # print('{} failed: {}'.format(country['iso3'], scenario))
-                # continue
 
     return
 
@@ -295,7 +291,7 @@ def query_tropical_storm_layers(countries, scenario):
             output = []
 
             filename = '{}_{}_unique.gpkg'.format(region, os.path.basename(scenario).replace('.tif',''))
-            folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'tropical_storm_scenarios')
+            folder_out = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'tropical_storm_scenarios_new')
             if not os.path.exists(folder_out):
                 os.makedirs(folder_out)
             path_output = os.path.join(folder_out, filename)
@@ -305,34 +301,25 @@ def query_tropical_storm_layers(countries, scenario):
             #    continue
 
             filename = '{}_unique.gpkg'.format(region)
-            # filename = '{}_unique.csv'.format(region)
-            folder = os.path.join(DATA_PROCESSED, iso3, 'sites', gid_level.lower())
+            folder = os.path.join(DATA_PROCESSED, iso3, 'sites_new', gid_level.lower())
             path = os.path.join(folder, filename)
 
             if not os.path.exists(path):
-                # print('sites file does not exist: {}'.format(path))
                 continue
 
             filename = os.path.join(region + '_' + scenario.replace('.tif','') + '.tif')
             scenario_path = os.path.join(DATA_PROCESSED,iso3,'hazards','tropical_storm','regional',filename)
 
             if not os.path.exists(scenario_path):
-                # print('scenario_path does not exist: {}'.format(scenario_path))
                 continue
 
-            # try:
             sites = gpd.read_file(path)#[:10]
-            # except:
-            #     continue
-            # sites = sites.to_dict('records')
 
             failures = 0
 
             with rasterio.open(scenario_path) as src:
                 raster_data = src.read(1)
                 transform = src.transform
-
-                # src.kwargs = {'nodata': 255}
 
                 for _, site in sites.iterrows():
 
@@ -424,24 +411,17 @@ def estimate_results(countries, scenario):
             output = []
 
             filename = '{}_{}_unique.csv'.format(region, scenario)
-            folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_data', scenario)
+            folder_out = os.path.join(DATA_PROCESSED, iso3, 'results_new', 'regional_data', scenario)
             path_output = os.path.join(folder_out, filename)
-            # print(path_output)
-            # if os.path.exists(path_output):
-            #    print('results file already exists {}'.format(path_output))
-            #    continue
 
             filename = '{}_{}_unique.gpkg'.format(region, scenario)
-            folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'tropical_storm_scenarios')
+            folder = os.path.join(DATA_PROCESSED, iso3, 'regional_data', region, 'tropical_storm_scenarios_new')
             path_in = os.path.join(folder, filename)
             if not os.path.exists(path_in):
-                # print('path_in does not exist {}'.format(path_in))
                 continue
-            # print(path_in)
-            # try:
+
             sites = gpd.read_file(path_in)#[:10]
-            # except:
-            #     continue
+
             sites = sites.to_dict('records')
 
             for site in sites:
@@ -468,14 +448,9 @@ def estimate_results(countries, scenario):
 
                 output.append({
                     'radio': site['radio'],
-                    # 'mcc': site['mcc'],
                     'net': site['net'],
-                    # 'area': site['area'],
-                    # 'cell': site['cell'],
                     'gid_level': gid_level,
                     'gid_id': region,
-                    # 'cellid4326': site['cellid4326'],
-                    # 'cellid3857': site['cellid3857'],
                     'wind_speed': site['wind_speed'],
                     'damage_low': damage_low,
                     'damage_baseline': damage_baseline,
@@ -492,7 +467,6 @@ def estimate_results(countries, scenario):
                 })
 
             if len(output) == 0:
-                #print('len(output) == 0')
                 continue
 
             if not os.path.exists(folder_out):
@@ -581,8 +555,6 @@ def query_original_fragility_curve(f_curve, speed):
     if speed >= max([d['wind_speed_upper_m'] for d in f_curve]):
         return 1
 
-    # print('fragility curve failure: {}'.format(speed))
-
     return 0
 
 
@@ -608,7 +580,7 @@ def query_booker_fragility_curve(f_curve, speed):
         
         lut_lower_speed = item['speed']
         lut_lower_probability_of_failure = item['probability_of_failure']
-        # print(item)
+
     #     if item['wind_speed_lower_m'] <= speed < item['wind_speed_upper_m']:
     #         return item['damage']
     #     else:
@@ -619,7 +591,7 @@ def query_booker_fragility_curve(f_curve, speed):
 
     # print('fragility curve failure: {}'.format(speed))
 
-    return 0
+    return lut_lower_probability_of_failure
 
 
 def convert_to_regional_results(countries, scenario):
@@ -637,7 +609,6 @@ def convert_to_regional_results(countries, scenario):
         iso3 = country['iso3']
         name = country['country']
         regional_level = int(country['gid_region'])
-        gid_level = 'GID_{}'.format(regional_level) #regional_level
 
         # print('Working on {}'.format(iso3))
 
@@ -656,7 +627,7 @@ def convert_to_regional_results(countries, scenario):
 
             output = []
 
-            folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_aggregated', 'regions')
+            folder_out = os.path.join(DATA_PROCESSED, iso3, 'results_new', 'regional_aggregated', 'regions')
             if not os.path.exists(folder_out):
                 os.makedirs(folder_out)
 
@@ -664,7 +635,7 @@ def convert_to_regional_results(countries, scenario):
             path_out = os.path.join(folder_out, filename)
 
             filename = '{}_{}_unique.csv'.format(region, scenario)
-            folder_in = os.path.join(DATA_PROCESSED, iso3, 'results',
+            folder_in = os.path.join(DATA_PROCESSED, iso3, 'results_new',
                 'regional_data', scenario)
             path_in = os.path.join(folder_in, filename)
 
@@ -699,14 +670,10 @@ def convert_to_regional_results(countries, scenario):
                 continue
 
             gid_ids = list(data['gid_id'].unique())
-            # radios = list(data['radio'].unique())
-            # networks = list(data['net'].unique())
             
             data = data.to_dict('records')
 
             for gid_id in gid_ids:
-
-                #for network in networks:
 
                 cell_count_low = 0
                 cell_count_baseline = 0
@@ -801,12 +768,12 @@ if __name__ == "__main__":
 
         print(f'--Working on: {scenario}')
 
-        process_tropical_storm_layers(countries, scenario)
-        process_regional_storm_layers(countries, scenario)
+        # process_tropical_storm_layers(countries, scenario)
+        # process_regional_storm_layers(countries, scenario)
         query_tropical_storm_layers(countries, scenario)
         estimate_results(countries, scenario)
         convert_to_regional_results(countries, scenario)
 
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print(f"Function executed in {elapsed_time:.2f} seconds")
+    # end_time = time.time()
+    # elapsed_time = end_time - start_time
+    # print(f"Function executed in {elapsed_time:.2f} seconds")

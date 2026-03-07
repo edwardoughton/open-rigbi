@@ -15,7 +15,7 @@ BASE_PATH = CONFIG['file_locations']['base_path']
 
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, '..', 'vis', 'processed')
-VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures')
+VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures_new')
 
 sys.path.insert(1, os.path.join(BASE_PATH, '..','scripts'))
 from misc import get_countries
@@ -32,12 +32,136 @@ def get_country_outlines():
         countries.to_file(path)
         return countries
 
-def collect_results():
-    """ Load or process flood damage results. """
-    path = os.path.join(BASE_PATH, '..', 'vis', 'data', 'inunriver_rcp85_mean_results.csv')
-    if os.path.exists(path):
-        return pd.read_csv(path)
-    return pd.DataFrame()
+# def collect_results():
+#     """ Load or process flood damage results. """
+#     path = os.path.join(BASE_PATH, '..', 'vis', 'data', 'inunriver_rcp85_mean_results.csv')
+#     if os.path.exists(path):
+#         return pd.read_csv(path)
+#     return pd.DataFrame()
+
+def collect_results(countries):
+    """
+    Collect results.
+
+    """
+    filename = 'inunriver_rcp85_mean_results.csv'
+    folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data_new')
+    path_out = os.path.join(folder_out, filename)
+
+    if os.path.exists(path_out):
+        output = pd.read_csv(path_out)
+        # output = output.to_dict('records')
+        return output
+
+    filename = 'inunriver_rcp85_regions.csv'
+    folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data_new')
+    path_in = os.path.join(folder_out, filename)
+
+    if not os.path.exists(path_in):
+
+        folder_in = os.path.join(BASE_PATH, 'processed', 'results_new', 'regional')
+
+        all_data = []
+
+        for filename in os.listdir(folder_in):
+
+            if not 'inunriver_rcp8p5' in filename:
+                continue
+
+            if not '2080_rp01000' in filename:
+                continue
+
+            data = pd.read_csv(os.path.join(folder_in, filename))
+            data = data.to_dict('records')
+            all_data = all_data + data
+
+        all_data = pd.DataFrame(all_data)
+        all_data.to_csv(path_in)
+
+    else:
+
+        all_data = pd.read_csv(path_in)#[:10]
+
+    for country in countries:
+
+        interim = []
+
+        country_data = all_data[all_data['iso3'] == country['iso3']]
+
+        gid_ids = country_data['gid_id'].unique()
+
+        for gid_id in gid_ids:
+
+            cell_count_baseline = []
+            cost_usd_baseline = []
+
+            for idx, row in country_data.iterrows():
+                if row['gid_id'] == gid_id:
+                    cell_count_baseline.append(row['cell_count_baseline'])
+                    cost_usd_baseline.append(row['cost_usd_baseline'])
+
+            items = country_data[country_data['gid_id'] == gid_id][:1]
+            
+            if len(items) == 0:
+                continue
+
+            if len(cell_count_baseline) == 0:
+                cell_count_baseline = 0
+            else:
+                cell_count_baseline = sum(cell_count_baseline) / len(cell_count_baseline)
+
+            if len(cost_usd_baseline) == 0:
+                cost_usd_baseline = 0
+            else:
+                cost_usd_baseline = sum(cost_usd_baseline) / len(cost_usd_baseline)
+
+            interim.append({
+                # 'iso3': items['iso3'].values[0],
+                # 'iso2': items['iso2'].values[0],
+                # 'country': items['country'].values[0],
+                # 'continent': items['continent'].values[0],
+                # 'gid_level': items['gid_level'].values[0],
+                'gid_id': items['gid_id'].values[0],
+                'mean_cell_count_baseline': cell_count_baseline,
+                'cost_usd_baseline': cost_usd_baseline,
+            })
+
+        interim = pd.DataFrame(interim)
+        filename = 'inunriver_rcp85_mean_results.csv'
+        folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data_new', 'countries', country['iso3'])
+        if not os.path.exists(folder_out):
+            os.makedirs(folder_out)
+        path_out = os.path.join(folder_out, filename)
+        interim = interim.to_csv(path_out, index=False)
+
+    output = []
+
+    for country in countries:
+
+        print('Working on {}'.format(country['iso3']))
+
+        filename = 'inunriver_rcp85_mean_results.csv'
+        folder_in = os.path.join(BASE_PATH, '..', 'vis', 'data_new', 'countries', country['iso3'])
+        path_in = os.path.join(folder_in, filename)
+        if not os.path.exists(path_in):
+            continue
+        try:
+            data = pd.read_csv(path_in)
+        except:
+            continue
+        data = data.to_dict('records')
+        output = output + data
+
+    filename = 'inunriver_rcp85_mean_results.csv'
+    folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data_new')
+    path_out = os.path.join(folder_out, filename)
+
+    output = pd.DataFrame(output)
+    output = output.sort_values(by='gid_id')
+    output.to_csv(path_out, index=False)
+
+    return output
+
 
 def get_regional_shapes():
     """ Load regional shapefiles. """
@@ -138,8 +262,9 @@ def plot_combined_results(regions, countries):
 
 
 if __name__ == "__main__":
+    countries = get_countries()#[:2]
     countries_shps = get_country_outlines()
-    results = collect_results()
+    results = collect_results(countries)
     regions = get_regional_shapes()
     regions = combine_data(results, regions)
     plot_combined_results(regions, countries_shps)

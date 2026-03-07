@@ -26,7 +26,7 @@ def count_cells(country):
 
     This function iterates over all regions at the country’s configured
     administrative level, reads the corresponding unique site layers,
-    and counts the number of cells by radio technology (2G, 3G, 4G, and 5G).
+    and counts the number of cells by radio technology (2G, 3G, 4G).
     The aggregated results are written to a country-level CSV file.
 
     Parameters
@@ -37,7 +37,7 @@ def count_cells(country):
     """
     regional_level = country['gid_region']
     gid_level = 'gid_{}'.format(regional_level) #regional_level
-    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites', gid_level)
+    folder = os.path.join(DATA_PROCESSED, country['iso3'], 'sites_new', gid_level)
 
     regions_df = get_regions(country, regional_level)
 
@@ -68,7 +68,6 @@ def count_cells(country):
         cells_2g = 0
         cells_3g = 0
         cells_4g = 0
-        cells_5g = 0
 
         for row in data:
             
@@ -78,8 +77,6 @@ def count_cells(country):
                 cells_3g += 1
             elif row['radio'] == 'LTE':
                 cells_4g += 1
-            elif row['radio'] == 'NR':
-                cells_5g += 1
 
         output.append({
             "iso3": country['iso3'],
@@ -88,7 +85,6 @@ def count_cells(country):
             "cells_2g": cells_2g,
             "cells_3g": cells_3g,
             "cells_4g": cells_4g,
-            "cells_5g": cells_5g,
         })
         
     if not len(output) > 0:
@@ -97,7 +93,7 @@ def count_cells(country):
     output = pd.DataFrame(output)
 
     filename = "cell_count_unique.csv"
-    folder_out = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
+    folder_out = os.path.join(DATA_PROCESSED, country['iso3'], 'sites_new')
     path_out = os.path.join(folder_out, filename)
     output.to_csv(path_out, index=False)
 
@@ -124,7 +120,7 @@ def collect_cells(countries):
     for country in countries:
 
         filename = "cell_count_unique.csv"
-        folder_in = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
+        folder_in = os.path.join(DATA_PROCESSED, country['iso3'], 'sites_new')
         path_in = os.path.join(folder_in, filename)
 
         if not os.path.exists(path_in):
@@ -142,7 +138,7 @@ def collect_cells(countries):
     output = pd.DataFrame(output)
 
     filename = "cell_count_regional_unique.csv"
-    folder_out = os.path.join(DATA_PROCESSED, 'results', 'sites')
+    folder_out = os.path.join(DATA_PROCESSED, 'results_new', 'sites_new')
     if not os.path.exists(folder_out):
         os.makedirs(folder_out)
     path_out = os.path.join(folder_out, filename)
@@ -153,13 +149,13 @@ if __name__ == "__main__":
 
     countries = get_countries()
 
-    for country in countries:
+    # for country in countries:
         
-        # if not country['iso3'] == 'RWA':
-        #     continue
+    #     # if not country['iso3'] == 'RWA':
+    #     #     continue
         
-        print("Working on {}".format(country['iso3']))
+    #     print("Working on {}".format(country['iso3']))
 
-        count_cells(country)
+    #     count_cells(country)
 
     collect_cells(countries)

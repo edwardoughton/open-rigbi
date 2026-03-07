@@ -1,6 +1,7 @@
 import os
 import sys
 import configparser
+import numpy as np 
 import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -15,7 +16,7 @@ BASE_PATH = CONFIG['file_locations']['base_path']
 
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, '..', 'vis', 'processed')
-VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures')
+VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures_new')
 
 sys.path.insert(1, os.path.join(BASE_PATH, '..','scripts'))
 from misc import get_countries
@@ -38,7 +39,7 @@ def collect_results():
 
     """
     filename = 'inuncoast_rcp85_95_conf_perc.csv'
-    folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data')
+    folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data_new')
     path = os.path.join(folder_out, filename)
 
     if os.path.exists(path):
@@ -47,14 +48,14 @@ def collect_results():
         return output
 
     filename = 'inuncoast_rcp85_regions.csv'
-    folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data')
+    folder_out = os.path.join(BASE_PATH, '..', 'vis', 'data_new')
     if not os.path.exists(folder_out):
         os.mkdir(folder_out)
     path = os.path.join(folder_out, filename)
 
     if not os.path.exists(path):
 
-        folder_in = os.path.join(BASE_PATH, 'processed', 'results', 'regional')
+        folder_in = os.path.join(BASE_PATH, 'processed', 'results_new', 'regional')
 
         all_data = []
 
@@ -87,6 +88,7 @@ def get_regional_shapes():
     if os.path.exists(path):
         return gpd.read_file(path)
     return gpd.GeoDataFrame()
+
 
 def combine_data(results, regions):
     regions['area_km2'] = regions.geometry.to_crs(epsg=6933).area / 1e6

@@ -25,7 +25,7 @@ def collect_regional_results(scenario):
     """
     countries = get_countries()
 
-    folder_out = os.path.join(DATA_PROCESSED, 'results', 'regional')
+    folder_out = os.path.join(DATA_PROCESSED, 'results_new', 'regional')
 
     if not os.path.exists(folder_out):
         os.makedirs(folder_out)
@@ -49,7 +49,7 @@ def collect_regional_results(scenario):
         collect_country_regional_results(country, scenario, regions)
 
         folder_in = os.path.join(DATA_PROCESSED, country['iso3'],
-            'results', 'regional_aggregated')
+            'results_new', 'regional_aggregated')
 
         if not os.path.exists(folder_in):
             # print('folder does not exist: {}'.format(folder_in))
@@ -98,7 +98,7 @@ def collect_country_regional_results(country, scenario, regions):
         coastal_lut = list(coastal_lut['gid_id'])
 
     scenario_name = os.path.basename(scenario).replace('.tif','')#[:-4]
-    folder_in = os.path.join(DATA_PROCESSED, iso3, 'results', 
+    folder_in = os.path.join(DATA_PROCESSED, iso3, 'results_new', 
                             'regional_aggregated', 'regions')
 
     if not os.path.exists(folder_in):
@@ -128,7 +128,7 @@ def collect_country_regional_results(country, scenario, regions):
 
     output = pd.DataFrame(output)
 
-    folder_out = os.path.join(DATA_PROCESSED, iso3, 'results', 'regional_aggregated')
+    folder_out = os.path.join(DATA_PROCESSED, iso3, 'results_new', 'regional_aggregated')
     if not os.path.exists(folder_out):
         print('folder out did not exist')
         os.mkdir(folder_out)
@@ -146,7 +146,7 @@ def collect_final_results(scenario):
     """
     countries = get_countries()
 
-    folder_out = os.path.join(DATA_PROCESSED, 'results')
+    folder_out = os.path.join(DATA_PROCESSED, 'results_new')
     if not os.path.exists(folder_out):
         os.mkdir(folder_out)
 
@@ -155,7 +155,7 @@ def collect_final_results(scenario):
 
     output = []
 
-    folder_in = os.path.join(DATA_PROCESSED, 'results', 'regional')
+    folder_in = os.path.join(DATA_PROCESSED, 'results_new', 'regional')
     filename = os.path.join(scenario_name + '_unique' + '.csv')
     path_in = os.path.join(folder_in, filename)
 
@@ -222,23 +222,23 @@ def collect_final_results(scenario):
 
 if __name__ == "__main__":
 
-    # scenarios = get_scenarios()
-    # for scenario in tqdm(scenarios):
-    #     # print('collecting regional results')
-    #     collect_regional_results(scenario)
-    #     # print('collecting final results')
-    #     collect_final_results(scenario)
-
-    scenarios_tc = get_tropical_storm_scenarios()
-    for scenario_tc in tqdm(scenarios_tc):
-        
-        print(f"----Working on: {scenario_tc}")
-
+    scenarios = get_scenarios()
+    for scenario in tqdm(scenarios):
         # print('collecting regional results')
-        # collect_regional_results(scenario_tc)
+        collect_regional_results(scenario)
+        # print('collecting final results')
+        collect_final_results(scenario)
 
-        print('collecting final results')
-        collect_final_results(scenario_tc)
+    # scenarios_tc = get_tropical_storm_scenarios()
+    # for scenario_tc in tqdm(scenarios_tc):
+        
+    #     print(f"----Working on: {scenario_tc}")
+
+    #     print('collecting regional results')
+    #     collect_regional_results(scenario_tc)
+
+    #     print('collecting final results')
+    #     collect_final_results(scenario_tc)
 
     # args = sys.argv
 
