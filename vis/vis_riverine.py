@@ -22,7 +22,7 @@ from misc import get_countries
 
 def get_country_outlines():
     """ Load or generate country outlines. """
-    path = os.path.join(VIS, '..', 'data', 'simplified_outputs.shp')
+    path = os.path.join(VIS, '..', 'data_new', 'simplified_outputs.shp')
     if os.path.exists(path):
         return gpd.read_file(path, crs='epsg:4326')
     else:
@@ -32,12 +32,6 @@ def get_country_outlines():
         countries.to_file(path)
         return countries
 
-# def collect_results():
-#     """ Load or process flood damage results. """
-#     path = os.path.join(BASE_PATH, '..', 'vis', 'data', 'inunriver_rcp85_mean_results.csv')
-#     if os.path.exists(path):
-#         return pd.read_csv(path)
-#     return pd.DataFrame()
 
 def collect_results(countries):
     """
@@ -165,7 +159,7 @@ def collect_results(countries):
 
 def get_regional_shapes():
     """ Load regional shapefiles. """
-    path = os.path.join(VIS, '..', 'data', 'regions.shp')
+    path = os.path.join(VIS, '..', 'data_new', 'regions.shp')
     if os.path.exists(path):
         return gpd.read_file(path)
     return gpd.GeoDataFrame()

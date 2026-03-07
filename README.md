@@ -11,7 +11,6 @@ Paper citation
 vulnerability assessment of mobile telecommunications infrastructure to 
 climate hazards using crowdsourced open data. https://doi.org/10.48550/arXiv.2311.04392
 
-
 ## Using the code
 
 The recommended approach to using `open-rigbi` is via conda.
@@ -35,8 +34,20 @@ If you add a `python=` argument to either of the two commands above, you can con
 
 The scripts involved can be broadly summarized as follows:
 
-- `dl.py` downloads all necessary scenario hazard data layers.
-- `preprocess.py` preprocesses all boundaries, cell data and flood hazard layers for each country.
+- `cells.py` create unique cell data per country.
 - `coastal_lut.py` generates a lookup table of coastal regions. 
-- `process.py` processes all results. 
+- `collect.py` contains functions to collect summary results. 
+- `countries.py` processes country metadata. 
+- `dl.py` downloads all necessary scenario hazard data layers.
+- `misc.py` contains miscellaneous functions.
+- `preprocess.py` preprocesses all boundaries, cell data and flood hazard layers for each country.
+- `process.py` processes all flooding results. 
+- `tropical_storms.py` processes all tropical storm results. 
+- `validation.py` creates datasets to validate the results. 
 
+Data citation
+--------------
+
+For the main input datasets, these can be accessed by the associated Zenodo repository. 
+
+- Oughton, E. J. 2026. “OpenCelliD Data 2022_12_24.” Zenodo, March 7. https://doi.org/10.5281/zenodo.18904374.
