@@ -27,21 +27,21 @@ def collect(countries, scenarios):
 
     for country in countries:
         
-        #if not country['iso3'] in ['ARG']:
+        # if not country['iso3'] in ['LVA']:
         #    continue
 
         # print("Working on {}".format(country['iso3']))
 
         output = []
 
-        for scenario_path in scenarios:#[:1]:
+        for scenario_path in scenarios:
 
             if '_perc_' in scenario_path:
                 continue
 
             scenario = os.path.basename(scenario_path).replace('.tif','')
 
-            # print('Working on {}'.format(scenario))
+            print('Working on {}'.format(scenario))
 
             country_folder = os.path.join(folder_in, country['iso3'], 'regional', scenario)
 
@@ -176,4 +176,4 @@ if __name__ == "__main__":
 
     collect(countries, scenarios)
 
-    collect_all(countries)
+    # collect_all(countries)
