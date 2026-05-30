@@ -200,10 +200,17 @@ plot1 =
                 position = position_dodge(1),
                 lwd = 0.2,
                 show.legend = FALSE, width=0.1,  color="#FF0000FF") +
-  geom_text(data = data_aggregated, aes(label = paste(round(mean,1),"k")), size = 1.8,
+  geom_text(data = data_aggregated, aes(label = paste(round(mean,1),"k")), size = 1.6,
             position = position_dodge(1), vjust =1.4, hjust =-0.2, angle = 90)+
   theme(legend.position = 'bottom',
-        axis.text.x = element_text(angle=45, hjust=1)) +
+    text = element_text(family = "Arial", size = 6),
+    axis.title = element_text(size = 7),
+    axis.text = element_text(size = 6),
+    strip.text = element_text(size = 6),
+    legend.title = element_text(size = 7),
+    legend.text = element_text(size = 6),
+    axis.text.x = element_text(angle=45, hjust=1)
+  ) +
   labs(colour=NULL,
        # title = "Estimated Coastal Flooding Impact to Mobile Voice/Data Base Stations",
        # subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
@@ -249,10 +256,17 @@ plot2 = ggplot(data_aggregated,
                 position = position_dodge(1),
                 lwd = 0.2,
                 show.legend = FALSE, width=0.1,  color="#FF0000FF") +
-  geom_text(aes(label = paste(round(mean,2),"Bn")), size = 1.8,
+  geom_text(aes(label = paste(round(mean,2),"Bn")), size = 1.6,
             position = position_dodge(1), vjust =1.4, hjust =-.2, angle = 90) +
   theme(legend.position = 'bottom',
-        axis.text.x = element_text(angle=45, hjust=1)) +
+        text = element_text(family = "Arial", size = 6),
+        axis.title = element_text(size = 7),
+        axis.text = element_text(size = 6),
+        strip.text = element_text(size = 6),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 6),
+        axis.text.x = element_text(angle=45, hjust=1)
+  ) +
   labs(colour=NULL,
        # title = "Estimated Coastal Flooding Damage Costs to Cellular Voice/Data Base Stations",
        # subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
@@ -269,6 +283,11 @@ ggarrange(
   plot1,
   plot2,
   labels = c("A", "B"),
+  font.label = list(
+    size = 7,
+    face = "bold",
+    family = "Arial"
+  ),
   common.legend = TRUE,
   legend = 'bottom',
   ncol = 1, nrow = 2)
@@ -278,6 +297,21 @@ fig_dir <- file.path(folder, "figures_new")
 if (!dir.exists(fig_dir)) {dir.create(fig_dir, recursive = TRUE)}
 path = file.path(folder, 'figures_new', 'global_coastal_flooding_impacts.png')
 ggsave(path, units="in", width=8, height=6, dpi=600)
+
+### Export final Nat Comms figure
+fig_dir <- file.path(folder, "figures_final_nat_comms")
+if (!dir.exists(fig_dir)) {
+  dir.create(fig_dir, recursive = TRUE)
+}
+path <- file.path(fig_dir, "global_coastal_flooding_impacts.pdf")
+ggsave(
+  filename = path,
+  device = cairo_pdf,
+  units = "mm",
+  width = 180,
+  height = 135
+)
+
 
 data1$unit = 'cells_vulnerable_thousands'
 data_aggregated$unit = 'costs_usd_billions'
@@ -534,10 +568,19 @@ plot1 = ggplot(inunriver,
                 position = position_dodge(1),
                 lwd = 0.2,
                 show.legend = FALSE, width=0.1,  color="#FF0000FF") +
-  geom_text(aes(label = paste(round(mean,2),"Mn")), size = 1.8,
+  geom_text(aes(label = paste(round(mean,2),"Mn")), size = 1.6,
             position = position_dodge(1), vjust =1.4, hjust=-.2, angle = 90)+
+  # theme(legend.position = 'bottom',
+  #       axis.text.x = element_text(angle=45, hjust=.8)) +
   theme(legend.position = 'bottom',
-        axis.text.x = element_text(angle=45, hjust=.8)) +
+        text = element_text(family = "Arial", size = 6),
+        axis.title = element_text(size = 7),
+        axis.text = element_text(size = 6),
+        strip.text = element_text(size = 6),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 6),
+        axis.text.x = element_text(angle=45, hjust=.8)
+  ) +
   labs(colour=NULL,
        # title = "Estimated Riverine Flooding Impact to Mobile Voice/Data Cells",
        # subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
@@ -599,10 +642,17 @@ plot2 =
                 position = position_dodge(1),
                 lwd = 0.2,
                 show.legend = FALSE, width=0.1,  color="#FF0000FF") +
-  geom_text(aes(label = paste(round(mean,1),"Bn")), size = 1.8,
+  geom_text(aes(label = paste(round(mean,1),"Bn")), size = 1.6,
             position = position_dodge(1), vjust =1.4, hjust=-.2, angle = 90) +
   theme(legend.position = 'bottom',
-        axis.text.x = element_text(angle=45, hjust=1)) +
+        text = element_text(family = "Arial", size = 6),
+        axis.title = element_text(size = 7),
+        axis.text = element_text(size = 6),
+        strip.text = element_text(size = 6),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 6),
+        axis.text.x = element_text(angle=45, hjust=1)
+  ) +
   labs(colour=NULL,
        # title = "Estimated Riverine Flooding Impact to Mobile Voice/Data Base Stations",
        # subtitle = "Reported by Annual Probability, Year, and Climate Scenario.",
@@ -619,6 +669,11 @@ ggarrange(
   plot1,
   plot2,
   labels = c("A", "B"),
+  font.label = list(
+    size = 7,
+    face = "bold",
+    family = "Arial"
+  ),
   common.legend = TRUE,
   legend = 'bottom',
   ncol = 1, nrow = 2)
@@ -626,6 +681,19 @@ ggarrange(
 path = file.path(folder, 'figures_new', 'global_riverine_flooding_impacts.png')
 ggsave(path, units="in", width=8, height=6, dpi=600)
 
+### Export final Nat Comms figure
+fig_dir <- file.path(folder, "figures_final_nat_comms")
+if (!dir.exists(fig_dir)) {
+  dir.create(fig_dir, recursive = TRUE)
+}
+path <- file.path(fig_dir, "global_riverine_flooding_impacts.pdf")
+ggsave(
+  filename = path,
+  device = cairo_pdf,
+  units = "mm",
+  width = 180,
+  height = 135
+)
 
 ########################################################
 ########################################################
@@ -846,10 +914,19 @@ plot1 = ggplot(data,
                 lwd = 0.2,
                 show.legend = FALSE, width=0.05,  color="#FF0000FF") +
   geom_text(data = df_errorbar,
-            aes(label = paste(round(mean, 2),"")), size = 2,#.25,
+            aes(label = paste(round(mean, 2),"")), size = 1.6,#.25,
             vjust =-.7, hjust =-.5, angle = 0) +
+  # theme(legend.position = 'bottom',
+  #       axis.text.x = element_text(angle=0, hjust=.5)) +
   theme(legend.position = 'bottom',
-        axis.text.x = element_text(angle=0, hjust=.5)) +
+        text = element_text(family = "Arial", size = 6),
+        axis.title = element_text(size = 7),
+        axis.text = element_text(size = 6),
+        strip.text = element_text(size = 6),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 6),
+        axis.text.x = element_text(angle=0, hjust=.5)
+  ) +
   labs(colour=NULL,
        # title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Base Stations",
        # subtitle = "Reported by Return Period, Climate Scenario and Continent.",
@@ -1096,12 +1173,21 @@ plot2 = ggplot(data,
                 lwd = 0.2,
                 show.legend = FALSE, width=0.05,  color="#FF0000FF") +
   geom_text(data = df_errorbar,
-            aes(label = paste(round(mean, 2),"")), size = 2,#.25,
+            aes(label = paste(round(mean, 2),"")), size = 1.6,#.25,
             vjust =-.7, hjust =-.5, angle = 0) +
   # geom_text(aes(label = paste(round(mean,2),"Mn")), size = 1.8,
   #           position = position_dodge(1), vjust =.5, hjust =-.5, angle = 90)+
+  # theme(legend.position = 'bottom',
+  #       axis.text.x = element_text(angle=0, hjust=.5)) +
   theme(legend.position = 'bottom',
-        axis.text.x = element_text(angle=0, hjust=.5)) +
+        text = element_text(family = "Arial", size = 6),
+        axis.title = element_text(size = 7),
+        axis.text = element_text(size = 6),
+        strip.text = element_text(size = 6),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 6),
+        axis.text.x = element_text(angle=0, hjust=.5)
+  ) +
   labs(colour=NULL,
        # title = "Estimated Tropical Cylone Impact to Mobile Voice/Data Base Stations",
        # subtitle = "Reported by Return Period, Climate Scenario and Continent.",
@@ -1117,12 +1203,31 @@ ggarrange(
   plot1,
   plot2,
   labels = c("A", "B"),
+  font.label = list(
+    size = 7,
+    face = "bold",
+    family = "Arial"
+  ),
   common.legend = TRUE,
   legend = 'bottom',
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures_new', 'global_tropical_storm_impacts.png')
 ggsave(path, units="in", width=7, height=6, dpi=600)
+
+### Export final Nat Comms figure
+fig_dir <- file.path(folder, "figures_final_nat_comms")
+if (!dir.exists(fig_dir)) {
+  dir.create(fig_dir, recursive = TRUE)
+}
+path <- file.path(fig_dir, "global_tropical_storm_impacts.pdf")
+ggsave(
+  filename = path,
+  device = cairo_pdf,
+  units = "mm",
+  width = 180,
+  height = 135
+)
 
 data1$unit = 'cells_vulnerable_millions'
 data$unit = 'costs_usd_billions'

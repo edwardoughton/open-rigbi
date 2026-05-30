@@ -144,8 +144,17 @@ plot1 =
   #           size = 1.5,
   #           position = position_dodge(1),
   #           vjust =-.5, hjust =.5, angle = 90) +
-  theme(legend.position = '',
-        axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
+  # theme(legend.position = '',
+  #       axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
+  theme(legend.position = 'bottom',
+        text = element_text(family = "Arial", size = 6),
+        axis.title = element_text(size = 7),
+        axis.text = element_text(size = 6),
+        strip.text = element_text(size = 6),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 6),
+        axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=6)
+  ) +
   labs(colour=NULL,
        # title = "Global Sum of Flood Coastal Area by Scenario",
        # subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
@@ -311,7 +320,14 @@ plot2 =
   #           aes(label = paste(round(flooded_area_km2,2),"m")), size = 1.5,
   #           vjust =-.5, hjust =.5, angle = 0) +
   theme(legend.position = 'bottom',
-        axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
+        text = element_text(family = "Arial", size = 6),
+        axis.title = element_text(size = 7),
+        axis.text = element_text(size = 6),
+        strip.text = element_text(size = 6),
+        legend.title = element_text(size = 7),
+        legend.text = element_text(size = 6),
+        axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=6)
+  ) +
   labs(colour=NULL,
        # title = "Global Sum of Flooded Riverine Area by Scenario",
        # subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
@@ -333,6 +349,11 @@ ggarrange(
   # plot3, 
   # plot4, 
   labels = c("A", "B"),
+  font.label = list(
+    size = 7,
+    face = "bold",
+    family = "Arial"
+  ),
   common.legend = TRUE,
   legend = 'bottom',
   ncol = 1, nrow = 2)
@@ -340,4 +361,16 @@ ggarrange(
 path = file.path(folder, 'figures_new', 'hazard_layer_stats_continent_dodged.png')
 ggsave(path, units="in", width=8, height=6, dpi=900)
 
-
+### Export final Nat Comms figure
+fig_dir <- file.path(folder, "figures_final_nat_comms")
+if (!dir.exists(fig_dir)) {
+  dir.create(fig_dir, recursive = TRUE)
+}
+path <- file.path(fig_dir, "hazard_layer_stats_continent_dodged.pdf")
+ggsave(
+  filename = path,
+  device = cairo_pdf,
+  units = "mm",
+  width = 180,
+  height = 135
+)

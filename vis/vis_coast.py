@@ -16,7 +16,7 @@ BASE_PATH = CONFIG['file_locations']['base_path']
 
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, '..', 'vis', 'processed')
-VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures_new')
+VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures_final_nat_comms')
 
 sys.path.insert(1, os.path.join(BASE_PATH, '..','scripts'))
 from misc import get_countries
@@ -101,8 +101,8 @@ def combine_data(results, regions):
 
 
 def plot_combined_results(regions, countries):
-    plt.rcParams['font.family'] = 'Times New Roman'
-    fig, axes = plt.subplots(2, 1, figsize=(10, 8))
+    plt.rcParams['font.family'] = 'Arial'  
+    fig, axes = plt.subplots(2, 1, figsize=(10,8))
     
     metrics = {'cost_per_km2': '(A)', 'cost_usd_baseline_m': '(B)'}
     regions['cost_usd_baseline_m'] = regions['cost_usd_baseline'] / 1e6
@@ -120,7 +120,7 @@ def plot_combined_results(regions, countries):
     zero_color = 'lightgrey'  # Color for 'N/A'
 
     for ax, (metric, title) in zip(axes, metrics.items()):
-        
+
         # **Step 1: Create an explicit mask for "N/A" areas**
         na_mask = regions[metric] == 0
 
@@ -157,11 +157,12 @@ def plot_combined_results(regions, countries):
         norm = mcolors.BoundaryNorm(range(len(ordered_labels) + 1), cmap.N)
 
         # **Step 8: Plot "N/A" regions separately in light gray FIRST**
-        regions[na_mask].plot(ax=ax, color=zero_color, linewidth=0)
+        regions[na_mask].plot(ax=ax, color=zero_color, linewidth=0, rasterized=True)
 
         # **Step 9: Plot main regions (without "N/A" regions)**
         base = regions[~na_mask].plot(column='bin', ax=ax, cmap=cmap, linewidth=0, legend=True,
-                                      categorical=True, legend_kwds={'bbox_to_anchor': (1, 1), 'labelspacing': .95})
+                                      categorical=True, rasterized=True, 
+                                      legend_kwds={'bbox_to_anchor': (1, 1), 'labelspacing': .95})
 
         # **Step 10: Overlay country borders**
         countries.plot(ax=base, facecolor="none", edgecolor='grey', linewidth=0.1)
@@ -172,7 +173,11 @@ def plot_combined_results(regions, countries):
         ax.set_ylim(miny-5, maxy)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(VIS, 'combined_coastal_costs.png'), dpi=300)
+    plt.savefig(
+        os.path.join(VIS, 'combined_coastal_costs.pdf'), 
+        format="pdf",
+        dpi=600,
+        )
     plt.close()
 
 
