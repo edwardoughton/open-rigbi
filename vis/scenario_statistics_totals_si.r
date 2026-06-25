@@ -1,6 +1,9 @@
 ## Visualization script for climate scenarios
 library(tidyverse)
 library(ggpubr)
+# install.packages("systemfonts")
+# install.packages("svglite")
+library(svglite)
 
 ###################
 ##### Coastal flooding
@@ -349,3 +352,12 @@ ggarrange(
 
 path = file.path(folder, 'figures_new', 'hazard_layer_stats_continent.png')
 ggsave(path, units="in", width=8, height=6, dpi=900)
+
+path = file.path(folder, "figures_new", "hazard_layer_stats_continent.svg")
+ggsave(
+  filename = path,
+  device = "svg",
+  units = "in",
+  width = 10,
+  height = 7
+)

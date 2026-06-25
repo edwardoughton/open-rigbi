@@ -11,7 +11,9 @@ import os
 import configparser
 import pandas as pd
 import geopandas as gpd
+import numpy as np
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from shapely.geometry import Point
 import rasterio
 from rasterio.transform import rowcol
@@ -47,20 +49,20 @@ def run_site_processing(country):
         # if not region['GID_2'] == 'USA.1.49_1':
         #     continue
 
-        print('Working on process_flooding_extent_stats')
+        # print('Working on process_flooding_extent_stats')
         process_flooding_extent_stats(country, region, scenarios, regional_level)
 
-        print('Working on query_hazard_layers')
-        query_hazard_layers(country, region, scenarios, regional_level)
+    #     print('Working on query_hazard_layers')
+    #     query_hazard_layers(country, region, scenarios, regional_level)
 
-        print('--Estimating results')
-        estimate_results(country, region, scenarios, regional_level)
+    #     print('--Estimating results')
+    #     estimate_results(country, region, scenarios, regional_level)
 
-        print('--Converting to regional results')
-        convert_to_regional_results(country, region, scenarios, regional_level)
+    #     print('--Converting to regional results')
+    #     convert_to_regional_results(country, region, scenarios, regional_level)
 
 
-    return print('Completed processing')
+    # return print('Completed processing')
 
 
 def process_flooding_extent_stats(country, region, scenarios, regional_level):
@@ -68,97 +70,104 @@ def process_flooding_extent_stats(country, region, scenarios, regional_level):
     Get aggregate statistics on flooding extent by region.
 
     """
-    iso3 = country['iso3']
-    name = country['country']
     gid_level = 'GID_{}'.format(regional_level) #regional_level
     region = region[gid_level]
+    if len(scenarios) == 0:
+        return
 
+    max_workers = min(4, len(scenarios))
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [
+            executor.submit(process_single_flooding_extent_stat, country, region, scenario_path)
+            for scenario_path in scenarios
+        ]
+
+        for future in as_completed(futures):
+            future.result()
+
+    return
+
+
+def process_single_flooding_extent_stat(country, region, scenario_path):
+    """
+    Get aggregate flooding extent statistics for one region/scenario raster.
+
+    """
     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'hazards', 'flooding', 'regional')
 
-    for scenario_path in scenarios:#[:1]:
+    #if not 'inuncoast_rcp8p5_wtsub_2080_rp1000_0' in scenario_path:
+    #    return
 
-        #if not 'inuncoast_rcp8p5_wtsub_2080_rp1000_0' in scenario_path:
-        #    continue
+    filename = os.path.basename(scenario_path).replace('.tif','')
 
-        filename = os.path.basename(scenario_path).replace('.tif','')
+    folder_out = os.path.join(DATA_PROCESSED,'results','validation','country_data',
+        country['iso3'], 'regional', filename)
 
-        folder_out = os.path.join(DATA_PROCESSED,'results','validation','country_data',
-            country['iso3'], 'regional', filename)
+    os.makedirs(folder_out, exist_ok=True)
 
-        if not os.path.exists(folder_out):
-            os.makedirs(folder_out)
+    path_out = os.path.join(folder_out, region + '_' + filename + '.csv')
 
-        path_out = os.path.join(folder_out, region + '_' + filename + '.csv')
+    if os.path.exists(path_out):
+        return
 
-        if os.path.exists(path_out):
-            continue
+    # print('Working on flood extent for {}'.format(filename))
 
-        # print('Working on flood extent for {}'.format(filename))
+    metrics = []
 
-        metrics = []
+    path = os.path.join(folder, region + '_' + filename + '.tif')
 
-        path = os.path.join(folder, region + '_' + filename + '.tif')
+    if not os.path.exists(path):
+        # print('path does not exist: {}'.format(path))
 
-        if not os.path.exists(path):
-            # print('path does not exist: {}'.format(path))
+        return
 
-            continue
-
-        raster = rasterio.open(path)
+    with rasterio.open(path) as raster:
         data = raster.read(1)
 
-        output = []
-        depths = []
+    depths = data[(data >= 0.000001) & (data < 150)]
 
-        for idx, row in enumerate(data):
-            for idx2, i in enumerate(row):
-                if i >= 0.000001 and i < 150:
-                    coords = raster.transform * (idx2, idx)
-                    depths.append(i)
-                else:
-                    continue
+    if 'river' in filename:
+        hazard = filename.split('_')[0]
+        climate_scenario = filename.split('_')[1]
+        model = filename.split('_')[2]
+        year = filename.split('_')[3]
+        return_period = filename.split('_')[4]#[:-4]
+        percentile = '-'
 
-        depths.sort()
+    if 'coast' in filename:
+        hazard = filename.split('_')[0]
+        climate_scenario = filename.split('_')[1]
+        model = filename.split('_')[2]
+        year = filename.split('_')[3]
+        return_period = filename.split('_')[4]
+        remaining_portion = filename.split('_')[5]
+        if remaining_portion == '0':
+            percentile = 0
+        else:
+            percentile = filename.split('_')[7]#[:-4]
 
-        if 'river' in filename:
-            hazard = filename.split('_')[0]
-            climate_scenario = filename.split('_')[1]
-            model = filename.split('_')[2]
-            year = filename.split('_')[3]
-            return_period = filename.split('_')[4]#[:-4]
-            percentile = '-'
+    if len(depths) == 0:
+        return
 
-        if 'coast' in filename:
-            hazard = filename.split('_')[0]
-            climate_scenario = filename.split('_')[1]
-            model = filename.split('_')[2]
-            year = filename.split('_')[3]
-            return_period = filename.split('_')[4]
-            remaining_portion = filename.split('_')[5]
-            if remaining_portion == '0':
-                percentile = 0
-            else:
-                percentile = filename.split('_')[7]#[:-4]
+    median_depth = np.partition(depths, len(depths) // 2)[len(depths) // 2]
 
-        if len(depths) == 0:
-            continue
+    metrics.append({
+        'hazard': hazard,
+        'climate_scenario': climate_scenario,
+        'model': model,
+        'year': year,
+        'return_period': return_period,
+        'percentile': percentile,
+        'min_depth': round(depths.min(),2),
+        'mean_depth': depths.mean(),
+        'median_depth': median_depth,
+        'max_depth': depths.max(),
+        'flooded_area_km2': len(depths),
+    })
 
-        metrics.append({
-            'hazard': hazard,
-            'climate_scenario': climate_scenario,
-            'model': model,
-            'year': year,
-            'return_period': return_period,
-            'percentile': percentile,
-            'min_depth': round(min(depths),2),
-            'mean_depth': sum(depths) / len(depths),
-            'median_depth': depths[len(depths)//2],
-            'max_depth': max(depths),
-            'flooded_area_km2': len(depths),
-        })
-
-        metrics = pd.DataFrame(metrics)
-        metrics.to_csv(path_out, index=False)
+    metrics = pd.DataFrame(metrics)
+    metrics.to_csv(path_out, index=False)
 
     return
 
@@ -539,11 +548,12 @@ if __name__ == "__main__":
         print(f"--Working on {country['country']}")
         run_site_processing(country)
 
-    scenarios = get_scenarios()
-    for scenario in scenarios:
-        collect_regional_results(scenario)
-        collect_final_results(scenario)
+    # scenarios = get_scenarios()
+    # for scenario in scenarios:
+    #     collect_regional_results(scenario)
+    #     collect_final_results(scenario)
 
     end_time = time.time()
     elapsed_time = end_time - start_time
     print(f"Function executed in {elapsed_time:.2f} seconds")
+

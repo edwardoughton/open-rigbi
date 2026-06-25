@@ -772,11 +772,22 @@ if __name__ == "__main__":
         # if not country['iso3'] == 'GBR':
         #    continue
 
-        print(f"-----{country['country']}")#['iso3']
+        # print(f"-----{country['country']}")#['iso3']
 
-        try:
-            run_preprocessing(country['iso3'])
+        # try:
+        #     run_preprocessing(country['iso3'])
 
-        except:
-            failures.append((country['iso3'],country['country']))
-        print(failures)
+        # except:
+        #     failures.append((country['iso3'],country['country']))
+        # print(failures)
+        import shutil
+        path1 = os.path.join(DATA_PROCESSED, country['iso3'], 'results')
+        if os.path.exists(path1):
+            shutil.rmtree(path1)
+            print(f"Successfully deleted: {path1}")
+
+        path2 = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
+        if os.path.exists(path2):
+            shutil.rmtree(path2)
+            print(f"Successfully deleted: {path2}")
+
