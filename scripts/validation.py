@@ -5,6 +5,7 @@ Collect validation results.
 import os
 import configparser
 import pandas as pd
+from tqdm import tqdm
 
 from misc import get_countries, get_scenarios, get_regions, get_tropical_storm_scenarios
 
@@ -25,12 +26,12 @@ def collect(countries, scenarios):
     if not os.path.exists(folder_in):
         os.makedirs(folder_in)
 
-    for country in countries:
+    for country in tqdm(countries[::-1]):
         
         # if not country['iso3'] in ['LVA']:
         #    continue
 
-        # print("Working on {}".format(country['iso3']))
+        print("Working on {}".format(country['iso3']))
 
         output = []
 
@@ -40,8 +41,6 @@ def collect(countries, scenarios):
                 continue
 
             scenario = os.path.basename(scenario_path).replace('.tif','')
-
-            print('Working on {}'.format(scenario))
 
             country_folder = os.path.join(folder_in, country['iso3'], 'regional', scenario)
 
@@ -163,7 +162,7 @@ def collect_all(countries):
 
     output = pd.DataFrame(output)
     folder_out = os.path.join(DATA_PROCESSED, 'results', 'validation')
-    output.to_csv(os.path.join(folder_out,'..','scenario_stats.csv'),index=False)
+    output.to_csv(os.path.join(folder_out,'scenario_stats.csv'),index=False)
 
     return
 
@@ -174,6 +173,6 @@ if __name__ == "__main__":
     scenarios = get_scenarios()
     #scenarios_tropical = get_tropical_storm_scenarios()
 
-    collect(countries, scenarios)
+    # collect(countries, scenarios)
 
-    # collect_all(countries)
+    collect_all(countries)
