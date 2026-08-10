@@ -129,6 +129,7 @@ dmypy.json
 .pyre/
 
 data/processed/*
+data/processed_archives_7z/*
 data/raw/settlement_layer/*
 data/raw/gadm36_levels_shp/*
 data/raw/hazard_scenarios/*
@@ -161,3 +162,5 @@ personal_access_token.txt
 scripts/FloodRisk/data/*
 scripts/data/
 vis/data_new/
+.tools/
+*.7z
