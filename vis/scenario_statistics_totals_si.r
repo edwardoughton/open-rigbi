@@ -235,8 +235,6 @@ data$climate_scenario = factor(data$climate_scenario,
 #     mean_depth = mean(mean_depth, na.rm = TRUE),
 #     flooded_area_km2 = mean(flooded_area_km2, na.rm = TRUE),
 #   )
-# write_csv(test, file.path(folder, 'test.csv'))
-
 data$return_period = factor(data$return_period,
                             levels=c(
                               "rp00100",
@@ -288,8 +286,6 @@ data$interaction = factor(data$interaction,
                             "RCP4.5\n2080",
                             "RCP8.5\n2080"),
 )
-
-#write_csv(data, 'test.csv')
 
 data_continent = data %>%
   group_by(iso3, continent, interaction, probability, climate_scenario) %>%
