@@ -3,9 +3,18 @@ library(tidyverse)
 library(ggpubr)
 library(stringr)
 
+figure_font = if (interactive()) "Arial" else "sans"
+
 ###################
 #####Aggregate cells
-folder = dirname(rstudioapi::getSourceEditorContext()$path)
+script_args = commandArgs(trailingOnly = FALSE)
+script_path = sub("^--file=", "", script_args[grepl("^--file=", script_args)])
+if (length(script_path) > 0) {
+  script_folder = dirname(normalizePath(script_path[1]))
+} else {
+  script_folder = dirname(rstudioapi::getSourceEditorContext()$path)
+}
+folder = script_folder
 data_directory = file.path(folder,'..','data','processed','results_new')
 setwd(data_directory)
 
@@ -155,7 +164,7 @@ data$zero = NULL
 data$perc = NULL
 
 ####
-folder = dirname(rstudioapi::getSourceEditorContext()$path)
+folder = script_folder
 path_in = file.path(folder, '..', 'data','countries.csv')
 countries = read_csv(path_in)
 countries = select(countries, iso3, continent, income_group)
@@ -200,7 +209,7 @@ plot1 =
   geom_text(data = data_aggregated, aes(label = paste(round(mean,1),"k")), size = 1.6,
             position = position_dodge(1), vjust =1.4, hjust =-0.2, angle = 90)+
   theme(legend.position = 'bottom',
-    text = element_text(family = "Arial", size = 6),
+    text = element_text(family = figure_font, size = 6),
     axis.title = element_text(size = 7),
     axis.text = element_text(size = 6),
     strip.text = element_text(size = 6),
@@ -256,7 +265,7 @@ plot2 = ggplot(data_aggregated,
   geom_text(aes(label = paste(round(mean,2),"Bn")), size = 1.6,
             position = position_dodge(1), vjust =1.4, hjust =-.2, angle = 90) +
   theme(legend.position = 'bottom',
-        text = element_text(family = "Arial", size = 6),
+        text = element_text(family = figure_font, size = 6),
         axis.title = element_text(size = 7),
         axis.text = element_text(size = 6),
         strip.text = element_text(size = 6),
@@ -283,7 +292,7 @@ ggarrange(
   font.label = list(
     size = 7,
     face = "bold",
-    family = "Arial"
+    family = figure_font
   ),
   common.legend = TRUE,
   legend = 'bottom',
@@ -293,7 +302,7 @@ ggarrange(
 fig_dir <- file.path(folder, "figures_new")
 if (!dir.exists(fig_dir)) {dir.create(fig_dir, recursive = TRUE)}
 path = file.path(folder, 'figures_new', 'global_coastal_flooding_impacts.png')
-ggsave(path, units="in", width=8, height=6, dpi=600)
+ggsave(path, device=ragg::agg_png, units="in", width=8, height=6, dpi=600)
 
 ### Export final Nat Comms figure
 fig_dir <- file.path(folder, "figures_final_nat_comms")
@@ -331,7 +340,7 @@ write.csv(output, path)
 #####################
 ###################
 #####Aggregate cells
-folder = dirname(rstudioapi::getSourceEditorContext()$path)
+folder = script_folder
 data_directory = file.path(folder,'..','data','processed','results_new')
 setwd(data_directory)
 
@@ -493,13 +502,13 @@ data$subsidence_model = factor(data$subsidence_model,
                                )
 )
 data = select(data, iso3, #country, continent, radio,
-              year, climatescenario, returnperiod,
+              year, climatescenario, subsidence_model, returnperiod,
               probability, cell_count_baseline, cost_usd_baseline)
 # incomplete = data[!complete.cases(data), ]
 data = data[complete.cases(data),]
 
 ####
-folder = dirname(rstudioapi::getSourceEditorContext()$path)
+folder = script_folder
 path_in = file.path(folder, '..', 'data','countries.csv')
 countries = read_csv(path_in)
 countries = select(countries, iso3, continent, income_group)
@@ -520,21 +529,22 @@ aggregated_by_income  = data %>%
 ######################
 
 inunriver = data %>%
-  group_by(iso3, #country, continent, radio,
-           year, climatescenario, returnperiod, probability) %>%
+  group_by(year, climatescenario, returnperiod, probability,
+           subsidence_model) %>%
   summarize(
-    low = min(cell_count_baseline),
-    mean = round(mean(cell_count_baseline),1),
-    high = max(cell_count_baseline)
+    value = sum(cell_count_baseline)
+  ) %>%
+  group_by(year, climatescenario, returnperiod, probability) %>%
+  summarize(
+    low = min(value),
+    mean = mean(value),
+    high = max(value)
   )
 inunriver = inunriver %>% ungroup()
 
-inunriver = select(inunriver, year, climatescenario, returnperiod,
+inunriver = select(inunriver, year, climatescenario,
                    probability, low, mean, high)
 inunriver = gather(inunriver, "key", "value", low, mean, high)
-inunriver = inunriver %>%
-  group_by(year, climatescenario, probability, key) %>%
-  summarize(value = sum(value))
 
 historical_v2 = historical %>%
   group_by(year, climatescenario, probability) %>%
@@ -570,7 +580,7 @@ plot1 = ggplot(inunriver,
   # theme(legend.position = 'bottom',
   #       axis.text.x = element_text(angle=45, hjust=.8)) +
   theme(legend.position = 'bottom',
-        text = element_text(family = "Arial", size = 6),
+        text = element_text(family = figure_font, size = 6),
         axis.title = element_text(size = 7),
         axis.text = element_text(size = 6),
         strip.text = element_text(size = 6),
@@ -593,21 +603,22 @@ plot1 = ggplot(inunriver,
 ####################
 
 inunriver = data %>%
-  group_by(iso3, #country, continent, radio,
-           year, climatescenario, returnperiod, probability) %>%
+  group_by(year, climatescenario, returnperiod, probability,
+           subsidence_model) %>%
   summarize(
-    low = min(cost_usd_baseline),
-    mean = round(mean(cost_usd_baseline),1),
-    high = max(cost_usd_baseline)
+    value = sum(cost_usd_baseline)
+  ) %>%
+  group_by(year, climatescenario, returnperiod, probability) %>%
+  summarize(
+    low = min(value),
+    mean = mean(value),
+    high = max(value)
   )
 inunriver = inunriver %>% ungroup()
 
-inunriver = select(inunriver, year, climatescenario, returnperiod,
+inunriver = select(inunriver, year, climatescenario,
                    probability, low, mean, high)
 inunriver = gather(inunriver, "key", "value", low, mean, high)
-inunriver = inunriver %>%
-  group_by(year, climatescenario, probability, key) %>%
-  summarize(value = sum(value))
 
 historical_v2 = historical %>%
   group_by(year, climatescenario, probability) %>%
@@ -642,7 +653,7 @@ plot2 =
   geom_text(aes(label = paste(round(mean,1),"Bn")), size = 1.6,
             position = position_dodge(1), vjust =1.4, hjust=-.2, angle = 90) +
   theme(legend.position = 'bottom',
-        text = element_text(family = "Arial", size = 6),
+        text = element_text(family = figure_font, size = 6),
         axis.title = element_text(size = 7),
         axis.text = element_text(size = 6),
         strip.text = element_text(size = 6),
@@ -669,14 +680,14 @@ ggarrange(
   font.label = list(
     size = 7,
     face = "bold",
-    family = "Arial"
+    family = figure_font
   ),
   common.legend = TRUE,
   legend = 'bottom',
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures_new', 'global_riverine_flooding_impacts.png')
-ggsave(path, units="in", width=8, height=6, dpi=600)
+ggsave(path, device=ragg::agg_png, units="in", width=8, height=6, dpi=600)
 
 ### Export final Nat Comms figure
 fig_dir <- file.path(folder, "figures_final_nat_comms")
@@ -695,7 +706,7 @@ ggsave(
 ########################################################
 ########################################################
 #####Tropical storms
-folder = dirname(rstudioapi::getSourceEditorContext()$path)
+folder = script_folder
 data_directory = file.path(folder,'..','data','processed','results_new')
 setwd(data_directory)
 
@@ -753,7 +764,7 @@ data$probability[data$rp == 1000] = "0.1%" # (1/1000) * 100 = 1%
 data$probability[data$rp == 10000] = "0.01%" # (1/10000) * 100 = .4%
 
 ###
-folder = dirname(rstudioapi::getSourceEditorContext()$path)
+folder = script_folder
 path_in = file.path(folder, '..', 'data','countries.csv')
 countries = read_csv(path_in)
 countries = select(countries, iso3, continent, income_group)
@@ -816,6 +827,32 @@ data$cell_count_baseline = data$cell_count_baseline/1e6
 
 historical = data[data$model == 'Historical',]
 data = data[data$model != 'Historical',]
+
+df_errorbar <- data %>%
+  group_by(interaction, model) %>%
+  summarize(value = sum(cell_count_baseline), .groups = 'drop') %>%
+  group_by(interaction) %>%
+  summarize(
+    continent = 'Africa',
+    low = min(value),
+    mean = mean(value),
+    high = max(value),
+    .groups = 'drop'
+  )
+
+historical_errorbar <- historical %>%
+  group_by(interaction) %>%
+  summarize(
+    continent = 'Africa',
+    low = NA_real_,
+    mean = sum(cell_count_baseline),
+    high = NA_real_,
+    .groups = 'drop'
+  )
+historical_errorbar$interaction = sub(" 2050$", " Historical",
+                                      historical_errorbar$interaction)
+
+df_errorbar = rbind(df_errorbar, historical_errorbar)
 
 data = data %>%
   group_by(interaction, continent) %>%
@@ -880,26 +917,41 @@ data$interaction = factor(data$interaction,
                             "1%\n2050"#,
                           ),
 )
+df_errorbar$interaction = factor(df_errorbar$interaction,
+                                 levels=c(
+                                   "0.01% Historical",
+                                   "0.01% 2050",
+                                   "0.1% Historical",
+                                   "0.1% 2050",
+                                   "0.2% Historical",
+                                   "0.2% 2050",
+                                   "0.5% Historical",
+                                   "0.5% 2050",
+                                   "1% Historical",
+                                   "1% 2050"
+                                 ),
+                                 labels=c(
+                                   "0.01%\nHistorical",
+                                   "0.01%\n2050",
+                                   "0.1%\nHistorical",
+                                   "0.1%\n2050",
+                                   "0.2%\nHistorical",
+                                   "0.2%\n2050",
+                                   "0.5%\nHistorical",
+                                   "0.5%\n2050",
+                                   "1%\nHistorical",
+                                   "1%\n2050"
+                                 ))
+data = left_join(
+  data,
+  df_errorbar %>%
+    select(interaction, global_low = low, global_mean = mean, global_high = high),
+  by = 'interaction'
+)
 filename = 'tropical_storm_data_figure_3.3.csv'
 path_out = file.path(folder, 'report_data', filename)
 write_csv(data, path_out)
-rm(historical)
-
-df_errorbar <-
-  data |>
-  group_by(continent, interaction) |>
-  summarize(
-    low = sum(low),
-    mean = sum(mean),
-    high = sum(high)
-  ) |>
-  group_by(interaction) |>
-  summarize(
-    continent = 'Africa',
-    low = sum(low),
-    mean = sum(mean),
-    high = sum(high)
-  )
+rm(historical, historical_errorbar)
 
 max_y_value = max(data$mean)
 
@@ -916,7 +968,7 @@ plot1 = ggplot(data,
   # theme(legend.position = 'bottom',
   #       axis.text.x = element_text(angle=0, hjust=.5)) +
   theme(legend.position = 'bottom',
-        text = element_text(family = "Arial", size = 6),
+        text = element_text(family = figure_font, size = 6),
         axis.title = element_text(size = 7),
         axis.text = element_text(size = 6),
         strip.text = element_text(size = 6),
@@ -943,7 +995,7 @@ data1 = data
 ########################################################
 ########################################################
 #####Tropical storms
-folder = dirname(rstudioapi::getSourceEditorContext()$path)
+folder = script_folder
 data_directory = file.path(folder,'..','data','processed','results_new')
 setwd(data_directory)
 
@@ -1000,7 +1052,7 @@ data$probability[data$rp == 1000] = "0.1%" # (1/1000) * 100 = 1%
 data$probability[data$rp == 10000] = "0.01%" # (1/10000) * 100 = .4%
 
 ###
-folder = dirname(rstudioapi::getSourceEditorContext()$path)
+folder = script_folder
 path_in = file.path(folder, '..', 'data','countries.csv')
 countries = read_csv(path_in)
 countries = select(countries, iso3, continent, income_group)
@@ -1063,6 +1115,32 @@ data$cost_usd_baseline = data$cost_usd_baseline/1e9
 
 historical = data[data$model == 'Historical',]
 data = data[data$model != 'Historical',]
+
+df_errorbar <- data %>%
+  group_by(interaction, model) %>%
+  summarize(value = sum(cost_usd_baseline), .groups = 'drop') %>%
+  group_by(interaction) %>%
+  summarize(
+    continent = 'Africa',
+    low = min(value),
+    mean = mean(value),
+    high = max(value),
+    .groups = 'drop'
+  )
+
+historical_errorbar <- historical %>%
+  group_by(interaction) %>%
+  summarize(
+    continent = 'Africa',
+    low = NA_real_,
+    mean = sum(cost_usd_baseline),
+    high = NA_real_,
+    .groups = 'drop'
+  )
+historical_errorbar$interaction = sub(" 2050$", " Historical",
+                                      historical_errorbar$interaction)
+
+df_errorbar = rbind(df_errorbar, historical_errorbar)
 
 data = data %>%
   group_by(interaction, continent) %>%
@@ -1127,11 +1205,42 @@ data$interaction = factor(data$interaction,
                             "1%\n2050"#,
                           ),
 )
+df_errorbar$interaction = factor(df_errorbar$interaction,
+                                 levels=c(
+                                   "0.01% Historical",
+                                   "0.01% 2050",
+                                   "0.1% Historical",
+                                   "0.1% 2050",
+                                   "0.2% Historical",
+                                   "0.2% 2050",
+                                   "0.5% Historical",
+                                   "0.5% 2050",
+                                   "1% Historical",
+                                   "1% 2050"
+                                 ),
+                                 labels=c(
+                                   "0.01%\nHistorical",
+                                   "0.01%\n2050",
+                                   "0.1%\nHistorical",
+                                   "0.1%\n2050",
+                                   "0.2%\nHistorical",
+                                   "0.2%\n2050",
+                                   "0.5%\nHistorical",
+                                   "0.5%\n2050",
+                                   "1%\nHistorical",
+                                   "1%\n2050"
+                                 ))
+data = left_join(
+  data,
+  df_errorbar %>%
+    select(interaction, global_low = low, global_mean = mean, global_high = high),
+  by = 'interaction'
+)
 
 filename = 'tropical_storm_gdp_data_figure_3.3.csv'
 path_out = file.path(folder, 'report_data', filename)
 write_csv(data, path_out)
-rm(historical)
+rm(historical, historical_errorbar)
 
 # test = data %>%
 #   group_by(interaction) %>%
@@ -1143,22 +1252,6 @@ rm(historical)
 # filename = 'cost_by_scenario.csv'
 # path_out = file.path(folder, 'data', filename)
 # write_csv(test, path_out)
-
-df_errorbar <-
-  data |>
-  group_by(continent, interaction) |>
-  summarize(
-    low = sum(low),
-    mean = sum(mean),
-    high = sum(high)
-  ) |>
-  group_by(interaction) |>
-  summarize(
-    continent = 'Africa',
-    low = sum(low),
-    mean = sum(mean),
-    high = sum(high)
-  )
 
 # max_y_value = max(data$mean)
 
@@ -1173,7 +1266,7 @@ plot2 = ggplot(data,
             aes(label = paste(round(mean, 2),"")), size = 1.6,#.25,
             vjust =-.7, hjust =-.5, angle = 0) +
   theme(legend.position = 'bottom',
-        text = element_text(family = "Arial", size = 6),
+        text = element_text(family = figure_font, size = 6),
         axis.title = element_text(size = 7),
         axis.text = element_text(size = 6),
         strip.text = element_text(size = 6),
@@ -1199,14 +1292,14 @@ ggarrange(
   font.label = list(
     size = 7,
     face = "bold",
-    family = "Arial"
+    family = figure_font
   ),
   common.legend = TRUE,
   legend = 'bottom',
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures_new', 'global_tropical_storm_impacts.png')
-ggsave(path, units="in", width=7, height=6, dpi=600)
+ggsave(path, device=ragg::agg_png, units="in", width=7, height=6, dpi=600)
 
 ### Export final Nat Comms figure
 fig_dir <- file.path(folder, "figures_final_nat_comms")
@@ -1225,7 +1318,8 @@ ggsave(
 data1$unit = 'cells_vulnerable_millions'
 data$unit = 'costs_usd_billions'
 output = rbind(data1, data)
-output = select(output, interaction, continent, unit, low, mean, high)
+output = select(output, interaction, continent, unit, low, mean, high,
+                global_low, global_mean, global_high)
 dir.create(file.path(folder, 'report_data'), showWarnings = FALSE)
 filename = 'fig_3.3_tropical_storm_assets_and_costs.csv'
 path = file.path(folder, 'report_data', filename)
