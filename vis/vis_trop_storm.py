@@ -30,40 +30,40 @@ sys.path.insert(1, os.path.join(BASE_PATH, '..','scripts'))
 from misc import get_countries #, get_regions
 
 
-def get_country_outlines():
-    """
-    Get country shapes.
-
-    """
-    path = os.path.join(VIS, '..', 'data_new', 'simplified_outputs.shp')
-
-    if os.path.exists(path):
-
-        countries = gpd.read_file(path, crs='epsg:4326')
-
-        return countries
-
-    else:
-
-        # iso3_codes = []
-
-        # for item in countries:
-        #     iso3_codes.append(item['iso3'])
-
-        path_in = os.path.join(DATA_RAW, 'gadm36_levels_shp', 'gadm36_0.shp')
-        country_shapes = gpd.read_file(path_in, crs='epsg:4326')
-
-        # countries = country_shapes[country_shapes['GID_0'].isin(iso3_codes)]
-
-        countries['geometry'] = countries.apply(remove_small_shapes,axis=1)
-
-        countries['geometry'] = countries['geometry'].simplify(
-            tolerance = 0.005,
-            preserve_topology=True
+def get_country_outlines(cache_path=None, source_path=None):
+    """Load cached country outlines or generate them from the source data."""
+    if cache_path is None:
+        cache_path = os.path.join(
+            VIS, '..', 'data_new', 'simplified_outputs.shp'
         )
 
-        countries.to_file(path, crs='epsg:4326')
+    if os.path.exists(cache_path):
+        return gpd.read_file(cache_path)
 
+    if source_path is None:
+        source_path = os.path.join(
+            DATA_RAW, 'gadm36_levels_shp', 'gadm36_0.shp'
+        )
+
+    if not os.path.exists(source_path):
+        raise FileNotFoundError(
+            'Country boundary source file was not found: {}'.format(source_path)
+        )
+
+    countries = gpd.read_file(source_path)
+    if countries.crs is None:
+        countries = countries.set_crs('EPSG:4326')
+    else:
+        countries = countries.to_crs('EPSG:4326')
+
+    countries['geometry'] = countries.apply(remove_small_shapes, axis=1)
+    countries['geometry'] = countries.geometry.simplify(
+        tolerance=0.005,
+        preserve_topology=True,
+    )
+
+    os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+    countries.to_file(cache_path)
     return countries
 
 
@@ -111,11 +111,13 @@ def remove_small_shapes(x):
         # save remaining polygons as new multipolygon for
         # the specific country
         new_geom = []
-        for y in x.geometry:
+        for y in x.geometry.geoms:
             if y.area > threshold:
                 new_geom.append(y)
 
         return MultiPolygon(new_geom)
+
+    return x.geometry
 
 
 def collect_results(countries):
