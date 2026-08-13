@@ -281,8 +281,6 @@ test2 = test %>%
     # mean_depth = mean(mean_depth, na.rm = TRUE),
     flooded_area_km2 = sum(flooded_area_km2, na.rm = TRUE),
   ) 
-write_csv(test, file.path(folder, 'test.csv'))
-
 data_continent = data %>%
   group_by(iso3, continent, interaction, probability, climate_scenario) %>%
   summarize(

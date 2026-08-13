@@ -143,14 +143,11 @@ data = data[data$probability == "0.1%"  |
 
 data = data[data$subsidence_model != 'nosub', ]
 data$subsidence_model = NULL
-# write_csv(data, file.path(folder, 'test.csv'))
-
 data = data %>%
   # mutate_at(vars(percentile), ~replace_na(., "high"))
   mutate(percentile = replace_na(as.character(percentile), "high"))
 data$percentile = gsub("50", "mean", data$percentile)
 data$percentile = gsub("5", "low", data$percentile)
-write_csv(data, file.path(folder, 'test.csv'))
 
 data$percentile[data$climatescenario == 'Historical'] <- 'mean'
 
@@ -1054,7 +1051,7 @@ data = data %>%
   group_by(continent, model, probability) %>%
   summarize(
     # low = min(cost_usd_baseline),
-    cost_usd_baseline = mean(cost_usd_baseline),
+    cost_usd_baseline = sum(cost_usd_baseline),
     # high = max(cost_usd_baseline)
   )
 
@@ -1175,10 +1172,6 @@ plot2 = ggplot(data,
   geom_text(data = df_errorbar,
             aes(label = paste(round(mean, 2),"")), size = 1.6,#.25,
             vjust =-.7, hjust =-.5, angle = 0) +
-  # geom_text(aes(label = paste(round(mean,2),"Mn")), size = 1.8,
-  #           position = position_dodge(1), vjust =.5, hjust =-.5, angle = 90)+
-  # theme(legend.position = 'bottom',
-  #       axis.text.x = element_text(angle=0, hjust=.5)) +
   theme(legend.position = 'bottom',
         text = element_text(family = "Arial", size = 6),
         axis.title = element_text(size = 7),
@@ -1197,7 +1190,7 @@ plot2 = ggplot(data,
   guides(fill=guide_legend(ncol=7, title='Continent')) +
   scale_fill_viridis_d(direction=-1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, 5.99))
+  scale_y_continuous(expand = c(0, 0), limits=c(0, 64))
 
 ggarrange(
   plot1,
