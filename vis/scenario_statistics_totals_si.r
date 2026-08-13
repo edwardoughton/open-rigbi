@@ -5,10 +5,21 @@ library(ggpubr)
 # install.packages("svglite")
 library(svglite)
 
+get_script_folder <- function() {
+  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
+  if (length(file_arg) > 0) {
+    return(dirname(normalizePath(sub("^--file=", "", file_arg[[1]]))))
+  }
+  if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+    return(dirname(rstudioapi::getSourceEditorContext()$path))
+  }
+  stop("Cannot determine the script directory. Run with Rscript or source from RStudio.")
+}
+
 ###################
 ##### Coastal flooding
-folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder,'..','data','processed','results','validation')
+folder = get_script_folder()
+data_directory = file.path(folder, '..', 'data', 'processed', 'results_new', 'validation')
 setwd(data_directory)
 
 data = read_csv('scenario_stats.csv')
@@ -201,8 +212,7 @@ plot1 =
 
 ###################
 ##### Riverine flooding
-folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder,'..','data','processed','results','validation')
+data_directory = file.path(folder, '..', 'data', 'processed', 'results_new', 'validation')
 setwd(data_directory)
 
 data = read_csv('scenario_stats.csv')
@@ -347,7 +357,8 @@ ggarrange(
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures_new', 'hazard_layer_stats_continent.png')
-ggsave(path, units="in", width=8, height=6, dpi=900)
+dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+ggsave(path, device = ragg::agg_png, units="in", width=8, height=6, dpi=900)
 
 path = file.path(folder, "figures_new", "hazard_layer_stats_continent.svg")
 ggsave(
