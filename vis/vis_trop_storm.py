@@ -300,8 +300,6 @@ def combine_data(results, regions):
     results['GID_id'] = results['gid_id']
     regions = regions.merge(results, how='left', on='GID_id')
     regions['cost_per_km2'] = regions['cost_usd_baseline'] / regions['area_km2']
-    regions['cost_usd_baseline'].fillna(0, inplace=True)
-    regions['cost_per_km2'].fillna(0, inplace=True)
     return regions
 
 
@@ -322,54 +320,63 @@ def plot_combined_results(regions, countries):
         'cost_usd_baseline_m': ['$<2m','$3m','$4m','$5m','$6m','$7m','$8m','$9m','>$9m']#[::-1]
     }
 
-    zero_color = 'lightgrey'  # Color for 'N/A'
+    zero_color = '#dceff1'
+    missing_color = '#c9c9c9'
 
     for ax, (metric, title) in zip(axes, metrics.items()):
         
         print(metric, bins[metric], legend_labels[metric])
         
-        # **Step 1: Create an explicit mask for "N/A" areas**
-        na_mask = regions[metric] == 0
+        # Missing results and explicitly modeled zero damage are distinct.
+        na_mask = regions[metric].isna()
+        zero_mask = regions[metric].eq(0)
 
         # **Step 2: Bin values while ignoring "N/A"**
         regions['bin'] = pd.cut(
-            regions[metric].where(~na_mask),  # Ignore 0 values for binning
+            regions[metric].where(~(na_mask | zero_mask)),
             bins=bins[metric], 
             labels=legend_labels[metric],  
             include_lowest=True
         )
 
         # **Step 3: Reverse order of legend labels**
-        ordered_labels = list(reversed(legend_labels[metric]))  # Reverse the order
-        ordered_labels.append('N/A')  # Add 'N/A' at the bottom
+        ordered_labels = list(reversed(legend_labels[metric]))
+        ordered_labels.extend(['No damage', 'N/A'])
 
         # **Step 4: Convert 'bin' column to categorical with reversed order**
         regions['bin'] = regions['bin'].astype(pd.CategoricalDtype(categories=ordered_labels, ordered=True))
 
-        # **Step 5: Explicitly assign 'N/A' to zero values**
+        # Assign explicit zero damage and missing results separately.
+        regions.loc[zero_mask, 'bin'] = 'No damage'
         regions.loc[na_mask, 'bin'] = 'N/A'
 
         # **Step 6: Create a colormap with 'N/A' explicitly assigned to grey**
-        viridis_colors = plt.get_cmap('viridis', len(ordered_labels) - 1)  
-        custom_colors = {'N/A': zero_color}  # Start with explicit grey for 'N/A'
+        viridis_colors = plt.get_cmap('viridis', len(legend_labels[metric]))
+        custom_colors = {
+            'No damage': zero_color,
+            'N/A': missing_color,
+        }
         
         # Assign viridis colors in reversed order
-        for i, label in enumerate(ordered_labels[:-1]):  # Exclude 'N/A' from viridis mapping
-            custom_colors[label] = viridis_colors(i / (len(ordered_labels) - 2))
+        for i, label in enumerate(ordered_labels[:-2]):
+            custom_colors[label] = viridis_colors(i / (len(legend_labels[metric]) - 1))
 
         # **Step 7: Create colormap, ensuring 'N/A' is explicitly assigned**
         cmap = mcolors.ListedColormap([custom_colors[label] for label in ordered_labels])
 
-        # Normalize color mapping
-        norm = mcolors.BoundaryNorm(range(len(ordered_labels) + 1), cmap.N)
-
         # **Step 8: Plot "N/A" regions separately in light gray FIRST**
-        regions[na_mask].plot(ax=ax, color=zero_color, rasterized=True, linewidth=0)
+        regions[na_mask].plot(ax=ax, color=missing_color, rasterized=True, linewidth=0)
 
         # **Step 9: Plot main regions (without "N/A" regions)**
         base = regions[~na_mask].plot(column='bin', ax=ax, cmap=cmap, linewidth=0, legend=True,
                                       categorical=True, rasterized=True,
-                                      legend_kwds={'bbox_to_anchor': (1, 1), 'labelspacing': .95})
+                                      legend_kwds={
+                                          'bbox_to_anchor': (1, 1),
+                                          'loc': 'upper right',
+                                          'borderaxespad': .5,
+                                          'labelspacing': .7,
+                                          'fontsize': 9,
+                                      })
 
         # **Step 10: Overlay country borders**
         countries.plot(ax=base, facecolor="none", edgecolor='grey', linewidth=0.1)
@@ -381,7 +388,7 @@ def plot_combined_results(regions, countries):
     
     plt.tight_layout()
     plt.savefig(
-        os.path.join(VIS, 'combined_tropical_storm_costs.pdf'), 
+        os.path.join(VIS, 'combined_tropical_storm_costs.pdf'),
         format="pdf",
         dpi=300,
         )
