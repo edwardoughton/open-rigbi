@@ -2,10 +2,23 @@
 library(tidyverse)
 library(ggpubr)
 
+get_script_folder <- function() {
+  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
+  if (length(file_arg) > 0) {
+    return(dirname(normalizePath(sub("^--file=", "", file_arg[[1]]))))
+  }
+  if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+    return(dirname(rstudioapi::getSourceEditorContext()$path))
+  }
+  stop("Cannot determine the script directory. Run with Rscript or source from RStudio.")
+}
+
+figure_font <- if (interactive()) "Arial" else "sans"
+
 ###################
 ##### Coastal flooding
-folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder,'..','data','processed','results','validation')
+folder = get_script_folder()
+data_directory = file.path(folder, '..', 'data', 'processed', 'results_new', 'validation')
 setwd(data_directory)
 
 data = read_csv('scenario_stats.csv')
@@ -147,7 +160,7 @@ plot1 =
   # theme(legend.position = '',
   #       axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
   theme(legend.position = 'bottom',
-        text = element_text(family = "Arial", size = 6),
+        text = element_text(family = figure_font, size = 6),
         axis.title = element_text(size = 7),
         axis.text = element_text(size = 6),
         strip.text = element_text(size = 6),
@@ -170,8 +183,7 @@ plot1 =
 
 ###################
 ##### Riverine flooding
-folder = dirname(rstudioapi::getSourceEditorContext()$path)
-data_directory = file.path(folder,'..','data','processed','results','validation')
+data_directory = file.path(folder, '..', 'data', 'processed', 'results_new', 'validation')
 setwd(data_directory)
 
 data = read_csv('scenario_stats.csv')
@@ -318,7 +330,7 @@ plot2 =
   #           aes(label = paste(round(flooded_area_km2,2),"m")), size = 1.5,
   #           vjust =-.5, hjust =.5, angle = 0) +
   theme(legend.position = 'bottom',
-        text = element_text(family = "Arial", size = 6),
+        text = element_text(family = figure_font, size = 6),
         axis.title = element_text(size = 7),
         axis.text = element_text(size = 6),
         strip.text = element_text(size = 6),
@@ -350,14 +362,15 @@ ggarrange(
   font.label = list(
     size = 7,
     face = "bold",
-    family = "Arial"
+    family = figure_font
   ),
   common.legend = TRUE,
   legend = 'bottom',
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures_new', 'hazard_layer_stats_continent_dodged.png')
-ggsave(path, units="in", width=8, height=6, dpi=900)
+dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+ggsave(path, device = ragg::agg_png, units="in", width=8, height=6, dpi=900)
 
 ### Export final Nat Comms figure
 fig_dir <- file.path(folder, "figures_final_nat_comms")

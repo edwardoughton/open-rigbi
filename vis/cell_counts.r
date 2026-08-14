@@ -2,9 +2,20 @@
 library(tidyverse)
 library(ggpubr)
 
+get_script_folder <- function() {
+  file_arg <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
+  if (length(file_arg) > 0) {
+    return(dirname(normalizePath(sub("^--file=", "", file_arg[[1]]))))
+  }
+  if (requireNamespace("rstudioapi", quietly = TRUE) && rstudioapi::isAvailable()) {
+    return(dirname(rstudioapi::getSourceEditorContext()$path))
+  }
+  stop("Cannot determine the script directory. Run with Rscript or source from RStudio.")
+}
+
 ###################
 ##### Coastal flooding
-folder = dirname(rstudioapi::getSourceEditorContext()$path)
+folder = get_script_folder()
 data_directory = file.path(folder,'..','data','processed','results_new','sites_new')
 setwd(data_directory)
 
@@ -170,4 +181,5 @@ ggarrange(
   ncol = 1, nrow = 2)
 
 path = file.path(folder, 'figures_new', 'cell_counts.png')
-ggsave(path, units="in", width=8, height=7, dpi=600)
+dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
+ggsave(path, device = ragg::agg_png, units="in", width=8, height=7, dpi=600)

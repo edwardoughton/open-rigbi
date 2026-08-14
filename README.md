@@ -11,24 +11,72 @@ Paper citation
 vulnerability assessment of mobile telecommunications infrastructure to 
 climate hazards using crowdsourced open data. https://doi.org/10.48550/arXiv.2311.04392
 
-## Using the code
+## Reproducible environment
 
-The recommended approach to using `open-rigbi` is via conda.
+[`environment.yml`](environment.yml) is the single dependency specification
+for both the Python and R figure scripts. Its `nodefaults` entry restricts the
+solve to `conda-forge`, so NumPy and the compiled geospatial libraries are
+resolved as one compatible stack. From the repository root, create and
+activate the tested environment with:
 
-First, create a conda environment as follows:
+```console
+conda env create --file environment.yml
+conda activate rigbi-env
+```
 
-    conda create --name rigbi-env
+If an older `rigbi-env` already exists, do not update it in place. Remove and
+recreate it so packages from the previous mixed-channel environment cannot be
+retained:
 
-Then activate it:
+```console
+conda deactivate
+conda env remove --name rigbi-env
+conda env create --file environment.yml
+conda activate rigbi-env
+```
 
-    conda activate rigbi-env
+The data paths are configured relative to the repository by
+`scripts/script_config.ini`. Run all commands below from the repository root.
 
-Finally, install the necessary packages, such as `geopandas`:
+## Regenerating publication figures
 
-    conda env update --file environment_linux.yaml # If on Linux
-    conda env update --file environment_windows.yaml # If on Windows
+Figures 1, 3 and 5 (global coastal, riverine and tropical-cyclone impact
+charts) are generated together:
 
-If you add a `python=` argument to either of the two commands above, you can constrain the version of Python that Anaconda uses. By default, this project requires Python 3.9 and that is the version installed by running the env update command.
+```console
+Rscript --vanilla vis/global_aggregate_estimates.R
+```
+
+Figures 2, 4 and 6 (the corresponding spatial cost maps) are generated with:
+
+```console
+python vis/vis_coast.py
+python vis/vis_riverine.py
+python vis/vis_trop_storm.py
+```
+
+The hazard-layer comparison figure is generated with:
+
+```console
+Rscript --vanilla vis/scenario_statistics_totals.r
+```
+
+The supplementary, non-dodged hazard-layer plots are generated with:
+
+```console
+Rscript --vanilla vis/scenario_statistics_totals_si.r
+```
+
+The cell-count descriptive figure first requires the consolidated cell-count
+input. Generate the input and figure with:
+
+```console
+python scripts/cells.py
+Rscript --vanilla vis/cell_counts.r
+```
+
+This last pair requires the per-country processed site layers under
+`data/processed/<ISO3>/sites_new/`.
 
 ## Overview of scripts
 
