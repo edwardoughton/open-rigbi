@@ -26,6 +26,8 @@ DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, '..', 'vis', 'processed')
 VIS = os.path.join(BASE_PATH, '..', 'vis', 'figures_final_nat_comms')
 
+FORCED_NA_ISO3 = {'GRL', 'ISL', 'ESH'}
+
 sys.path.insert(1, os.path.join(BASE_PATH, '..','scripts'))
 from misc import get_countries #, get_regions
 
@@ -301,6 +303,8 @@ def combine_data(results, regions):
     regions['area_km2'] = regions.geometry.to_crs(epsg=6933).area / 1e6
     results['GID_id'] = results['gid_id']
     regions = regions.merge(results, how='left', on='GID_id')
+    country_iso3 = regions['GID_id'].str.split('.', n=1).str[0]
+    regions.loc[country_iso3.isin(FORCED_NA_ISO3), 'cost_usd_baseline'] = pd.NA
     regions['cost_per_km2'] = regions['cost_usd_baseline'] / regions['area_km2']
     return regions
 
@@ -379,6 +383,11 @@ def plot_combined_results(regions, countries):
                                           'labelspacing': .7,
                                           'fontsize': 9,
                                       })
+
+        # These countries have no modeled regional results and must remain N/A.
+        countries[countries['GID_0'].isin(FORCED_NA_ISO3)].plot(
+            ax=base, color=missing_color, linewidth=0, rasterized=True
+        )
 
         # **Step 10: Overlay country borders**
         countries.plot(ax=base, facecolor="none", edgecolor='grey', linewidth=0.1)
