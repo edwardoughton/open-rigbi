@@ -317,6 +317,11 @@ ggsave(
   width = 180,
   height = 135
 )
+path <- file.path(
+  fig_dir,
+  "Figure 1 Estimated coastal flooding impacts to mobile cellular infrastructure.pdf"
+)
+ggsave(filename = path, device = cairo_pdf, units = "mm", width = 180, height = 135)
 
 
 data1$unit = 'cells_vulnerable_thousands'
@@ -702,6 +707,11 @@ ggsave(
   width = 180,
   height = 135
 )
+path <- file.path(
+  fig_dir,
+  "Figure 3 Estimated riverine flooding impacts to mobile cellular infrastructure.pdf"
+)
+ggsave(filename = path, device = cairo_pdf, units = "mm", width = 180, height = 135)
 
 ########################################################
 ########################################################
@@ -955,6 +965,16 @@ rm(historical, historical_errorbar)
 
 max_y_value = max(data$mean)
 
+format_sig_figs <- function(x, digits = 3) {
+  vapply(x, function(value) {
+    if (is.na(value)) return(NA_character_)
+    if (value == 0) return(sprintf("%.*f", digits - 1, value))
+
+    decimal_places <- max(0, digits - floor(log10(abs(value))) - 1)
+    sprintf("%.*f", decimal_places, value)
+  }, character(1))
+}
+
 plot1 = ggplot(data,
                aes(x=interaction, y=mean, fill=continent)) +
   geom_bar(stat="identity", width=0.7) +
@@ -963,7 +983,7 @@ plot1 = ggplot(data,
                 lwd = 0.2,
                 show.legend = FALSE, width=0.05,  color="#FF0000FF") +
   geom_text(data = df_errorbar,
-            aes(label = paste(round(mean, 2),"")), size = 1.6,#.25,
+            aes(label = format_sig_figs(mean)), size = 1.6,#.25,
             vjust =-.7, hjust =-.5, angle = 0) +
   # theme(legend.position = 'bottom',
   #       axis.text.x = element_text(angle=0, hjust=.5)) +
@@ -1263,7 +1283,7 @@ plot2 = ggplot(data,
                 lwd = 0.2,
                 show.legend = FALSE, width=0.05,  color="#FF0000FF") +
   geom_text(data = df_errorbar,
-            aes(label = paste(round(mean, 2),"")), size = 1.6,#.25,
+            aes(label = format_sig_figs(mean)), size = 1.6,#.25,
             vjust =-.7, hjust =-.5, angle = 0) +
   theme(legend.position = 'bottom',
         text = element_text(family = figure_font, size = 6),
@@ -1314,6 +1334,11 @@ ggsave(
   width = 180,
   height = 135
 )
+path <- file.path(
+  fig_dir,
+  "Figure 5 Estimated tropical cyclone impacts to mobile cellular infrastructure.pdf"
+)
+ggsave(filename = path, device = cairo_pdf, units = "mm", width = 180, height = 135)
 
 data1$unit = 'cells_vulnerable_millions'
 data$unit = 'costs_usd_billions'
