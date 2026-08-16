@@ -385,3 +385,17 @@ ggsave(
   width = 180,
   height = 135
 )
+path <- file.path(
+  fig_dir,
+  paste0(
+    "Figure 8 Continental distribution of flooded area under coastal and ",
+    "riverine flooding across climate scenarios and event probabilities.pdf"
+  )
+)
+ggsave(
+  filename = path,
+  device = cairo_pdf,
+  units = "mm",
+  width = 180,
+  height = 135
+)

@@ -119,18 +119,18 @@ def plot_combined_results(regions, countries):
         'cost_usd_baseline_m': ['$<1m', '$2m', '$3m', '$4m', '$5m', '$6m', '$7m', '$8m','>$8m']
     }
 
-    zero_color = '#dceff1'
     missing_color = '#c9c9c9'
 
     for ax, (metric, title) in zip(axes, metrics.items()):
 
-        # Missing results and explicitly modeled zero damage are distinct.
-        na_mask = regions[metric].isna()
-        zero_mask = regions[metric].eq(0)
+        # Missing and non-positive results share the N/A category. Drawing the
+        # complete country layer first also covers countries without regional
+        # result polygons, which would otherwise remain white.
+        na_mask = regions[metric].isna() | regions[metric].le(0)
 
         # **Step 2: Bin values while ignoring "N/A"**
         regions['bin'] = pd.cut(
-            regions[metric].where(~(na_mask | zero_mask)),
+            regions[metric].where(~na_mask),
             bins=bins[metric], 
             labels=legend_labels[metric],  
             include_lowest=True
@@ -138,28 +138,29 @@ def plot_combined_results(regions, countries):
 
         # **Step 3: Reverse order of legend labels**
         ordered_labels = list(reversed(legend_labels[metric]))  # Reverse the order
-        ordered_labels.extend(['No damage', 'N/A'])
+        ordered_labels.append('N/A')
 
         # **Step 4: Convert 'bin' column to categorical with reversed order**
         regions['bin'] = regions['bin'].astype(pd.CategoricalDtype(categories=ordered_labels, ordered=True))
 
-        # Assign explicit zero damage and missing results separately.
-        regions.loc[zero_mask, 'bin'] = 'No damage'
+        # Assign missing and no-damage results to the same grey category.
         regions.loc[na_mask, 'bin'] = 'N/A'
 
         # **Step 6: Create a colormap with 'N/A' explicitly assigned to grey**
         viridis_colors = plt.get_cmap('viridis', len(legend_labels[metric]))
         custom_colors = {
-            'No damage': zero_color,
             'N/A': missing_color,
         }
         
         # Assign viridis colors in reversed order
-        for i, label in enumerate(ordered_labels[:-2]):
+        for i, label in enumerate(ordered_labels[:-1]):
             custom_colors[label] = viridis_colors(i / (len(legend_labels[metric]) - 1))
 
         # **Step 7: Create colormap, ensuring 'N/A' is explicitly assigned**
         cmap = mcolors.ListedColormap([custom_colors[label] for label in ordered_labels])
+
+        # Paint every country grey before overlaying valid positive results.
+        countries.plot(ax=ax, color=missing_color, linewidth=0, rasterized=True)
 
         # **Step 8: Plot "N/A" regions separately in light gray FIRST**
         regions[na_mask].plot(ax=ax, color=missing_color, linewidth=0, rasterized=True)
@@ -189,11 +190,12 @@ def plot_combined_results(regions, countries):
         ax.set_ylim(miny-5, maxy)
 
     plt.tight_layout()
-    plt.savefig(
-        os.path.join(VIS, 'combined_coastal_costs.pdf'), 
-        format="pdf",
-        dpi=600,
-        )
+    output_filenames = [
+        'combined_coastal_costs.pdf',
+        'Figure 2 Global distribution of coastal flooding impacts on mobile cellular infrastructure under a high-emissions climate scenario.pdf',
+    ]
+    for filename in output_filenames:
+        plt.savefig(os.path.join(VIS, filename), format="pdf", dpi=600)
     plt.close()
 
 
