@@ -196,7 +196,9 @@ plot1 =
             # position = position_dodge(1), 
             vjust =0.5, hjust =-0.2, angle = 90) +
   theme(legend.position = '',
-        axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
+        axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7),
+        axis.text.y = element_text(size=7),
+        axis.title.y = element_text(size=8)) +
   labs(colour=NULL,
        # title = "Global Sum of Flooded Coastal Area by Scenario",
        # subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
@@ -207,7 +209,7 @@ plot1 =
   ) +
   scale_fill_viridis_d(direction=-1) +
   scale_x_discrete(expand = c(0, 0.15)) +
-  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value+(max_y_value/4))) +
+  scale_y_continuous(expand = c(0, 0), limits=c(0, max_y_value*1.375)) +
   facet_wrap(~probability, ncol=4, nrow=1)
 
 ###################
@@ -333,7 +335,9 @@ plot2 =
             aes(label = paste(round(flooded_area_km2,1),"m")), size = 2,
             vjust =.5, hjust =-.2, angle = 90) +
   theme(legend.position = 'bottom',
-        axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7)) +
+        axis.text.x = element_text(angle=90, hjust=1, vjust=.5, size=7),
+        axis.text.y = element_text(size=7),
+        axis.title.y = element_text(size=8)) +
   labs(colour=NULL,
        # title = "Global Sum of Flooded Riverine Area by Scenario",
        # subtitle = "Reported by Continent, Annual Probability, Year and Climate Scenario.", 
@@ -344,7 +348,7 @@ plot2 =
   scale_fill_viridis_d(direction=-1) +
   scale_x_discrete(expand = c(0, 0.15)) +
   scale_y_continuous(expand = c(0, 0), 
-                     limits=c(0, max_y_value+(max_y_value/4))) +
+                     limits=c(0, max_y_value*1.375)) +
   facet_wrap(~probability, ncol=4, nrow=1)
 
 
@@ -352,19 +356,22 @@ ggarrange(
   plot1, 
   plot2, 
   labels = c("A", "B"),
+  label.x = 0.015,
+  font.label = list(size = 10, face = "bold"),
   common.legend = TRUE,
   legend = 'bottom',
   ncol = 1, nrow = 2)
 
-path = file.path(folder, 'figures_new', 'hazard_layer_stats_continent.png')
+path = file.path(
+  folder,
+  "figures_final_nat_comms",
+  "Figure S1 Global flood area.pdf"
+)
 dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-ggsave(path, device = ragg::agg_png, units="in", width=8, height=6, dpi=900)
-
-path = file.path(folder, "figures_new", "hazard_layer_stats_continent.svg")
 ggsave(
   filename = path,
-  device = "svg",
-  units = "in",
-  width = 10,
-  height = 7
+  device = cairo_pdf,
+  units = "mm",
+  width = 180,
+  height = 135
 )
