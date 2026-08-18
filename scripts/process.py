@@ -17,6 +17,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from shapely.geometry import Point
 import rasterio
 from rasterio.transform import rowcol
+from pyproj import CRS, Geod
 from tqdm import tqdm
 
 import warnings
@@ -31,6 +32,39 @@ BASE_PATH = CONFIG['file_locations']['base_path']
 
 DATA_RAW = os.path.join(BASE_PATH, 'raw')
 DATA_PROCESSED = os.path.join(BASE_PATH, 'processed')
+
+
+def calculate_flooded_area_km2(flooded_mask, transform, crs):
+    """Calculate the geodesic area of flooded raster cells in square km.
+
+    Flood rasters are stored on a latitude/longitude grid, so their cells are
+    not one square kilometre and become smaller toward the poles.  For a
+    north-up geographic raster, all cells in a row have the same area.
+    """
+    raster_crs = CRS.from_user_input(crs)
+    if not raster_crs.is_geographic:
+        raise ValueError("Flooded-area calculation requires a geographic CRS")
+    if transform.b != 0 or transform.d != 0:
+        raise ValueError("Flooded-area calculation requires a north-up raster")
+
+    geod = Geod(ellps="WGS84")
+    flooded_cells_by_row = flooded_mask.sum(axis=1)
+    flooded_area_m2 = 0.0
+
+    for row, flooded_cell_count in enumerate(flooded_cells_by_row):
+        if flooded_cell_count == 0:
+            continue
+        west = transform.c
+        east = west + transform.a
+        north = transform.f + row * transform.e
+        south = north + transform.e
+        cell_area_m2, _ = geod.polygon_area_perimeter(
+            [west, east, east, west],
+            [north, north, south, south],
+        )
+        flooded_area_m2 += int(flooded_cell_count) * abs(cell_area_m2)
+
+    return flooded_area_m2 / 1e6
 
 
 def run_site_processing(country):
@@ -124,8 +158,11 @@ def process_single_flooding_extent_stat(country, region, scenario_path):
 
     with rasterio.open(path) as raster:
         data = raster.read(1)
+        transform = raster.transform
+        crs = raster.crs
 
-    depths = data[(data >= 0.000001) & (data < 150)]
+    flooded_mask = (data >= 0.000001) & (data < 150)
+    depths = data[flooded_mask]
 
     if 'river' in filename:
         hazard = filename.split('_')[0]
@@ -141,11 +178,11 @@ def process_single_flooding_extent_stat(country, region, scenario_path):
         model = filename.split('_')[2]
         year = filename.split('_')[3]
         return_period = filename.split('_')[4]
-        remaining_portion = filename.split('_')[5]
-        if remaining_portion == '0':
+        filename_parts = filename.split('_')
+        if len(filename_parts) <= 6:
             percentile = 0
         else:
-            percentile = filename.split('_')[7]#[:-4]
+            percentile = filename_parts[-1]
 
     if len(depths) == 0:
         return
@@ -163,7 +200,9 @@ def process_single_flooding_extent_stat(country, region, scenario_path):
         'mean_depth': depths.mean(),
         'median_depth': median_depth,
         'max_depth': depths.max(),
-        'flooded_area_km2': len(depths),
+        'flooded_area_km2': calculate_flooded_area_km2(
+            flooded_mask, transform, crs
+        ),
     })
 
     metrics = pd.DataFrame(metrics)
