@@ -158,7 +158,7 @@ JOR,JO,Jordan,Asia,1,2,0,10269022,UMC,Middle East & North Africa
 AZE,AZ,Azerbaijan,Asia,1,1,0,10145212,UMC,Rest of FSU
 HND,HN,Honduras,North America,1,2,0,10062994,LMC,Central America & Caribbean
 ARE,AE,United Arab Emirates (the),Asia,1,2,0,9991083,HIC,Middle East & North Africa
-TJK,TJ,Tajikistan,Asia,1,2,0,9749625,LIC,Rest of FSU
+TJK,TJ,Tajikistan,Asia,1,2,1,9749625,LIC,Rest of FSU
 HUN,HU,Hungary,Europe,1,2,0,9709886,HIC,Western Europe
 ISR,IL,Israel,Asia,1,1,0,9364000,HIC,Middle East & North Africa
 BLR,BY,Belarus,Europe,2,2,0,9340314,UMC,Rest of FSU
@@ -226,7 +226,7 @@ LVA,LV,Latvia,Europe,1,2,0,1883162,HIC,Western Europe
 BHR,BH,Bahrain,Asia,1,1,0,1748295,HIC,Middle East & North Africa
 GNQ,GQ,Equatorial Guinea,Africa,1,2,0,1449891,UMC,Sub-Saharan Africa
 TTO,TT,Trinidad and Tobago,North America,1,1,0,1403374,HIC,Central America & Caribbean
-TLS,TL,Timor-Leste,Asia,1,2,0,1343875,LMC,Southeast Asia
+TLS,TL,Timor-Leste,Asia,1,2,1,1343875,LMC,Southeast Asia
 EST,EE,Estonia,Europe,1,2,0,1329254,HIC,Western Europe
 MUS,MU,Mauritius,Africa,1,1,0,1266060,HIC,Sub-Saharan Africa
 CYP,CZ,Cyprus,Europe,1,1,0,1215588,HIC,Western Europe

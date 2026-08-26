@@ -82,7 +82,7 @@ def run_site_processing(country):
 
         # if not region['GID_2'] == 'USA.1.49_1':
         #     continue
-
+        # print(region)
         # print('Working on process_flooding_extent_stats')
         process_flooding_extent_stats(country, region, scenarios, regional_level)
 
@@ -130,16 +130,11 @@ def process_single_flooding_extent_stat(country, region, scenario_path):
     """
     folder = os.path.join(DATA_PROCESSED, country['iso3'], 'hazards', 'flooding', 'regional')
 
-    #if not 'inuncoast_rcp8p5_wtsub_2080_rp1000_0' in scenario_path:
-    #    return
-
     filename = os.path.basename(scenario_path).replace('.tif','')
 
-    folder_out = os.path.join(DATA_PROCESSED,'results','validation','country_data',
+    folder_out = os.path.join(DATA_PROCESSED,'results_new','validation','country_data',
         country['iso3'], 'regional', filename)
-
     os.makedirs(folder_out, exist_ok=True)
-
     path_out = os.path.join(folder_out, region + '_' + filename + '.csv')
 
     if os.path.exists(path_out):
@@ -152,8 +147,7 @@ def process_single_flooding_extent_stat(country, region, scenario_path):
     path = os.path.join(folder, region + '_' + filename + '.tif')
 
     if not os.path.exists(path):
-        # print('path does not exist: {}'.format(path))
-
+        # print('path does not exist: {}   '.format(path))
         return
 
     with rasterio.open(path) as raster:
@@ -162,8 +156,6 @@ def process_single_flooding_extent_stat(country, region, scenario_path):
         crs = raster.crs
 
     flooded_mask = (data >= 0.000001) & (data < 150)
-    depths = data[flooded_mask]
-
     if 'river' in filename:
         hazard = filename.split('_')[0]
         climate_scenario = filename.split('_')[1]
@@ -184,10 +176,8 @@ def process_single_flooding_extent_stat(country, region, scenario_path):
         else:
             percentile = filename_parts[-1]
 
-    if len(depths) == 0:
+    if not flooded_mask.any():
         return
-
-    median_depth = np.partition(depths, len(depths) // 2)[len(depths) // 2]
 
     metrics.append({
         'hazard': hazard,
@@ -196,10 +186,6 @@ def process_single_flooding_extent_stat(country, region, scenario_path):
         'year': year,
         'return_period': return_period,
         'percentile': percentile,
-        'min_depth': round(depths.min(),2),
-        'mean_depth': depths.mean(),
-        'median_depth': median_depth,
-        'max_depth': depths.max(),
         'flooded_area_km2': calculate_flooded_area_km2(
             flooded_mask, transform, crs
         ),
@@ -579,18 +565,18 @@ if __name__ == "__main__":
 
     failures = []
 
-    for country in tqdm(countries):
+    for country in tqdm(countries[::-1]):
         
-        # if not country['iso3'] in ['GBR']:
-        #     continue
+        if not country['iso3'] in ['RUS']:
+            continue
 
         print(f"--Working on {country['country']}")
         run_site_processing(country)
 
-    # scenarios = get_scenarios()
-    # for scenario in scenarios:
-    #     collect_regional_results(scenario)
-    #     collect_final_results(scenario)
+    scenarios = get_scenarios()
+    for scenario in scenarios:
+        collect_regional_results(scenario)
+        collect_final_results(scenario)
 
     end_time = time.time()
     elapsed_time = end_time - start_time

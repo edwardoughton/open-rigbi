@@ -21,7 +21,7 @@ def collect(countries, scenarios):
     Collect validation results.
 
     """
-    folder_in = os.path.join(DATA_PROCESSED, 'results', 'validation', 'country_data')
+    folder_in = os.path.join(DATA_PROCESSED, 'results_new', 'validation', 'country_data')
 
     if not os.path.exists(folder_in):
         os.makedirs(folder_in)
@@ -137,7 +137,7 @@ def collect_all(countries):
     Collect all results. 
 
     """
-    folder_in = os.path.join(DATA_PROCESSED, 'results', 'validation', 'country_data')
+    folder_in = os.path.join(DATA_PROCESSED, 'results_new', 'validation', 'country_data')
 
     if not os.path.exists(folder_in):
         os.makedirs(folder_in)
@@ -161,18 +161,15 @@ def collect_all(countries):
         output = output + data
 
     output = pd.DataFrame(output)
-    folder_out = os.path.join(DATA_PROCESSED, 'results', 'validation')
+    folder_out = os.path.join(DATA_PROCESSED, 'results_new', 'validation')
     output.to_csv(os.path.join(folder_out,'scenario_stats.csv'),index=False)
 
     return
 
 
 if __name__ == "__main__":
-
-    countries = get_countries()
-    scenarios = get_scenarios()
-    #scenarios_tropical = get_tropical_storm_scenarios()
-
-    # collect(countries, scenarios)
-
-    collect_all(countries)
+    raise SystemExit(
+        "The legacy regional validation collector is disabled because it can "
+        "restore stale results. Run scripts/finalize_flood_area_validation.py "
+        "to validate and promote the clean national dataset."
+    )

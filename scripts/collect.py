@@ -25,7 +25,7 @@ def collect_regional_results(scenario):
     """
     countries = get_countries()
 
-    folder_out = os.path.join(DATA_PROCESSED, 'results', 'regional')
+    folder_out = os.path.join(DATA_PROCESSED, 'results_new', 'regional')
 
     if not os.path.exists(folder_out):
         os.makedirs(folder_out)
@@ -146,7 +146,7 @@ def collect_final_results(scenario):
     """
     countries = get_countries()
 
-    folder_out = os.path.join(DATA_PROCESSED, 'results')
+    folder_out = os.path.join(DATA_PROCESSED, 'results_new')
     if not os.path.exists(folder_out):
         os.mkdir(folder_out)
 
@@ -155,7 +155,7 @@ def collect_final_results(scenario):
 
     output = []
 
-    folder_in = os.path.join(DATA_PROCESSED, 'results', 'regional')
+    folder_in = os.path.join(DATA_PROCESSED, 'results_new', 'regional')
     filename = os.path.join(scenario_name + '_unique' + '.csv')
     path_in = os.path.join(folder_in, filename)
 
