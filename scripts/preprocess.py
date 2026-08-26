@@ -82,11 +82,14 @@ def run_preprocessing(iso3):
     print(f'Working on process_flooding_layers for {iso3}')
     process_flooding_layers(country)
 
-    # print('Working on process_regional_flooding_layers')
+    print('Working on process_regional_flooding_layers')
     regions = get_regions(country, regional_level)#[:1]#[::-1]
     for region in regions:
+
+        print(region['GID_{}'.format(regional_level)])
         # if not region['GID_2'] == 'IND.2.12_1':
         #     continue
+        
         region = region['GID_{}'.format(regional_level)]
         process_regional_flooding_layers(country, region)
 
@@ -331,7 +334,7 @@ def process_flooding_layers(country):
         if not os.path.exists(folder):
             os.makedirs(folder)
         path_out = os.path.join(folder, filename + '.tif')
-
+        
         if os.path.exists(path_out):
             continue
 
@@ -339,7 +342,7 @@ def process_flooding_layers(country):
 
         if not os.path.exists(folder):
             os.makedirs(folder)
-
+        
         try:
             process_flood_layer(country, path_in, path_out)
         except:
@@ -375,22 +378,25 @@ def process_flood_layer(country, path_in, path_out):
         # print('Must generate national_outline.gpkg first')
         return
 
-    hazard = rasterio.open(path_in, 'r+', BIGTIFF='YES')
-    hazard.nodata = 255
-    hazard.crs.from_epsg(4326)
-
     national_outline = gpd.read_file(path_country)
+    national_outline.geometry = national_outline.geometry.make_valid()
 
-    coords = [national_outline.geometry.iloc[0].__geo_interface__]
-    out_img, out_transform = mask(hazard, coords, crop=True, all_touched=True)
-
-    out_meta = hazard.meta.copy()
+    with rasterio.open(path_in, "r") as hazard:
+        if hazard.crs is None:
+            raise ValueError(f"Flood raster has no CRS: {path_in}")
+        national_outline = national_outline.to_crs(hazard.crs)
+        coords = [national_outline.geometry.union_all().__geo_interface__]
+        out_img, out_transform = mask(
+            hazard, coords, crop=True, all_touched=True, nodata=255
+        )
+        out_meta = hazard.meta.copy()
 
     out_meta.update({"driver": "GTiff",
                     "height": out_img.shape[1],
                     "width": out_img.shape[2],
                     "transform": out_transform,
-                    "crs": 'epsg:4326',
+                    "crs": hazard.crs,
+                    "nodata": 255,
                     "compress": 'lzw'})
 
     with rasterio.open(path_out, "w", **out_meta) as dest:
@@ -432,7 +438,7 @@ def process_regional_flooding_layers(country, region):
     hazard_dir = os.path.join(DATA_PROCESSED, iso3, 'hazards', 'flooding')
     
     for scenario in scenarios:
-
+        
         if 'inuncoast' in scenario and region not in coastal_lut:
             # print('Not a coastal region: {}'.format(region))
             continue
@@ -455,7 +461,7 @@ def process_regional_flooding_layers(country, region):
         try:
             process_regional_flood_layer(country, region, path_in, path_out)
         except:
-        #     # print('{} failed: {}'.format(region, scenario))
+            # print('{} failed: {}'.format(region, scenario))
             continue
 
     return
@@ -769,25 +775,14 @@ if __name__ == "__main__":
     failures = []
     for country in tqdm(countries):
 
-        # if not country['iso3'] == 'GBR':
+        # if not country['iso3'] == 'RUS':
         #    continue
 
-        # print(f"-----{country['country']}")#['iso3']
+        print(f"-----{country['country']}")#['iso3']
 
-        # try:
-        #     run_preprocessing(country['iso3'])
+        try:
+            run_preprocessing(country['iso3'])
 
-        # except:
-        #     failures.append((country['iso3'],country['country']))
-        # print(failures)
-        import shutil
-        path1 = os.path.join(DATA_PROCESSED, country['iso3'], 'results')
-        if os.path.exists(path1):
-            shutil.rmtree(path1)
-            print(f"Successfully deleted: {path1}")
-
-        path2 = os.path.join(DATA_PROCESSED, country['iso3'], 'sites')
-        if os.path.exists(path2):
-            shutil.rmtree(path2)
-            print(f"Successfully deleted: {path2}")
+        except:
+            failures.append((country['iso3'],country['country']))
 
