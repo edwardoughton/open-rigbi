@@ -19,7 +19,10 @@ get_script_folder <- function() {
 ###################
 ##### Coastal flooding
 folder = get_script_folder()
-data_directory = file.path(folder, '..', 'data', 'processed', 'results_new', 'validation')
+data_directory = Sys.getenv(
+  'OPEN_RIGBI_VALIDATION_DIR',
+  unset = file.path(folder, '..', 'data', 'processed', 'results_new', 'validation')
+)
 setwd(data_directory)
 
 data = read_csv('scenario_stats.csv')
@@ -214,7 +217,10 @@ plot1 =
 
 ###################
 ##### Riverine flooding
-data_directory = file.path(folder, '..', 'data', 'processed', 'results_new', 'validation')
+data_directory = Sys.getenv(
+  'OPEN_RIGBI_VALIDATION_DIR',
+  unset = file.path(folder, '..', 'data', 'processed', 'results_new', 'validation')
+)
 setwd(data_directory)
 
 data = read_csv('scenario_stats.csv')

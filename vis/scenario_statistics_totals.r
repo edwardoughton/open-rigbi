@@ -18,7 +18,10 @@ figure_font <- if (interactive()) "Arial" else "sans"
 ###################
 ##### Coastal flooding
 folder = get_script_folder()
-data_directory = file.path(folder, '..', 'data', 'processed', 'results_new', 'validation')
+data_directory = Sys.getenv(
+  'OPEN_RIGBI_VALIDATION_DIR',
+  unset = file.path(folder, '..', 'data', 'processed', 'results_new', 'validation')
+)
 setwd(data_directory)
 
 data = read_csv('scenario_stats.csv')
@@ -183,7 +186,10 @@ plot1 =
 
 ###################
 ##### Riverine flooding
-data_directory = file.path(folder, '..', 'data', 'processed', 'results_new', 'validation')
+data_directory = Sys.getenv(
+  'OPEN_RIGBI_VALIDATION_DIR',
+  unset = file.path(folder, '..', 'data', 'processed', 'results_new', 'validation')
+)
 setwd(data_directory)
 
 data = read_csv('scenario_stats.csv')
@@ -368,23 +374,11 @@ ggarrange(
   legend = 'bottom',
   ncol = 1, nrow = 2)
 
-path = file.path(folder, 'figures_new', 'hazard_layer_stats_continent_dodged.png')
-dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-ggsave(path, device = ragg::agg_png, units="in", width=8, height=6, dpi=900)
-
 ### Export final Nat Comms figure
 fig_dir <- file.path(folder, "figures_final_nat_comms")
 if (!dir.exists(fig_dir)) {
   dir.create(fig_dir, recursive = TRUE)
 }
-path <- file.path(fig_dir, "hazard_layer_stats_continent_dodged.pdf")
-ggsave(
-  filename = path,
-  device = cairo_pdf,
-  units = "mm",
-  width = 180,
-  height = 135
-)
 path <- file.path(
   fig_dir,
   paste0(
