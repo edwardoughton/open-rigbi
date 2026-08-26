@@ -67,7 +67,25 @@ The supplementary, non-dodged hazard-layer plots are generated with:
 Rscript --vanilla vis/scenario_statistics_totals_si.r
 ```
 
-The cell-count descriptive figure first requires the consolidated cell-count
+The clean flood area validation workflow for Figure 8 and Figure S1
+is contained in one script. Recalculate all scenario files and then 
+plot them with:
+
+```console
+python scripts/validation.py calculate
+python scripts/validation.py finalize
+```
+
+To run both stages consecutively, use:
+
+```console
+python scripts/validation.py all
+```
+
+Use `python scripts/validation.py --help` to see the calculation and 
+figure options.
+
+The cell count descriptive figure first requires the consolidated count
 input. Generate the input and figure with:
 
 ```console
@@ -91,7 +109,8 @@ The scripts involved can be broadly summarized as follows:
 - `preprocess.py` preprocesses all boundaries, cell data and flood hazard layers for each country.
 - `process.py` processes all flooding results. 
 - `tropical_storms.py` processes all tropical storm results. 
-- `validation.py` creates datasets to validate the results. 
+- `validation.py` calculates and validates flooded-area results and generates
+  Figure 8 and Figure S1.
 
 Data citation
 --------------
