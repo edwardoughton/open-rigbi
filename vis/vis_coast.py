@@ -190,12 +190,8 @@ def plot_combined_results(regions, countries):
         ax.set_ylim(miny-5, maxy)
 
     plt.tight_layout()
-    output_filenames = [
-        'combined_coastal_costs.pdf',
-        'Figure 2 Global distribution of coastal flooding impacts on mobile cellular infrastructure under a high-emissions climate scenario.pdf',
-    ]
-    for filename in output_filenames:
-        plt.savefig(os.path.join(VIS, filename), format="pdf", dpi=600)
+    filename = 'Figure 2 Global distribution of coastal flooding impacts on mobile cellular infrastructure under a high-emissions climate scenario.pdf'
+    plt.savefig(os.path.join(VIS, filename), format="pdf", dpi=600)
     plt.close()
 
 

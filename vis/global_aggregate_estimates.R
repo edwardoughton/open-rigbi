@@ -309,14 +309,6 @@ fig_dir <- file.path(folder, "figures_final_nat_comms")
 if (!dir.exists(fig_dir)) {
   dir.create(fig_dir, recursive = TRUE)
 }
-path <- file.path(fig_dir, "global_coastal_flooding_impacts.pdf")
-ggsave(
-  filename = path,
-  device = cairo_pdf,
-  units = "mm",
-  width = 180,
-  height = 135
-)
 path <- file.path(
   fig_dir,
   "Figure 1 Estimated coastal flooding impacts to mobile cellular infrastructure.pdf"
@@ -699,14 +691,6 @@ fig_dir <- file.path(folder, "figures_final_nat_comms")
 if (!dir.exists(fig_dir)) {
   dir.create(fig_dir, recursive = TRUE)
 }
-path <- file.path(fig_dir, "global_riverine_flooding_impacts.pdf")
-ggsave(
-  filename = path,
-  device = cairo_pdf,
-  units = "mm",
-  width = 180,
-  height = 135
-)
 path <- file.path(
   fig_dir,
   "Figure 3 Estimated riverine flooding impacts to mobile cellular infrastructure.pdf"
@@ -1326,14 +1310,6 @@ fig_dir <- file.path(folder, "figures_final_nat_comms")
 if (!dir.exists(fig_dir)) {
   dir.create(fig_dir, recursive = TRUE)
 }
-path <- file.path(fig_dir, "global_tropical_storm_impacts.pdf")
-ggsave(
-  filename = path,
-  device = cairo_pdf,
-  units = "mm",
-  width = 180,
-  height = 135
-)
 path <- file.path(
   fig_dir,
   "Figure 5 Estimated tropical cyclone impacts to mobile cellular infrastructure.pdf"
