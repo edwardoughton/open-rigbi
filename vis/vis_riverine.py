@@ -269,12 +269,8 @@ def plot_combined_results(regions, countries):
     
     # fig.suptitle('Flood Damage Costs: Cost per km² & Total Cost')
     plt.tight_layout()
-    output_filenames = [
-        'combined_flood_costs.pdf',
-        'Figure 4 Global distribution of riverine flooding impacts on mobile cellular infrastructure under a high-emissions climate scenario.pdf',
-    ]
-    for filename in output_filenames:
-        plt.savefig(os.path.join(VIS, filename), format="pdf", dpi=300)
+    filename = 'Figure 4 Global distribution of riverine flooding impacts on mobile cellular infrastructure under a high-emissions climate scenario.pdf'
+    plt.savefig(os.path.join(VIS, filename), format="pdf", dpi=300)
     plt.close()
 
 
